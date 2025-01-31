@@ -5,7 +5,7 @@ const { writeFileSync } = require("fs");
 const telescope = require("@cosmology/telescope").default;
 
 const outPath = join(__dirname, "/../src");
-console.log(outPath)
+console.log(outPath);
 telescope({
   protoDirs: [
     "protos/cosmos-sdk/proto",
@@ -13,13 +13,14 @@ telescope({
     "protos/wasmd",
     "protos/ibc-go",
     "protos/omniflixhub",
+    "protos/streampay",
   ],
   outPath: outPath,
   options: {
     logLevel: 0,
     useSDKTypes: false,
     tsDisable: {
-      disableAll: false,
+      disableAll: true,
     },
     eslintDisable: {
       disableAll: true,
@@ -66,12 +67,17 @@ telescope({
       methods: {
         // There are users who need those functions. CosmJS does not need them directly.
         // See https://github.com/cosmos/cosmjs/pull/1329
-        fromJSON: true,
-        toJSON: true,
-        fromAmino: false,
-        toAmino: false,
-        fromProto: false,
-        toProto: false,
+        fromJSON: false,
+        toJSON: false,
+
+        encode: true,
+        decode: true,
+        fromPartial: true,
+
+        fromAmino: true,
+        toAmino: true,
+        fromProto: true,
+        toProto: true,
       },
       typingsFormat: {
         useDeepPartial: true,
@@ -94,9 +100,8 @@ telescope({
       camelCase: false,
       enabledServices: ["Msg", "Query", "Service", "ReflectionService", "ABCIApplication"],
     },
-    aminoEncoding: {
-      enabled: false,
-      useLegacyInlineEncoding: true,
+    aaminoEncoding: {
+      enabled: true,
     },
   },
 }).then(

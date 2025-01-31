@@ -1,7 +1,8 @@
+//@ts-nocheck
 /* eslint-disable */
-import { CapabilityOwners } from "./capability";
+import { CapabilityOwners, CapabilityOwnersAmino } from "./capability";
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../helpers";
+import { DeepPartial, Exact } from "../../../helpers";
 export const protobufPackage = "cosmos.capability.v1beta1";
 /** GenesisOwners defines the capability owners with their corresponding index. */
 export interface GenesisOwners {
@@ -9,6 +10,21 @@ export interface GenesisOwners {
   index: bigint;
   /** index_owners are the owners at the given index. */
   indexOwners: CapabilityOwners;
+}
+export interface GenesisOwnersProtoMsg {
+  typeUrl: "/cosmos.capability.v1beta1.GenesisOwners";
+  value: Uint8Array;
+}
+/** GenesisOwners defines the capability owners with their corresponding index. */
+export interface GenesisOwnersAmino {
+  /** index is the index of the capability owner. */
+  index?: string;
+  /** index_owners are the owners at the given index. */
+  index_owners: CapabilityOwnersAmino;
+}
+export interface GenesisOwnersAminoMsg {
+  type: "cosmos-sdk/GenesisOwners";
+  value: GenesisOwnersAmino;
 }
 /** GenesisState defines the capability module's genesis state. */
 export interface GenesisState {
@@ -19,6 +35,24 @@ export interface GenesisState {
    * index key is string to allow amino marshalling.
    */
   owners: GenesisOwners[];
+}
+export interface GenesisStateProtoMsg {
+  typeUrl: "/cosmos.capability.v1beta1.GenesisState";
+  value: Uint8Array;
+}
+/** GenesisState defines the capability module's genesis state. */
+export interface GenesisStateAmino {
+  /** index is the capability global index. */
+  index?: string;
+  /**
+   * owners represents a map from index to owners of the capability index
+   * index key is string to allow amino marshalling.
+   */
+  owners: GenesisOwnersAmino[];
+}
+export interface GenesisStateAminoMsg {
+  type: "cosmos-sdk/GenesisState";
+  value: GenesisStateAmino;
 }
 function createBaseGenesisOwners(): GenesisOwners {
   return {
@@ -57,19 +91,6 @@ export const GenesisOwners = {
     }
     return message;
   },
-  fromJSON(object: any): GenesisOwners {
-    const obj = createBaseGenesisOwners();
-    if (isSet(object.index)) obj.index = BigInt(object.index.toString());
-    if (isSet(object.indexOwners)) obj.indexOwners = CapabilityOwners.fromJSON(object.indexOwners);
-    return obj;
-  },
-  toJSON(message: GenesisOwners): unknown {
-    const obj: any = {};
-    message.index !== undefined && (obj.index = (message.index || BigInt(0)).toString());
-    message.indexOwners !== undefined &&
-      (obj.indexOwners = message.indexOwners ? CapabilityOwners.toJSON(message.indexOwners) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<GenesisOwners>, I>>(object: I): GenesisOwners {
     const message = createBaseGenesisOwners();
     if (object.index !== undefined && object.index !== null) {
@@ -79,6 +100,45 @@ export const GenesisOwners = {
       message.indexOwners = CapabilityOwners.fromPartial(object.indexOwners);
     }
     return message;
+  },
+  fromAmino(object: GenesisOwnersAmino): GenesisOwners {
+    const message = createBaseGenesisOwners();
+    if (object.index !== undefined && object.index !== null) {
+      message.index = BigInt(object.index);
+    }
+    if (object.index_owners !== undefined && object.index_owners !== null) {
+      message.indexOwners = CapabilityOwners.fromAmino(object.index_owners);
+    }
+    return message;
+  },
+  toAmino(message: GenesisOwners): GenesisOwnersAmino {
+    const obj: any = {};
+    obj.index = message.index !== BigInt(0) ? message.index?.toString() : undefined;
+    obj.index_owners = message.indexOwners
+      ? CapabilityOwners.toAmino(message.indexOwners)
+      : CapabilityOwners.toAmino(CapabilityOwners.fromPartial({}));
+    return obj;
+  },
+  fromAminoMsg(object: GenesisOwnersAminoMsg): GenesisOwners {
+    return GenesisOwners.fromAmino(object.value);
+  },
+  toAminoMsg(message: GenesisOwners): GenesisOwnersAminoMsg {
+    return {
+      type: "cosmos-sdk/GenesisOwners",
+      value: GenesisOwners.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: GenesisOwnersProtoMsg): GenesisOwners {
+    return GenesisOwners.decode(message.value);
+  },
+  toProto(message: GenesisOwners): Uint8Array {
+    return GenesisOwners.encode(message).finish();
+  },
+  toProtoMsg(message: GenesisOwners): GenesisOwnersProtoMsg {
+    return {
+      typeUrl: "/cosmos.capability.v1beta1.GenesisOwners",
+      value: GenesisOwners.encode(message).finish(),
+    };
   },
 };
 function createBaseGenesisState(): GenesisState {
@@ -118,22 +178,6 @@ export const GenesisState = {
     }
     return message;
   },
-  fromJSON(object: any): GenesisState {
-    const obj = createBaseGenesisState();
-    if (isSet(object.index)) obj.index = BigInt(object.index.toString());
-    if (Array.isArray(object?.owners)) obj.owners = object.owners.map((e: any) => GenesisOwners.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: GenesisState): unknown {
-    const obj: any = {};
-    message.index !== undefined && (obj.index = (message.index || BigInt(0)).toString());
-    if (message.owners) {
-      obj.owners = message.owners.map((e) => (e ? GenesisOwners.toJSON(e) : undefined));
-    } else {
-      obj.owners = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<GenesisState>, I>>(object: I): GenesisState {
     const message = createBaseGenesisState();
     if (object.index !== undefined && object.index !== null) {
@@ -141,5 +185,44 @@ export const GenesisState = {
     }
     message.owners = object.owners?.map((e) => GenesisOwners.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: GenesisStateAmino): GenesisState {
+    const message = createBaseGenesisState();
+    if (object.index !== undefined && object.index !== null) {
+      message.index = BigInt(object.index);
+    }
+    message.owners = object.owners?.map((e) => GenesisOwners.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: GenesisState): GenesisStateAmino {
+    const obj: any = {};
+    obj.index = message.index !== BigInt(0) ? message.index?.toString() : undefined;
+    if (message.owners) {
+      obj.owners = message.owners.map((e) => (e ? GenesisOwners.toAmino(e) : undefined));
+    } else {
+      obj.owners = message.owners;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: GenesisStateAminoMsg): GenesisState {
+    return GenesisState.fromAmino(object.value);
+  },
+  toAminoMsg(message: GenesisState): GenesisStateAminoMsg {
+    return {
+      type: "cosmos-sdk/GenesisState",
+      value: GenesisState.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: GenesisStateProtoMsg): GenesisState {
+    return GenesisState.decode(message.value);
+  },
+  toProto(message: GenesisState): Uint8Array {
+    return GenesisState.encode(message).finish();
+  },
+  toProtoMsg(message: GenesisState): GenesisStateProtoMsg {
+    return {
+      typeUrl: "/cosmos.capability.v1beta1.GenesisState",
+      value: GenesisState.encode(message).finish(),
+    };
   },
 };

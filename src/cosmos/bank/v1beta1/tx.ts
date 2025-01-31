@@ -1,8 +1,18 @@
+//@ts-nocheck
 /* eslint-disable */
-import { Coin } from "../../base/v1beta1/coin";
-import { Input, Output, Params, SendEnabled } from "./bank";
+import { Coin, CoinAmino } from "../../base/v1beta1/coin";
+import {
+  Input,
+  InputAmino,
+  Output,
+  OutputAmino,
+  Params,
+  ParamsAmino,
+  SendEnabled,
+  SendEnabledAmino,
+} from "./bank";
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, DeepPartial, Exact, Rpc } from "../../../helpers";
+import { DeepPartial, Exact, Rpc } from "../../../helpers";
 export const protobufPackage = "cosmos.bank.v1beta1";
 /** MsgSend represents a message to send coins from one account to another. */
 export interface MsgSend {
@@ -10,8 +20,32 @@ export interface MsgSend {
   toAddress: string;
   amount: Coin[];
 }
+export interface MsgSendProtoMsg {
+  typeUrl: "/cosmos.bank.v1beta1.MsgSend";
+  value: Uint8Array;
+}
+/** MsgSend represents a message to send coins from one account to another. */
+export interface MsgSendAmino {
+  from_address?: string;
+  to_address?: string;
+  amount: CoinAmino[];
+}
+export interface MsgSendAminoMsg {
+  type: "cosmos-sdk/MsgSend";
+  value: MsgSendAmino;
+}
 /** MsgSendResponse defines the Msg/Send response type. */
 export interface MsgSendResponse {}
+export interface MsgSendResponseProtoMsg {
+  typeUrl: "/cosmos.bank.v1beta1.MsgSendResponse";
+  value: Uint8Array;
+}
+/** MsgSendResponse defines the Msg/Send response type. */
+export interface MsgSendResponseAmino {}
+export interface MsgSendResponseAminoMsg {
+  type: "cosmos-sdk/MsgSendResponse";
+  value: MsgSendResponseAmino;
+}
 /** MsgMultiSend represents an arbitrary multi-in, multi-out send message. */
 export interface MsgMultiSend {
   /**
@@ -21,8 +55,35 @@ export interface MsgMultiSend {
   inputs: Input[];
   outputs: Output[];
 }
+export interface MsgMultiSendProtoMsg {
+  typeUrl: "/cosmos.bank.v1beta1.MsgMultiSend";
+  value: Uint8Array;
+}
+/** MsgMultiSend represents an arbitrary multi-in, multi-out send message. */
+export interface MsgMultiSendAmino {
+  /**
+   * Inputs, despite being `repeated`, only allows one sender input. This is
+   * checked in MsgMultiSend's ValidateBasic.
+   */
+  inputs: InputAmino[];
+  outputs: OutputAmino[];
+}
+export interface MsgMultiSendAminoMsg {
+  type: "cosmos-sdk/MsgMultiSend";
+  value: MsgMultiSendAmino;
+}
 /** MsgMultiSendResponse defines the Msg/MultiSend response type. */
 export interface MsgMultiSendResponse {}
+export interface MsgMultiSendResponseProtoMsg {
+  typeUrl: "/cosmos.bank.v1beta1.MsgMultiSendResponse";
+  value: Uint8Array;
+}
+/** MsgMultiSendResponse defines the Msg/MultiSend response type. */
+export interface MsgMultiSendResponseAmino {}
+export interface MsgMultiSendResponseAminoMsg {
+  type: "cosmos-sdk/MsgMultiSendResponse";
+  value: MsgMultiSendResponseAmino;
+}
 /**
  * MsgUpdateParams is the Msg/UpdateParams request type.
  *
@@ -38,6 +99,29 @@ export interface MsgUpdateParams {
    */
   params: Params;
 }
+export interface MsgUpdateParamsProtoMsg {
+  typeUrl: "/cosmos.bank.v1beta1.MsgUpdateParams";
+  value: Uint8Array;
+}
+/**
+ * MsgUpdateParams is the Msg/UpdateParams request type.
+ *
+ * Since: cosmos-sdk 0.47
+ */
+export interface MsgUpdateParamsAmino {
+  /** authority is the address that controls the module (defaults to x/gov unless overwritten). */
+  authority?: string;
+  /**
+   * params defines the x/bank parameters to update.
+   *
+   * NOTE: All parameters must be supplied.
+   */
+  params: ParamsAmino;
+}
+export interface MsgUpdateParamsAminoMsg {
+  type: "cosmos-sdk/x/bank/MsgUpdateParams";
+  value: MsgUpdateParamsAmino;
+}
 /**
  * MsgUpdateParamsResponse defines the response structure for executing a
  * MsgUpdateParams message.
@@ -45,6 +129,21 @@ export interface MsgUpdateParams {
  * Since: cosmos-sdk 0.47
  */
 export interface MsgUpdateParamsResponse {}
+export interface MsgUpdateParamsResponseProtoMsg {
+  typeUrl: "/cosmos.bank.v1beta1.MsgUpdateParamsResponse";
+  value: Uint8Array;
+}
+/**
+ * MsgUpdateParamsResponse defines the response structure for executing a
+ * MsgUpdateParams message.
+ *
+ * Since: cosmos-sdk 0.47
+ */
+export interface MsgUpdateParamsResponseAmino {}
+export interface MsgUpdateParamsResponseAminoMsg {
+  type: "cosmos-sdk/MsgUpdateParamsResponse";
+  value: MsgUpdateParamsResponseAmino;
+}
 /**
  * MsgSetSendEnabled is the Msg/SetSendEnabled request type.
  *
@@ -66,12 +165,55 @@ export interface MsgSetSendEnabled {
    */
   useDefaultFor: string[];
 }
+export interface MsgSetSendEnabledProtoMsg {
+  typeUrl: "/cosmos.bank.v1beta1.MsgSetSendEnabled";
+  value: Uint8Array;
+}
+/**
+ * MsgSetSendEnabled is the Msg/SetSendEnabled request type.
+ *
+ * Only entries to add/update/delete need to be included.
+ * Existing SendEnabled entries that are not included in this
+ * message are left unchanged.
+ *
+ * Since: cosmos-sdk 0.47
+ */
+export interface MsgSetSendEnabledAmino {
+  authority?: string;
+  /** send_enabled is the list of entries to add or update. */
+  send_enabled?: SendEnabledAmino[];
+  /**
+   * use_default_for is a list of denoms that should use the params.default_send_enabled value.
+   * Denoms listed here will have their SendEnabled entries deleted.
+   * If a denom is included that doesn't have a SendEnabled entry,
+   * it will be ignored.
+   */
+  use_default_for?: string[];
+}
+export interface MsgSetSendEnabledAminoMsg {
+  type: "cosmos-sdk/MsgSetSendEnabled";
+  value: MsgSetSendEnabledAmino;
+}
 /**
  * MsgSetSendEnabledResponse defines the Msg/SetSendEnabled response type.
  *
  * Since: cosmos-sdk 0.47
  */
 export interface MsgSetSendEnabledResponse {}
+export interface MsgSetSendEnabledResponseProtoMsg {
+  typeUrl: "/cosmos.bank.v1beta1.MsgSetSendEnabledResponse";
+  value: Uint8Array;
+}
+/**
+ * MsgSetSendEnabledResponse defines the Msg/SetSendEnabled response type.
+ *
+ * Since: cosmos-sdk 0.47
+ */
+export interface MsgSetSendEnabledResponseAmino {}
+export interface MsgSetSendEnabledResponseAminoMsg {
+  type: "cosmos-sdk/MsgSetSendEnabledResponse";
+  value: MsgSetSendEnabledResponseAmino;
+}
 function createBaseMsgSend(): MsgSend {
   return {
     fromAddress: "",
@@ -116,30 +258,55 @@ export const MsgSend = {
     }
     return message;
   },
-  fromJSON(object: any): MsgSend {
-    const obj = createBaseMsgSend();
-    if (isSet(object.fromAddress)) obj.fromAddress = String(object.fromAddress);
-    if (isSet(object.toAddress)) obj.toAddress = String(object.toAddress);
-    if (Array.isArray(object?.amount)) obj.amount = object.amount.map((e: any) => Coin.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: MsgSend): unknown {
-    const obj: any = {};
-    message.fromAddress !== undefined && (obj.fromAddress = message.fromAddress);
-    message.toAddress !== undefined && (obj.toAddress = message.toAddress);
-    if (message.amount) {
-      obj.amount = message.amount.map((e) => (e ? Coin.toJSON(e) : undefined));
-    } else {
-      obj.amount = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgSend>, I>>(object: I): MsgSend {
     const message = createBaseMsgSend();
     message.fromAddress = object.fromAddress ?? "";
     message.toAddress = object.toAddress ?? "";
     message.amount = object.amount?.map((e) => Coin.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: MsgSendAmino): MsgSend {
+    const message = createBaseMsgSend();
+    if (object.from_address !== undefined && object.from_address !== null) {
+      message.fromAddress = object.from_address;
+    }
+    if (object.to_address !== undefined && object.to_address !== null) {
+      message.toAddress = object.to_address;
+    }
+    message.amount = object.amount?.map((e) => Coin.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: MsgSend): MsgSendAmino {
+    const obj: any = {};
+    obj.from_address = message.fromAddress === "" ? undefined : message.fromAddress;
+    obj.to_address = message.toAddress === "" ? undefined : message.toAddress;
+    if (message.amount) {
+      obj.amount = message.amount.map((e) => (e ? Coin.toAmino(e) : undefined));
+    } else {
+      obj.amount = message.amount;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: MsgSendAminoMsg): MsgSend {
+    return MsgSend.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgSend): MsgSendAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgSend",
+      value: MsgSend.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgSendProtoMsg): MsgSend {
+    return MsgSend.decode(message.value);
+  },
+  toProto(message: MsgSend): Uint8Array {
+    return MsgSend.encode(message).finish();
+  },
+  toProtoMsg(message: MsgSend): MsgSendProtoMsg {
+    return {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+      value: MsgSend.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgSendResponse(): MsgSendResponse {
@@ -164,17 +331,38 @@ export const MsgSendResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgSendResponse {
-    const obj = createBaseMsgSendResponse();
-    return obj;
-  },
-  toJSON(_: MsgSendResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgSendResponse>, I>>(_: I): MsgSendResponse {
     const message = createBaseMsgSendResponse();
     return message;
+  },
+  fromAmino(_: MsgSendResponseAmino): MsgSendResponse {
+    const message = createBaseMsgSendResponse();
+    return message;
+  },
+  toAmino(_: MsgSendResponse): MsgSendResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgSendResponseAminoMsg): MsgSendResponse {
+    return MsgSendResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgSendResponse): MsgSendResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgSendResponse",
+      value: MsgSendResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgSendResponseProtoMsg): MsgSendResponse {
+    return MsgSendResponse.decode(message.value);
+  },
+  toProto(message: MsgSendResponse): Uint8Array {
+    return MsgSendResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgSendResponse): MsgSendResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSendResponse",
+      value: MsgSendResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgMultiSend(): MsgMultiSend {
@@ -214,31 +402,52 @@ export const MsgMultiSend = {
     }
     return message;
   },
-  fromJSON(object: any): MsgMultiSend {
-    const obj = createBaseMsgMultiSend();
-    if (Array.isArray(object?.inputs)) obj.inputs = object.inputs.map((e: any) => Input.fromJSON(e));
-    if (Array.isArray(object?.outputs)) obj.outputs = object.outputs.map((e: any) => Output.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: MsgMultiSend): unknown {
-    const obj: any = {};
-    if (message.inputs) {
-      obj.inputs = message.inputs.map((e) => (e ? Input.toJSON(e) : undefined));
-    } else {
-      obj.inputs = [];
-    }
-    if (message.outputs) {
-      obj.outputs = message.outputs.map((e) => (e ? Output.toJSON(e) : undefined));
-    } else {
-      obj.outputs = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgMultiSend>, I>>(object: I): MsgMultiSend {
     const message = createBaseMsgMultiSend();
     message.inputs = object.inputs?.map((e) => Input.fromPartial(e)) || [];
     message.outputs = object.outputs?.map((e) => Output.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: MsgMultiSendAmino): MsgMultiSend {
+    const message = createBaseMsgMultiSend();
+    message.inputs = object.inputs?.map((e) => Input.fromAmino(e)) || [];
+    message.outputs = object.outputs?.map((e) => Output.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: MsgMultiSend): MsgMultiSendAmino {
+    const obj: any = {};
+    if (message.inputs) {
+      obj.inputs = message.inputs.map((e) => (e ? Input.toAmino(e) : undefined));
+    } else {
+      obj.inputs = message.inputs;
+    }
+    if (message.outputs) {
+      obj.outputs = message.outputs.map((e) => (e ? Output.toAmino(e) : undefined));
+    } else {
+      obj.outputs = message.outputs;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: MsgMultiSendAminoMsg): MsgMultiSend {
+    return MsgMultiSend.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgMultiSend): MsgMultiSendAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgMultiSend",
+      value: MsgMultiSend.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgMultiSendProtoMsg): MsgMultiSend {
+    return MsgMultiSend.decode(message.value);
+  },
+  toProto(message: MsgMultiSend): Uint8Array {
+    return MsgMultiSend.encode(message).finish();
+  },
+  toProtoMsg(message: MsgMultiSend): MsgMultiSendProtoMsg {
+    return {
+      typeUrl: "/cosmos.bank.v1beta1.MsgMultiSend",
+      value: MsgMultiSend.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgMultiSendResponse(): MsgMultiSendResponse {
@@ -263,17 +472,38 @@ export const MsgMultiSendResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgMultiSendResponse {
-    const obj = createBaseMsgMultiSendResponse();
-    return obj;
-  },
-  toJSON(_: MsgMultiSendResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgMultiSendResponse>, I>>(_: I): MsgMultiSendResponse {
     const message = createBaseMsgMultiSendResponse();
     return message;
+  },
+  fromAmino(_: MsgMultiSendResponseAmino): MsgMultiSendResponse {
+    const message = createBaseMsgMultiSendResponse();
+    return message;
+  },
+  toAmino(_: MsgMultiSendResponse): MsgMultiSendResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgMultiSendResponseAminoMsg): MsgMultiSendResponse {
+    return MsgMultiSendResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgMultiSendResponse): MsgMultiSendResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgMultiSendResponse",
+      value: MsgMultiSendResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgMultiSendResponseProtoMsg): MsgMultiSendResponse {
+    return MsgMultiSendResponse.decode(message.value);
+  },
+  toProto(message: MsgMultiSendResponse): Uint8Array {
+    return MsgMultiSendResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgMultiSendResponse): MsgMultiSendResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.bank.v1beta1.MsgMultiSendResponse",
+      value: MsgMultiSendResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgUpdateParams(): MsgUpdateParams {
@@ -313,18 +543,6 @@ export const MsgUpdateParams = {
     }
     return message;
   },
-  fromJSON(object: any): MsgUpdateParams {
-    const obj = createBaseMsgUpdateParams();
-    if (isSet(object.authority)) obj.authority = String(object.authority);
-    if (isSet(object.params)) obj.params = Params.fromJSON(object.params);
-    return obj;
-  },
-  toJSON(message: MsgUpdateParams): unknown {
-    const obj: any = {};
-    message.authority !== undefined && (obj.authority = message.authority);
-    message.params !== undefined && (obj.params = message.params ? Params.toJSON(message.params) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgUpdateParams>, I>>(object: I): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -332,6 +550,43 @@ export const MsgUpdateParams = {
       message.params = Params.fromPartial(object.params);
     }
     return message;
+  },
+  fromAmino(object: MsgUpdateParamsAmino): MsgUpdateParams {
+    const message = createBaseMsgUpdateParams();
+    if (object.authority !== undefined && object.authority !== null) {
+      message.authority = object.authority;
+    }
+    if (object.params !== undefined && object.params !== null) {
+      message.params = Params.fromAmino(object.params);
+    }
+    return message;
+  },
+  toAmino(message: MsgUpdateParams): MsgUpdateParamsAmino {
+    const obj: any = {};
+    obj.authority = message.authority === "" ? undefined : message.authority;
+    obj.params = message.params ? Params.toAmino(message.params) : Params.toAmino(Params.fromPartial({}));
+    return obj;
+  },
+  fromAminoMsg(object: MsgUpdateParamsAminoMsg): MsgUpdateParams {
+    return MsgUpdateParams.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgUpdateParams): MsgUpdateParamsAminoMsg {
+    return {
+      type: "cosmos-sdk/x/bank/MsgUpdateParams",
+      value: MsgUpdateParams.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgUpdateParamsProtoMsg): MsgUpdateParams {
+    return MsgUpdateParams.decode(message.value);
+  },
+  toProto(message: MsgUpdateParams): Uint8Array {
+    return MsgUpdateParams.encode(message).finish();
+  },
+  toProtoMsg(message: MsgUpdateParams): MsgUpdateParamsProtoMsg {
+    return {
+      typeUrl: "/cosmos.bank.v1beta1.MsgUpdateParams",
+      value: MsgUpdateParams.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgUpdateParamsResponse(): MsgUpdateParamsResponse {
@@ -356,17 +611,38 @@ export const MsgUpdateParamsResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgUpdateParamsResponse {
-    const obj = createBaseMsgUpdateParamsResponse();
-    return obj;
-  },
-  toJSON(_: MsgUpdateParamsResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgUpdateParamsResponse>, I>>(_: I): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();
     return message;
+  },
+  fromAmino(_: MsgUpdateParamsResponseAmino): MsgUpdateParamsResponse {
+    const message = createBaseMsgUpdateParamsResponse();
+    return message;
+  },
+  toAmino(_: MsgUpdateParamsResponse): MsgUpdateParamsResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgUpdateParamsResponseAminoMsg): MsgUpdateParamsResponse {
+    return MsgUpdateParamsResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgUpdateParamsResponse): MsgUpdateParamsResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgUpdateParamsResponse",
+      value: MsgUpdateParamsResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgUpdateParamsResponseProtoMsg): MsgUpdateParamsResponse {
+    return MsgUpdateParamsResponse.decode(message.value);
+  },
+  toProto(message: MsgUpdateParamsResponse): Uint8Array {
+    return MsgUpdateParamsResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgUpdateParamsResponse): MsgUpdateParamsResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.bank.v1beta1.MsgUpdateParamsResponse",
+      value: MsgUpdateParamsResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgSetSendEnabled(): MsgSetSendEnabled {
@@ -413,36 +689,57 @@ export const MsgSetSendEnabled = {
     }
     return message;
   },
-  fromJSON(object: any): MsgSetSendEnabled {
-    const obj = createBaseMsgSetSendEnabled();
-    if (isSet(object.authority)) obj.authority = String(object.authority);
-    if (Array.isArray(object?.sendEnabled))
-      obj.sendEnabled = object.sendEnabled.map((e: any) => SendEnabled.fromJSON(e));
-    if (Array.isArray(object?.useDefaultFor))
-      obj.useDefaultFor = object.useDefaultFor.map((e: any) => String(e));
-    return obj;
-  },
-  toJSON(message: MsgSetSendEnabled): unknown {
-    const obj: any = {};
-    message.authority !== undefined && (obj.authority = message.authority);
-    if (message.sendEnabled) {
-      obj.sendEnabled = message.sendEnabled.map((e) => (e ? SendEnabled.toJSON(e) : undefined));
-    } else {
-      obj.sendEnabled = [];
-    }
-    if (message.useDefaultFor) {
-      obj.useDefaultFor = message.useDefaultFor.map((e) => e);
-    } else {
-      obj.useDefaultFor = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgSetSendEnabled>, I>>(object: I): MsgSetSendEnabled {
     const message = createBaseMsgSetSendEnabled();
     message.authority = object.authority ?? "";
     message.sendEnabled = object.sendEnabled?.map((e) => SendEnabled.fromPartial(e)) || [];
     message.useDefaultFor = object.useDefaultFor?.map((e) => e) || [];
     return message;
+  },
+  fromAmino(object: MsgSetSendEnabledAmino): MsgSetSendEnabled {
+    const message = createBaseMsgSetSendEnabled();
+    if (object.authority !== undefined && object.authority !== null) {
+      message.authority = object.authority;
+    }
+    message.sendEnabled = object.send_enabled?.map((e) => SendEnabled.fromAmino(e)) || [];
+    message.useDefaultFor = object.use_default_for?.map((e) => e) || [];
+    return message;
+  },
+  toAmino(message: MsgSetSendEnabled): MsgSetSendEnabledAmino {
+    const obj: any = {};
+    obj.authority = message.authority === "" ? undefined : message.authority;
+    if (message.sendEnabled) {
+      obj.send_enabled = message.sendEnabled.map((e) => (e ? SendEnabled.toAmino(e) : undefined));
+    } else {
+      obj.send_enabled = message.sendEnabled;
+    }
+    if (message.useDefaultFor) {
+      obj.use_default_for = message.useDefaultFor.map((e) => e);
+    } else {
+      obj.use_default_for = message.useDefaultFor;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: MsgSetSendEnabledAminoMsg): MsgSetSendEnabled {
+    return MsgSetSendEnabled.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgSetSendEnabled): MsgSetSendEnabledAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgSetSendEnabled",
+      value: MsgSetSendEnabled.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgSetSendEnabledProtoMsg): MsgSetSendEnabled {
+    return MsgSetSendEnabled.decode(message.value);
+  },
+  toProto(message: MsgSetSendEnabled): Uint8Array {
+    return MsgSetSendEnabled.encode(message).finish();
+  },
+  toProtoMsg(message: MsgSetSendEnabled): MsgSetSendEnabledProtoMsg {
+    return {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSetSendEnabled",
+      value: MsgSetSendEnabled.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgSetSendEnabledResponse(): MsgSetSendEnabledResponse {
@@ -467,17 +764,38 @@ export const MsgSetSendEnabledResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgSetSendEnabledResponse {
-    const obj = createBaseMsgSetSendEnabledResponse();
-    return obj;
-  },
-  toJSON(_: MsgSetSendEnabledResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgSetSendEnabledResponse>, I>>(_: I): MsgSetSendEnabledResponse {
     const message = createBaseMsgSetSendEnabledResponse();
     return message;
+  },
+  fromAmino(_: MsgSetSendEnabledResponseAmino): MsgSetSendEnabledResponse {
+    const message = createBaseMsgSetSendEnabledResponse();
+    return message;
+  },
+  toAmino(_: MsgSetSendEnabledResponse): MsgSetSendEnabledResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgSetSendEnabledResponseAminoMsg): MsgSetSendEnabledResponse {
+    return MsgSetSendEnabledResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgSetSendEnabledResponse): MsgSetSendEnabledResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgSetSendEnabledResponse",
+      value: MsgSetSendEnabledResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgSetSendEnabledResponseProtoMsg): MsgSetSendEnabledResponse {
+    return MsgSetSendEnabledResponse.decode(message.value);
+  },
+  toProto(message: MsgSetSendEnabledResponse): Uint8Array {
+    return MsgSetSendEnabledResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgSetSendEnabledResponse): MsgSetSendEnabledResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.bank.v1beta1.MsgSetSendEnabledResponse",
+      value: MsgSetSendEnabledResponse.encode(message).finish(),
+    };
   },
 };
 /** Msg defines the bank Msg service. */

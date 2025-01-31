@@ -1,14 +1,38 @@
+//@ts-nocheck
 /* eslint-disable */
-import { FileDescriptorProto } from "../../../google/protobuf/descriptor";
+import { FileDescriptorProto, FileDescriptorProtoAmino } from "../../../google/protobuf/descriptor";
 import { BinaryReader, BinaryWriter } from "../../../binary";
 import { DeepPartial, Exact, Rpc } from "../../../helpers";
 export const protobufPackage = "cosmos.reflection.v1";
 /** FileDescriptorsRequest is the Query/FileDescriptors request type. */
 export interface FileDescriptorsRequest {}
+export interface FileDescriptorsRequestProtoMsg {
+  typeUrl: "/cosmos.reflection.v1.FileDescriptorsRequest";
+  value: Uint8Array;
+}
+/** FileDescriptorsRequest is the Query/FileDescriptors request type. */
+export interface FileDescriptorsRequestAmino {}
+export interface FileDescriptorsRequestAminoMsg {
+  type: "cosmos-sdk/FileDescriptorsRequest";
+  value: FileDescriptorsRequestAmino;
+}
 /** FileDescriptorsResponse is the Query/FileDescriptors response type. */
 export interface FileDescriptorsResponse {
   /** files is the file descriptors. */
   files: FileDescriptorProto[];
+}
+export interface FileDescriptorsResponseProtoMsg {
+  typeUrl: "/cosmos.reflection.v1.FileDescriptorsResponse";
+  value: Uint8Array;
+}
+/** FileDescriptorsResponse is the Query/FileDescriptors response type. */
+export interface FileDescriptorsResponseAmino {
+  /** files is the file descriptors. */
+  files?: FileDescriptorProtoAmino[];
+}
+export interface FileDescriptorsResponseAminoMsg {
+  type: "cosmos-sdk/FileDescriptorsResponse";
+  value: FileDescriptorsResponseAmino;
 }
 function createBaseFileDescriptorsRequest(): FileDescriptorsRequest {
   return {};
@@ -32,17 +56,38 @@ export const FileDescriptorsRequest = {
     }
     return message;
   },
-  fromJSON(_: any): FileDescriptorsRequest {
-    const obj = createBaseFileDescriptorsRequest();
-    return obj;
-  },
-  toJSON(_: FileDescriptorsRequest): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<FileDescriptorsRequest>, I>>(_: I): FileDescriptorsRequest {
     const message = createBaseFileDescriptorsRequest();
     return message;
+  },
+  fromAmino(_: FileDescriptorsRequestAmino): FileDescriptorsRequest {
+    const message = createBaseFileDescriptorsRequest();
+    return message;
+  },
+  toAmino(_: FileDescriptorsRequest): FileDescriptorsRequestAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: FileDescriptorsRequestAminoMsg): FileDescriptorsRequest {
+    return FileDescriptorsRequest.fromAmino(object.value);
+  },
+  toAminoMsg(message: FileDescriptorsRequest): FileDescriptorsRequestAminoMsg {
+    return {
+      type: "cosmos-sdk/FileDescriptorsRequest",
+      value: FileDescriptorsRequest.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: FileDescriptorsRequestProtoMsg): FileDescriptorsRequest {
+    return FileDescriptorsRequest.decode(message.value);
+  },
+  toProto(message: FileDescriptorsRequest): Uint8Array {
+    return FileDescriptorsRequest.encode(message).finish();
+  },
+  toProtoMsg(message: FileDescriptorsRequest): FileDescriptorsRequestProtoMsg {
+    return {
+      typeUrl: "/cosmos.reflection.v1.FileDescriptorsRequest",
+      value: FileDescriptorsRequest.encode(message).finish(),
+    };
   },
 };
 function createBaseFileDescriptorsResponse(): FileDescriptorsResponse {
@@ -75,25 +120,45 @@ export const FileDescriptorsResponse = {
     }
     return message;
   },
-  fromJSON(object: any): FileDescriptorsResponse {
-    const obj = createBaseFileDescriptorsResponse();
-    if (Array.isArray(object?.files))
-      obj.files = object.files.map((e: any) => FileDescriptorProto.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: FileDescriptorsResponse): unknown {
-    const obj: any = {};
-    if (message.files) {
-      obj.files = message.files.map((e) => (e ? FileDescriptorProto.toJSON(e) : undefined));
-    } else {
-      obj.files = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<FileDescriptorsResponse>, I>>(object: I): FileDescriptorsResponse {
     const message = createBaseFileDescriptorsResponse();
     message.files = object.files?.map((e) => FileDescriptorProto.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: FileDescriptorsResponseAmino): FileDescriptorsResponse {
+    const message = createBaseFileDescriptorsResponse();
+    message.files = object.files?.map((e) => FileDescriptorProto.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: FileDescriptorsResponse): FileDescriptorsResponseAmino {
+    const obj: any = {};
+    if (message.files) {
+      obj.files = message.files.map((e) => (e ? FileDescriptorProto.toAmino(e) : undefined));
+    } else {
+      obj.files = message.files;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: FileDescriptorsResponseAminoMsg): FileDescriptorsResponse {
+    return FileDescriptorsResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: FileDescriptorsResponse): FileDescriptorsResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/FileDescriptorsResponse",
+      value: FileDescriptorsResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: FileDescriptorsResponseProtoMsg): FileDescriptorsResponse {
+    return FileDescriptorsResponse.decode(message.value);
+  },
+  toProto(message: FileDescriptorsResponse): Uint8Array {
+    return FileDescriptorsResponse.encode(message).finish();
+  },
+  toProtoMsg(message: FileDescriptorsResponse): FileDescriptorsResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.reflection.v1.FileDescriptorsResponse",
+      value: FileDescriptorsResponse.encode(message).finish(),
+    };
   },
 };
 /** Package cosmos.reflection.v1 provides support for inspecting protobuf

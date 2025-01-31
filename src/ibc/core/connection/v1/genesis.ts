@@ -1,7 +1,15 @@
+//@ts-nocheck
 /* eslint-disable */
-import { IdentifiedConnection, ConnectionPaths, Params } from "./connection";
+import {
+  IdentifiedConnection,
+  IdentifiedConnectionAmino,
+  ConnectionPaths,
+  ConnectionPathsAmino,
+  Params,
+  ParamsAmino,
+} from "./connection";
 import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../../helpers";
+import { DeepPartial, Exact } from "../../../../helpers";
 export const protobufPackage = "ibc.core.connection.v1";
 /** GenesisState defines the ibc connection submodule's genesis state. */
 export interface GenesisState {
@@ -10,6 +18,22 @@ export interface GenesisState {
   /** the sequence for the next generated connection identifier */
   nextConnectionSequence: bigint;
   params: Params;
+}
+export interface GenesisStateProtoMsg {
+  typeUrl: "/ibc.core.connection.v1.GenesisState";
+  value: Uint8Array;
+}
+/** GenesisState defines the ibc connection submodule's genesis state. */
+export interface GenesisStateAmino {
+  connections?: IdentifiedConnectionAmino[];
+  client_connection_paths?: ConnectionPathsAmino[];
+  /** the sequence for the next generated connection identifier */
+  next_connection_sequence?: string;
+  params?: ParamsAmino;
+}
+export interface GenesisStateAminoMsg {
+  type: "cosmos-sdk/GenesisState";
+  value: GenesisStateAmino;
 }
 function createBaseGenesisState(): GenesisState {
   return {
@@ -62,36 +86,6 @@ export const GenesisState = {
     }
     return message;
   },
-  fromJSON(object: any): GenesisState {
-    const obj = createBaseGenesisState();
-    if (Array.isArray(object?.connections))
-      obj.connections = object.connections.map((e: any) => IdentifiedConnection.fromJSON(e));
-    if (Array.isArray(object?.clientConnectionPaths))
-      obj.clientConnectionPaths = object.clientConnectionPaths.map((e: any) => ConnectionPaths.fromJSON(e));
-    if (isSet(object.nextConnectionSequence))
-      obj.nextConnectionSequence = BigInt(object.nextConnectionSequence.toString());
-    if (isSet(object.params)) obj.params = Params.fromJSON(object.params);
-    return obj;
-  },
-  toJSON(message: GenesisState): unknown {
-    const obj: any = {};
-    if (message.connections) {
-      obj.connections = message.connections.map((e) => (e ? IdentifiedConnection.toJSON(e) : undefined));
-    } else {
-      obj.connections = [];
-    }
-    if (message.clientConnectionPaths) {
-      obj.clientConnectionPaths = message.clientConnectionPaths.map((e) =>
-        e ? ConnectionPaths.toJSON(e) : undefined,
-      );
-    } else {
-      obj.clientConnectionPaths = [];
-    }
-    message.nextConnectionSequence !== undefined &&
-      (obj.nextConnectionSequence = (message.nextConnectionSequence || BigInt(0)).toString());
-    message.params !== undefined && (obj.params = message.params ? Params.toJSON(message.params) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<GenesisState>, I>>(object: I): GenesisState {
     const message = createBaseGenesisState();
     message.connections = object.connections?.map((e) => IdentifiedConnection.fromPartial(e)) || [];
@@ -104,5 +98,58 @@ export const GenesisState = {
       message.params = Params.fromPartial(object.params);
     }
     return message;
+  },
+  fromAmino(object: GenesisStateAmino): GenesisState {
+    const message = createBaseGenesisState();
+    message.connections = object.connections?.map((e) => IdentifiedConnection.fromAmino(e)) || [];
+    message.clientConnectionPaths =
+      object.client_connection_paths?.map((e) => ConnectionPaths.fromAmino(e)) || [];
+    if (object.next_connection_sequence !== undefined && object.next_connection_sequence !== null) {
+      message.nextConnectionSequence = BigInt(object.next_connection_sequence);
+    }
+    if (object.params !== undefined && object.params !== null) {
+      message.params = Params.fromAmino(object.params);
+    }
+    return message;
+  },
+  toAmino(message: GenesisState): GenesisStateAmino {
+    const obj: any = {};
+    if (message.connections) {
+      obj.connections = message.connections.map((e) => (e ? IdentifiedConnection.toAmino(e) : undefined));
+    } else {
+      obj.connections = message.connections;
+    }
+    if (message.clientConnectionPaths) {
+      obj.client_connection_paths = message.clientConnectionPaths.map((e) =>
+        e ? ConnectionPaths.toAmino(e) : undefined,
+      );
+    } else {
+      obj.client_connection_paths = message.clientConnectionPaths;
+    }
+    obj.next_connection_sequence =
+      message.nextConnectionSequence !== BigInt(0) ? message.nextConnectionSequence?.toString() : undefined;
+    obj.params = message.params ? Params.toAmino(message.params) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: GenesisStateAminoMsg): GenesisState {
+    return GenesisState.fromAmino(object.value);
+  },
+  toAminoMsg(message: GenesisState): GenesisStateAminoMsg {
+    return {
+      type: "cosmos-sdk/GenesisState",
+      value: GenesisState.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: GenesisStateProtoMsg): GenesisState {
+    return GenesisState.decode(message.value);
+  },
+  toProto(message: GenesisState): Uint8Array {
+    return GenesisState.encode(message).finish();
+  },
+  toProtoMsg(message: GenesisState): GenesisStateProtoMsg {
+    return {
+      typeUrl: "/ibc.core.connection.v1.GenesisState",
+      value: GenesisState.encode(message).finish(),
+    };
   },
 };

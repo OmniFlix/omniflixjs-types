@@ -1,14 +1,29 @@
+//@ts-nocheck
 /* eslint-disable */
-import { Header, Data, Commit } from "./types";
-import { EvidenceList } from "./evidence";
+import { Header, HeaderAmino, Data, DataAmino, Commit, CommitAmino } from "./types";
+import { EvidenceList, EvidenceListAmino } from "./evidence";
 import { BinaryReader, BinaryWriter } from "../../binary";
-import { isSet, DeepPartial, Exact } from "../../helpers";
+import { DeepPartial, Exact } from "../../helpers";
 export const protobufPackage = "tendermint.types";
 export interface Block {
   header: Header;
   data: Data;
   evidence: EvidenceList;
   lastCommit?: Commit;
+}
+export interface BlockProtoMsg {
+  typeUrl: "/tendermint.types.Block";
+  value: Uint8Array;
+}
+export interface BlockAmino {
+  header?: HeaderAmino;
+  data?: DataAmino;
+  evidence?: EvidenceListAmino;
+  last_commit?: CommitAmino;
+}
+export interface BlockAminoMsg {
+  type: "/tendermint.types.Block";
+  value: BlockAmino;
 }
 function createBaseBlock(): Block {
   return {
@@ -61,24 +76,6 @@ export const Block = {
     }
     return message;
   },
-  fromJSON(object: any): Block {
-    const obj = createBaseBlock();
-    if (isSet(object.header)) obj.header = Header.fromJSON(object.header);
-    if (isSet(object.data)) obj.data = Data.fromJSON(object.data);
-    if (isSet(object.evidence)) obj.evidence = EvidenceList.fromJSON(object.evidence);
-    if (isSet(object.lastCommit)) obj.lastCommit = Commit.fromJSON(object.lastCommit);
-    return obj;
-  },
-  toJSON(message: Block): unknown {
-    const obj: any = {};
-    message.header !== undefined && (obj.header = message.header ? Header.toJSON(message.header) : undefined);
-    message.data !== undefined && (obj.data = message.data ? Data.toJSON(message.data) : undefined);
-    message.evidence !== undefined &&
-      (obj.evidence = message.evidence ? EvidenceList.toJSON(message.evidence) : undefined);
-    message.lastCommit !== undefined &&
-      (obj.lastCommit = message.lastCommit ? Commit.toJSON(message.lastCommit) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Block>, I>>(object: I): Block {
     const message = createBaseBlock();
     if (object.header !== undefined && object.header !== null) {
@@ -94,5 +91,44 @@ export const Block = {
       message.lastCommit = Commit.fromPartial(object.lastCommit);
     }
     return message;
+  },
+  fromAmino(object: BlockAmino): Block {
+    const message = createBaseBlock();
+    if (object.header !== undefined && object.header !== null) {
+      message.header = Header.fromAmino(object.header);
+    }
+    if (object.data !== undefined && object.data !== null) {
+      message.data = Data.fromAmino(object.data);
+    }
+    if (object.evidence !== undefined && object.evidence !== null) {
+      message.evidence = EvidenceList.fromAmino(object.evidence);
+    }
+    if (object.last_commit !== undefined && object.last_commit !== null) {
+      message.lastCommit = Commit.fromAmino(object.last_commit);
+    }
+    return message;
+  },
+  toAmino(message: Block): BlockAmino {
+    const obj: any = {};
+    obj.header = message.header ? Header.toAmino(message.header) : undefined;
+    obj.data = message.data ? Data.toAmino(message.data) : undefined;
+    obj.evidence = message.evidence ? EvidenceList.toAmino(message.evidence) : undefined;
+    obj.last_commit = message.lastCommit ? Commit.toAmino(message.lastCommit) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: BlockAminoMsg): Block {
+    return Block.fromAmino(object.value);
+  },
+  fromProtoMsg(message: BlockProtoMsg): Block {
+    return Block.decode(message.value);
+  },
+  toProto(message: Block): Uint8Array {
+    return Block.encode(message).finish();
+  },
+  toProtoMsg(message: Block): BlockProtoMsg {
+    return {
+      typeUrl: "/tendermint.types.Block",
+      value: Block.encode(message).finish(),
+    };
   },
 };

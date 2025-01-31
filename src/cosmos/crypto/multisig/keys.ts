@@ -1,7 +1,8 @@
+//@ts-nocheck
 /* eslint-disable */
-import { Any } from "../../../google/protobuf/any";
+import { Any, AnyAmino } from "../../../google/protobuf/any";
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../helpers";
+import { DeepPartial, Exact } from "../../../helpers";
 export const protobufPackage = "cosmos.crypto.multisig";
 /**
  * LegacyAminoPubKey specifies a public key type
@@ -11,6 +12,23 @@ export const protobufPackage = "cosmos.crypto.multisig";
 export interface LegacyAminoPubKey {
   threshold: number;
   publicKeys: Any[];
+}
+export interface LegacyAminoPubKeyProtoMsg {
+  typeUrl: "/cosmos.crypto.multisig.LegacyAminoPubKey";
+  value: Uint8Array;
+}
+/**
+ * LegacyAminoPubKey specifies a public key type
+ * which nests multiple public keys and a threshold,
+ * it uses legacy amino address rules.
+ */
+export interface LegacyAminoPubKeyAmino {
+  threshold?: number;
+  public_keys?: AnyAmino[];
+}
+export interface LegacyAminoPubKeyAminoMsg {
+  type: "tendermint/PubKeyMultisigThreshold";
+  value: LegacyAminoPubKeyAmino;
 }
 function createBaseLegacyAminoPubKey(): LegacyAminoPubKey {
   return {
@@ -49,27 +67,49 @@ export const LegacyAminoPubKey = {
     }
     return message;
   },
-  fromJSON(object: any): LegacyAminoPubKey {
-    const obj = createBaseLegacyAminoPubKey();
-    if (isSet(object.threshold)) obj.threshold = Number(object.threshold);
-    if (Array.isArray(object?.publicKeys))
-      obj.publicKeys = object.publicKeys.map((e: any) => Any.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: LegacyAminoPubKey): unknown {
-    const obj: any = {};
-    message.threshold !== undefined && (obj.threshold = Math.round(message.threshold));
-    if (message.publicKeys) {
-      obj.publicKeys = message.publicKeys.map((e) => (e ? Any.toJSON(e) : undefined));
-    } else {
-      obj.publicKeys = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<LegacyAminoPubKey>, I>>(object: I): LegacyAminoPubKey {
     const message = createBaseLegacyAminoPubKey();
     message.threshold = object.threshold ?? 0;
     message.publicKeys = object.publicKeys?.map((e) => Any.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: LegacyAminoPubKeyAmino): LegacyAminoPubKey {
+    const message = createBaseLegacyAminoPubKey();
+    if (object.threshold !== undefined && object.threshold !== null) {
+      message.threshold = object.threshold;
+    }
+    message.publicKeys = object.public_keys?.map((e) => Any.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: LegacyAminoPubKey): LegacyAminoPubKeyAmino {
+    const obj: any = {};
+    obj.threshold = message.threshold === 0 ? undefined : message.threshold;
+    if (message.publicKeys) {
+      obj.public_keys = message.publicKeys.map((e) => (e ? Any.toAmino(e) : undefined));
+    } else {
+      obj.public_keys = message.publicKeys;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: LegacyAminoPubKeyAminoMsg): LegacyAminoPubKey {
+    return LegacyAminoPubKey.fromAmino(object.value);
+  },
+  toAminoMsg(message: LegacyAminoPubKey): LegacyAminoPubKeyAminoMsg {
+    return {
+      type: "tendermint/PubKeyMultisigThreshold",
+      value: LegacyAminoPubKey.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: LegacyAminoPubKeyProtoMsg): LegacyAminoPubKey {
+    return LegacyAminoPubKey.decode(message.value);
+  },
+  toProto(message: LegacyAminoPubKey): Uint8Array {
+    return LegacyAminoPubKey.encode(message).finish();
+  },
+  toProtoMsg(message: LegacyAminoPubKey): LegacyAminoPubKeyProtoMsg {
+    return {
+      typeUrl: "/cosmos.crypto.multisig.LegacyAminoPubKey",
+      value: LegacyAminoPubKey.encode(message).finish(),
+    };
   },
 };

@@ -1,6 +1,7 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, bytesFromBase64, base64FromBytes, DeepPartial, Exact } from "../../../helpers";
+import { DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../../helpers";
 export const protobufPackage = "cosmos.crypto.secp256k1";
 /**
  * PubKey defines a secp256k1 public key
@@ -12,9 +13,39 @@ export const protobufPackage = "cosmos.crypto.secp256k1";
 export interface PubKey {
   key: Uint8Array;
 }
+export interface PubKeyProtoMsg {
+  typeUrl: "/cosmos.crypto.secp256k1.PubKey";
+  value: Uint8Array;
+}
+/**
+ * PubKey defines a secp256k1 public key
+ * Key is the compressed form of the pubkey. The first byte depends is a 0x02 byte
+ * if the y-coordinate is the lexicographically largest of the two associated with
+ * the x-coordinate. Otherwise the first byte is a 0x03.
+ * This prefix is followed with the x-coordinate.
+ */
+export interface PubKeyAmino {
+  key?: string;
+}
+export interface PubKeyAminoMsg {
+  type: "tendermint/PubKeySecp256k1";
+  value: PubKeyAmino;
+}
 /** PrivKey defines a secp256k1 private key. */
 export interface PrivKey {
   key: Uint8Array;
+}
+export interface PrivKeyProtoMsg {
+  typeUrl: "/cosmos.crypto.secp256k1.PrivKey";
+  value: Uint8Array;
+}
+/** PrivKey defines a secp256k1 private key. */
+export interface PrivKeyAmino {
+  key?: string;
+}
+export interface PrivKeyAminoMsg {
+  type: "tendermint/PrivKeySecp256k1";
+  value: PrivKeyAmino;
 }
 function createBasePubKey(): PubKey {
   return {
@@ -46,21 +77,43 @@ export const PubKey = {
     }
     return message;
   },
-  fromJSON(object: any): PubKey {
-    const obj = createBasePubKey();
-    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
-    return obj;
-  },
-  toJSON(message: PubKey): unknown {
-    const obj: any = {};
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<PubKey>, I>>(object: I): PubKey {
     const message = createBasePubKey();
     message.key = object.key ?? new Uint8Array();
     return message;
+  },
+  fromAmino(object: PubKeyAmino): PubKey {
+    const message = createBasePubKey();
+    if (object.key !== undefined && object.key !== null) {
+      message.key = bytesFromBase64(object.key);
+    }
+    return message;
+  },
+  toAmino(message: PubKey): PubKeyAmino {
+    const obj: any = {};
+    obj.key = message.key ? base64FromBytes(message.key) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: PubKeyAminoMsg): PubKey {
+    return PubKey.fromAmino(object.value);
+  },
+  toAminoMsg(message: PubKey): PubKeyAminoMsg {
+    return {
+      type: "tendermint/PubKeySecp256k1",
+      value: PubKey.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: PubKeyProtoMsg): PubKey {
+    return PubKey.decode(message.value);
+  },
+  toProto(message: PubKey): Uint8Array {
+    return PubKey.encode(message).finish();
+  },
+  toProtoMsg(message: PubKey): PubKeyProtoMsg {
+    return {
+      typeUrl: "/cosmos.crypto.secp256k1.PubKey",
+      value: PubKey.encode(message).finish(),
+    };
   },
 };
 function createBasePrivKey(): PrivKey {
@@ -93,20 +146,42 @@ export const PrivKey = {
     }
     return message;
   },
-  fromJSON(object: any): PrivKey {
-    const obj = createBasePrivKey();
-    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
-    return obj;
-  },
-  toJSON(message: PrivKey): unknown {
-    const obj: any = {};
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<PrivKey>, I>>(object: I): PrivKey {
     const message = createBasePrivKey();
     message.key = object.key ?? new Uint8Array();
     return message;
+  },
+  fromAmino(object: PrivKeyAmino): PrivKey {
+    const message = createBasePrivKey();
+    if (object.key !== undefined && object.key !== null) {
+      message.key = bytesFromBase64(object.key);
+    }
+    return message;
+  },
+  toAmino(message: PrivKey): PrivKeyAmino {
+    const obj: any = {};
+    obj.key = message.key ? base64FromBytes(message.key) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: PrivKeyAminoMsg): PrivKey {
+    return PrivKey.fromAmino(object.value);
+  },
+  toAminoMsg(message: PrivKey): PrivKeyAminoMsg {
+    return {
+      type: "tendermint/PrivKeySecp256k1",
+      value: PrivKey.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: PrivKeyProtoMsg): PrivKey {
+    return PrivKey.decode(message.value);
+  },
+  toProto(message: PrivKey): Uint8Array {
+    return PrivKey.encode(message).finish();
+  },
+  toProtoMsg(message: PrivKey): PrivKeyProtoMsg {
+    return {
+      typeUrl: "/cosmos.crypto.secp256k1.PrivKey",
+      value: PrivKey.encode(message).finish(),
+    };
   },
 };

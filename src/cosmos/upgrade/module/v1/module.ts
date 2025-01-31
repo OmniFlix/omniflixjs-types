@@ -1,11 +1,25 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../../helpers";
+import { DeepPartial, Exact } from "../../../../helpers";
 export const protobufPackage = "cosmos.upgrade.module.v1";
 /** Module is the config object of the upgrade module. */
 export interface Module {
   /** authority defines the custom module authority. If not set, defaults to the governance module. */
   authority: string;
+}
+export interface ModuleProtoMsg {
+  typeUrl: "/cosmos.upgrade.module.v1.Module";
+  value: Uint8Array;
+}
+/** Module is the config object of the upgrade module. */
+export interface ModuleAmino {
+  /** authority defines the custom module authority. If not set, defaults to the governance module. */
+  authority?: string;
+}
+export interface ModuleAminoMsg {
+  type: "cosmos-sdk/Module";
+  value: ModuleAmino;
 }
 function createBaseModule(): Module {
   return {
@@ -37,19 +51,42 @@ export const Module = {
     }
     return message;
   },
-  fromJSON(object: any): Module {
-    const obj = createBaseModule();
-    if (isSet(object.authority)) obj.authority = String(object.authority);
-    return obj;
-  },
-  toJSON(message: Module): unknown {
-    const obj: any = {};
-    message.authority !== undefined && (obj.authority = message.authority);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Module>, I>>(object: I): Module {
     const message = createBaseModule();
     message.authority = object.authority ?? "";
     return message;
+  },
+  fromAmino(object: ModuleAmino): Module {
+    const message = createBaseModule();
+    if (object.authority !== undefined && object.authority !== null) {
+      message.authority = object.authority;
+    }
+    return message;
+  },
+  toAmino(message: Module): ModuleAmino {
+    const obj: any = {};
+    obj.authority = message.authority === "" ? undefined : message.authority;
+    return obj;
+  },
+  fromAminoMsg(object: ModuleAminoMsg): Module {
+    return Module.fromAmino(object.value);
+  },
+  toAminoMsg(message: Module): ModuleAminoMsg {
+    return {
+      type: "cosmos-sdk/Module",
+      value: Module.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ModuleProtoMsg): Module {
+    return Module.decode(message.value);
+  },
+  toProto(message: Module): Uint8Array {
+    return Module.encode(message).finish();
+  },
+  toProtoMsg(message: Module): ModuleProtoMsg {
+    return {
+      typeUrl: "/cosmos.upgrade.module.v1.Module",
+      value: Module.encode(message).finish(),
+    };
   },
 };

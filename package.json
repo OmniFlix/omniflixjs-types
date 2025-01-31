@@ -22,6 +22,8 @@
     "google/",
     "ibc/",
     "tendermint/",
+    "OmniFlix/",
+    "osmosis/",
     "/binary.*",
     "/helpers.*",
     "/utf8.*",

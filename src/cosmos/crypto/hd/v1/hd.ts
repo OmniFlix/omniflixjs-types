@@ -1,6 +1,7 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../../helpers";
+import { DeepPartial, Exact } from "../../../../helpers";
 export const protobufPackage = "cosmos.crypto.hd.v1";
 /** BIP44Params is used as path field in ledger item in Record. */
 export interface BIP44Params {
@@ -17,6 +18,30 @@ export interface BIP44Params {
   change: boolean;
   /** address_index is used as child index in BIP32 derivation */
   addressIndex: number;
+}
+export interface BIP44ParamsProtoMsg {
+  typeUrl: "/cosmos.crypto.hd.v1.BIP44Params";
+  value: Uint8Array;
+}
+/** BIP44Params is used as path field in ledger item in Record. */
+export interface BIP44ParamsAmino {
+  /** purpose is a constant set to 44' (or 0x8000002C) following the BIP43 recommendation */
+  purpose?: number;
+  /** coin_type is a constant that improves privacy */
+  coin_type?: number;
+  /** account splits the key space into independent user identities */
+  account?: number;
+  /**
+   * change is a constant used for public derivation. Constant 0 is used for external chain and constant 1 for internal
+   * chain.
+   */
+  change?: boolean;
+  /** address_index is used as child index in BIP32 derivation */
+  address_index?: number;
+}
+export interface BIP44ParamsAminoMsg {
+  type: "crypto/keys/hd/BIP44Params";
+  value: BIP44ParamsAmino;
 }
 function createBaseBIP44Params(): BIP44Params {
   return {
@@ -76,24 +101,6 @@ export const BIP44Params = {
     }
     return message;
   },
-  fromJSON(object: any): BIP44Params {
-    const obj = createBaseBIP44Params();
-    if (isSet(object.purpose)) obj.purpose = Number(object.purpose);
-    if (isSet(object.coinType)) obj.coinType = Number(object.coinType);
-    if (isSet(object.account)) obj.account = Number(object.account);
-    if (isSet(object.change)) obj.change = Boolean(object.change);
-    if (isSet(object.addressIndex)) obj.addressIndex = Number(object.addressIndex);
-    return obj;
-  },
-  toJSON(message: BIP44Params): unknown {
-    const obj: any = {};
-    message.purpose !== undefined && (obj.purpose = Math.round(message.purpose));
-    message.coinType !== undefined && (obj.coinType = Math.round(message.coinType));
-    message.account !== undefined && (obj.account = Math.round(message.account));
-    message.change !== undefined && (obj.change = message.change);
-    message.addressIndex !== undefined && (obj.addressIndex = Math.round(message.addressIndex));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<BIP44Params>, I>>(object: I): BIP44Params {
     const message = createBaseBIP44Params();
     message.purpose = object.purpose ?? 0;
@@ -102,5 +109,54 @@ export const BIP44Params = {
     message.change = object.change ?? false;
     message.addressIndex = object.addressIndex ?? 0;
     return message;
+  },
+  fromAmino(object: BIP44ParamsAmino): BIP44Params {
+    const message = createBaseBIP44Params();
+    if (object.purpose !== undefined && object.purpose !== null) {
+      message.purpose = object.purpose;
+    }
+    if (object.coin_type !== undefined && object.coin_type !== null) {
+      message.coinType = object.coin_type;
+    }
+    if (object.account !== undefined && object.account !== null) {
+      message.account = object.account;
+    }
+    if (object.change !== undefined && object.change !== null) {
+      message.change = object.change;
+    }
+    if (object.address_index !== undefined && object.address_index !== null) {
+      message.addressIndex = object.address_index;
+    }
+    return message;
+  },
+  toAmino(message: BIP44Params): BIP44ParamsAmino {
+    const obj: any = {};
+    obj.purpose = message.purpose === 0 ? undefined : message.purpose;
+    obj.coin_type = message.coinType === 0 ? undefined : message.coinType;
+    obj.account = message.account === 0 ? undefined : message.account;
+    obj.change = message.change === false ? undefined : message.change;
+    obj.address_index = message.addressIndex === 0 ? undefined : message.addressIndex;
+    return obj;
+  },
+  fromAminoMsg(object: BIP44ParamsAminoMsg): BIP44Params {
+    return BIP44Params.fromAmino(object.value);
+  },
+  toAminoMsg(message: BIP44Params): BIP44ParamsAminoMsg {
+    return {
+      type: "crypto/keys/hd/BIP44Params",
+      value: BIP44Params.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: BIP44ParamsProtoMsg): BIP44Params {
+    return BIP44Params.decode(message.value);
+  },
+  toProto(message: BIP44Params): Uint8Array {
+    return BIP44Params.encode(message).finish();
+  },
+  toProtoMsg(message: BIP44Params): BIP44ParamsProtoMsg {
+    return {
+      typeUrl: "/cosmos.crypto.hd.v1.BIP44Params",
+      value: BIP44Params.encode(message).finish(),
+    };
   },
 };

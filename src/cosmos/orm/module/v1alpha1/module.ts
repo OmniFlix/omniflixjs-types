@@ -1,3 +1,4 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../../binary";
 import { DeepPartial, Exact } from "../../../../helpers";
@@ -8,6 +9,20 @@ export const protobufPackage = "cosmos.orm.module.v1alpha1";
  * with ORM data.
  */
 export interface Module {}
+export interface ModuleProtoMsg {
+  typeUrl: "/cosmos.orm.module.v1alpha1.Module";
+  value: Uint8Array;
+}
+/**
+ * Module defines the ORM module which adds providers to the app container for
+ * module-scoped DB's. In the future it may provide gRPC services for interacting
+ * with ORM data.
+ */
+export interface ModuleAmino {}
+export interface ModuleAminoMsg {
+  type: "cosmos-sdk/Module";
+  value: ModuleAmino;
+}
 function createBaseModule(): Module {
   return {};
 }
@@ -30,16 +45,37 @@ export const Module = {
     }
     return message;
   },
-  fromJSON(_: any): Module {
-    const obj = createBaseModule();
-    return obj;
-  },
-  toJSON(_: Module): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Module>, I>>(_: I): Module {
     const message = createBaseModule();
     return message;
+  },
+  fromAmino(_: ModuleAmino): Module {
+    const message = createBaseModule();
+    return message;
+  },
+  toAmino(_: Module): ModuleAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: ModuleAminoMsg): Module {
+    return Module.fromAmino(object.value);
+  },
+  toAminoMsg(message: Module): ModuleAminoMsg {
+    return {
+      type: "cosmos-sdk/Module",
+      value: Module.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ModuleProtoMsg): Module {
+    return Module.decode(message.value);
+  },
+  toProto(message: Module): Uint8Array {
+    return Module.encode(message).finish();
+  },
+  toProtoMsg(message: Module): ModuleProtoMsg {
+    return {
+      typeUrl: "/cosmos.orm.module.v1alpha1.Module",
+      value: Module.encode(message).finish(),
+    };
   },
 };

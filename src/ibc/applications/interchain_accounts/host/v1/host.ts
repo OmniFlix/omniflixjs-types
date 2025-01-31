@@ -1,6 +1,7 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../../../helpers";
+import { DeepPartial, Exact } from "../../../../../helpers";
 export const protobufPackage = "ibc.applications.interchain_accounts.host.v1";
 /**
  * Params defines the set of on-chain interchain accounts parameters.
@@ -11,6 +12,24 @@ export interface Params {
   hostEnabled: boolean;
   /** allow_messages defines a list of sdk message typeURLs allowed to be executed on a host chain. */
   allowMessages: string[];
+}
+export interface ParamsProtoMsg {
+  typeUrl: "/ibc.applications.interchain_accounts.host.v1.Params";
+  value: Uint8Array;
+}
+/**
+ * Params defines the set of on-chain interchain accounts parameters.
+ * The following parameters may be used to disable the host submodule.
+ */
+export interface ParamsAmino {
+  /** host_enabled enables or disables the host submodule. */
+  host_enabled?: boolean;
+  /** allow_messages defines a list of sdk message typeURLs allowed to be executed on a host chain. */
+  allow_messages?: string[];
+}
+export interface ParamsAminoMsg {
+  type: "cosmos-sdk/Params";
+  value: ParamsAmino;
 }
 function createBaseParams(): Params {
   return {
@@ -49,27 +68,49 @@ export const Params = {
     }
     return message;
   },
-  fromJSON(object: any): Params {
-    const obj = createBaseParams();
-    if (isSet(object.hostEnabled)) obj.hostEnabled = Boolean(object.hostEnabled);
-    if (Array.isArray(object?.allowMessages))
-      obj.allowMessages = object.allowMessages.map((e: any) => String(e));
-    return obj;
-  },
-  toJSON(message: Params): unknown {
-    const obj: any = {};
-    message.hostEnabled !== undefined && (obj.hostEnabled = message.hostEnabled);
-    if (message.allowMessages) {
-      obj.allowMessages = message.allowMessages.map((e) => e);
-    } else {
-      obj.allowMessages = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Params>, I>>(object: I): Params {
     const message = createBaseParams();
     message.hostEnabled = object.hostEnabled ?? false;
     message.allowMessages = object.allowMessages?.map((e) => e) || [];
     return message;
+  },
+  fromAmino(object: ParamsAmino): Params {
+    const message = createBaseParams();
+    if (object.host_enabled !== undefined && object.host_enabled !== null) {
+      message.hostEnabled = object.host_enabled;
+    }
+    message.allowMessages = object.allow_messages?.map((e) => e) || [];
+    return message;
+  },
+  toAmino(message: Params): ParamsAmino {
+    const obj: any = {};
+    obj.host_enabled = message.hostEnabled === false ? undefined : message.hostEnabled;
+    if (message.allowMessages) {
+      obj.allow_messages = message.allowMessages.map((e) => e);
+    } else {
+      obj.allow_messages = message.allowMessages;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: ParamsAminoMsg): Params {
+    return Params.fromAmino(object.value);
+  },
+  toAminoMsg(message: Params): ParamsAminoMsg {
+    return {
+      type: "cosmos-sdk/Params",
+      value: Params.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ParamsProtoMsg): Params {
+    return Params.decode(message.value);
+  },
+  toProto(message: Params): Uint8Array {
+    return Params.encode(message).finish();
+  },
+  toProtoMsg(message: Params): ParamsProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.interchain_accounts.host.v1.Params",
+      value: Params.encode(message).finish(),
+    };
   },
 };

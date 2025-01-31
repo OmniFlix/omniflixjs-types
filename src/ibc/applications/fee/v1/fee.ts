@@ -1,8 +1,9 @@
+//@ts-nocheck
 /* eslint-disable */
-import { Coin } from "../../../../cosmos/base/v1beta1/coin";
-import { PacketId } from "../../../core/channel/v1/channel";
+import { Coin, CoinAmino } from "../../../../cosmos/base/v1beta1/coin";
+import { PacketId, PacketIdAmino } from "../../../core/channel/v1/channel";
 import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { DeepPartial, Exact, isSet } from "../../../../helpers";
+import { DeepPartial, Exact } from "../../../../helpers";
 export const protobufPackage = "ibc.applications.fee.v1";
 /** Fee defines the ICS29 receive, acknowledgement and timeout fees */
 export interface Fee {
@@ -13,6 +14,23 @@ export interface Fee {
   /** the packet timeout fee */
   timeoutFee: Coin[];
 }
+export interface FeeProtoMsg {
+  typeUrl: "/ibc.applications.fee.v1.Fee";
+  value: Uint8Array;
+}
+/** Fee defines the ICS29 receive, acknowledgement and timeout fees */
+export interface FeeAmino {
+  /** the packet receive fee */
+  recv_fee?: CoinAmino[];
+  /** the packet acknowledgement fee */
+  ack_fee?: CoinAmino[];
+  /** the packet timeout fee */
+  timeout_fee?: CoinAmino[];
+}
+export interface FeeAminoMsg {
+  type: "cosmos-sdk/Fee";
+  value: FeeAmino;
+}
 /** PacketFee contains ICS29 relayer fees, refund address and optional list of permitted relayers */
 export interface PacketFee {
   /** fee encapsulates the recv, ack and timeout fees associated with an IBC packet */
@@ -22,10 +40,40 @@ export interface PacketFee {
   /** optional list of relayers permitted to receive fees */
   relayers: string[];
 }
+export interface PacketFeeProtoMsg {
+  typeUrl: "/ibc.applications.fee.v1.PacketFee";
+  value: Uint8Array;
+}
+/** PacketFee contains ICS29 relayer fees, refund address and optional list of permitted relayers */
+export interface PacketFeeAmino {
+  /** fee encapsulates the recv, ack and timeout fees associated with an IBC packet */
+  fee?: FeeAmino;
+  /** the refund address for unspent fees */
+  refund_address?: string;
+  /** optional list of relayers permitted to receive fees */
+  relayers?: string[];
+}
+export interface PacketFeeAminoMsg {
+  type: "cosmos-sdk/PacketFee";
+  value: PacketFeeAmino;
+}
 /** PacketFees contains a list of type PacketFee */
 export interface PacketFees {
   /** list of packet fees */
   packetFees: PacketFee[];
+}
+export interface PacketFeesProtoMsg {
+  typeUrl: "/ibc.applications.fee.v1.PacketFees";
+  value: Uint8Array;
+}
+/** PacketFees contains a list of type PacketFee */
+export interface PacketFeesAmino {
+  /** list of packet fees */
+  packet_fees?: PacketFeeAmino[];
+}
+export interface PacketFeesAminoMsg {
+  type: "cosmos-sdk/PacketFees";
+  value: PacketFeesAmino;
 }
 /** IdentifiedPacketFees contains a list of type PacketFee and associated PacketId */
 export interface IdentifiedPacketFees {
@@ -33,6 +81,21 @@ export interface IdentifiedPacketFees {
   packetId: PacketId;
   /** list of packet fees */
   packetFees: PacketFee[];
+}
+export interface IdentifiedPacketFeesProtoMsg {
+  typeUrl: "/ibc.applications.fee.v1.IdentifiedPacketFees";
+  value: Uint8Array;
+}
+/** IdentifiedPacketFees contains a list of type PacketFee and associated PacketId */
+export interface IdentifiedPacketFeesAmino {
+  /** unique packet identifier comprised of the channel ID, port ID and sequence */
+  packet_id?: PacketIdAmino;
+  /** list of packet fees */
+  packet_fees?: PacketFeeAmino[];
+}
+export interface IdentifiedPacketFeesAminoMsg {
+  type: "cosmos-sdk/IdentifiedPacketFees";
+  value: IdentifiedPacketFeesAmino;
 }
 function createBaseFee(): Fee {
   return {
@@ -78,39 +141,59 @@ export const Fee = {
     }
     return message;
   },
-  fromJSON(object: any): Fee {
-    const obj = createBaseFee();
-    if (Array.isArray(object?.recvFee)) obj.recvFee = object.recvFee.map((e: any) => Coin.fromJSON(e));
-    if (Array.isArray(object?.ackFee)) obj.ackFee = object.ackFee.map((e: any) => Coin.fromJSON(e));
-    if (Array.isArray(object?.timeoutFee))
-      obj.timeoutFee = object.timeoutFee.map((e: any) => Coin.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: Fee): unknown {
-    const obj: any = {};
-    if (message.recvFee) {
-      obj.recvFee = message.recvFee.map((e) => (e ? Coin.toJSON(e) : undefined));
-    } else {
-      obj.recvFee = [];
-    }
-    if (message.ackFee) {
-      obj.ackFee = message.ackFee.map((e) => (e ? Coin.toJSON(e) : undefined));
-    } else {
-      obj.ackFee = [];
-    }
-    if (message.timeoutFee) {
-      obj.timeoutFee = message.timeoutFee.map((e) => (e ? Coin.toJSON(e) : undefined));
-    } else {
-      obj.timeoutFee = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Fee>, I>>(object: I): Fee {
     const message = createBaseFee();
     message.recvFee = object.recvFee?.map((e) => Coin.fromPartial(e)) || [];
     message.ackFee = object.ackFee?.map((e) => Coin.fromPartial(e)) || [];
     message.timeoutFee = object.timeoutFee?.map((e) => Coin.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: FeeAmino): Fee {
+    const message = createBaseFee();
+    message.recvFee = object.recv_fee?.map((e) => Coin.fromAmino(e)) || [];
+    message.ackFee = object.ack_fee?.map((e) => Coin.fromAmino(e)) || [];
+    message.timeoutFee = object.timeout_fee?.map((e) => Coin.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: Fee): FeeAmino {
+    const obj: any = {};
+    if (message.recvFee) {
+      obj.recv_fee = message.recvFee.map((e) => (e ? Coin.toAmino(e) : undefined));
+    } else {
+      obj.recv_fee = message.recvFee;
+    }
+    if (message.ackFee) {
+      obj.ack_fee = message.ackFee.map((e) => (e ? Coin.toAmino(e) : undefined));
+    } else {
+      obj.ack_fee = message.ackFee;
+    }
+    if (message.timeoutFee) {
+      obj.timeout_fee = message.timeoutFee.map((e) => (e ? Coin.toAmino(e) : undefined));
+    } else {
+      obj.timeout_fee = message.timeoutFee;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: FeeAminoMsg): Fee {
+    return Fee.fromAmino(object.value);
+  },
+  toAminoMsg(message: Fee): FeeAminoMsg {
+    return {
+      type: "cosmos-sdk/Fee",
+      value: Fee.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: FeeProtoMsg): Fee {
+    return Fee.decode(message.value);
+  },
+  toProto(message: Fee): Uint8Array {
+    return Fee.encode(message).finish();
+  },
+  toProtoMsg(message: Fee): FeeProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.fee.v1.Fee",
+      value: Fee.encode(message).finish(),
+    };
   },
 };
 function createBasePacketFee(): PacketFee {
@@ -157,24 +240,6 @@ export const PacketFee = {
     }
     return message;
   },
-  fromJSON(object: any): PacketFee {
-    const obj = createBasePacketFee();
-    if (isSet(object.fee)) obj.fee = Fee.fromJSON(object.fee);
-    if (isSet(object.refundAddress)) obj.refundAddress = String(object.refundAddress);
-    if (Array.isArray(object?.relayers)) obj.relayers = object.relayers.map((e: any) => String(e));
-    return obj;
-  },
-  toJSON(message: PacketFee): unknown {
-    const obj: any = {};
-    message.fee !== undefined && (obj.fee = message.fee ? Fee.toJSON(message.fee) : undefined);
-    message.refundAddress !== undefined && (obj.refundAddress = message.refundAddress);
-    if (message.relayers) {
-      obj.relayers = message.relayers.map((e) => e);
-    } else {
-      obj.relayers = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<PacketFee>, I>>(object: I): PacketFee {
     const message = createBasePacketFee();
     if (object.fee !== undefined && object.fee !== null) {
@@ -183,6 +248,49 @@ export const PacketFee = {
     message.refundAddress = object.refundAddress ?? "";
     message.relayers = object.relayers?.map((e) => e) || [];
     return message;
+  },
+  fromAmino(object: PacketFeeAmino): PacketFee {
+    const message = createBasePacketFee();
+    if (object.fee !== undefined && object.fee !== null) {
+      message.fee = Fee.fromAmino(object.fee);
+    }
+    if (object.refund_address !== undefined && object.refund_address !== null) {
+      message.refundAddress = object.refund_address;
+    }
+    message.relayers = object.relayers?.map((e) => e) || [];
+    return message;
+  },
+  toAmino(message: PacketFee): PacketFeeAmino {
+    const obj: any = {};
+    obj.fee = message.fee ? Fee.toAmino(message.fee) : undefined;
+    obj.refund_address = message.refundAddress === "" ? undefined : message.refundAddress;
+    if (message.relayers) {
+      obj.relayers = message.relayers.map((e) => e);
+    } else {
+      obj.relayers = message.relayers;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: PacketFeeAminoMsg): PacketFee {
+    return PacketFee.fromAmino(object.value);
+  },
+  toAminoMsg(message: PacketFee): PacketFeeAminoMsg {
+    return {
+      type: "cosmos-sdk/PacketFee",
+      value: PacketFee.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: PacketFeeProtoMsg): PacketFee {
+    return PacketFee.decode(message.value);
+  },
+  toProto(message: PacketFee): Uint8Array {
+    return PacketFee.encode(message).finish();
+  },
+  toProtoMsg(message: PacketFee): PacketFeeProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.fee.v1.PacketFee",
+      value: PacketFee.encode(message).finish(),
+    };
   },
 };
 function createBasePacketFees(): PacketFees {
@@ -215,25 +323,45 @@ export const PacketFees = {
     }
     return message;
   },
-  fromJSON(object: any): PacketFees {
-    const obj = createBasePacketFees();
-    if (Array.isArray(object?.packetFees))
-      obj.packetFees = object.packetFees.map((e: any) => PacketFee.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: PacketFees): unknown {
-    const obj: any = {};
-    if (message.packetFees) {
-      obj.packetFees = message.packetFees.map((e) => (e ? PacketFee.toJSON(e) : undefined));
-    } else {
-      obj.packetFees = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<PacketFees>, I>>(object: I): PacketFees {
     const message = createBasePacketFees();
     message.packetFees = object.packetFees?.map((e) => PacketFee.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: PacketFeesAmino): PacketFees {
+    const message = createBasePacketFees();
+    message.packetFees = object.packet_fees?.map((e) => PacketFee.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: PacketFees): PacketFeesAmino {
+    const obj: any = {};
+    if (message.packetFees) {
+      obj.packet_fees = message.packetFees.map((e) => (e ? PacketFee.toAmino(e) : undefined));
+    } else {
+      obj.packet_fees = message.packetFees;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: PacketFeesAminoMsg): PacketFees {
+    return PacketFees.fromAmino(object.value);
+  },
+  toAminoMsg(message: PacketFees): PacketFeesAminoMsg {
+    return {
+      type: "cosmos-sdk/PacketFees",
+      value: PacketFees.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: PacketFeesProtoMsg): PacketFees {
+    return PacketFees.decode(message.value);
+  },
+  toProto(message: PacketFees): Uint8Array {
+    return PacketFees.encode(message).finish();
+  },
+  toProtoMsg(message: PacketFees): PacketFeesProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.fee.v1.PacketFees",
+      value: PacketFees.encode(message).finish(),
+    };
   },
 };
 function createBaseIdentifiedPacketFees(): IdentifiedPacketFees {
@@ -273,24 +401,6 @@ export const IdentifiedPacketFees = {
     }
     return message;
   },
-  fromJSON(object: any): IdentifiedPacketFees {
-    const obj = createBaseIdentifiedPacketFees();
-    if (isSet(object.packetId)) obj.packetId = PacketId.fromJSON(object.packetId);
-    if (Array.isArray(object?.packetFees))
-      obj.packetFees = object.packetFees.map((e: any) => PacketFee.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: IdentifiedPacketFees): unknown {
-    const obj: any = {};
-    message.packetId !== undefined &&
-      (obj.packetId = message.packetId ? PacketId.toJSON(message.packetId) : undefined);
-    if (message.packetFees) {
-      obj.packetFees = message.packetFees.map((e) => (e ? PacketFee.toJSON(e) : undefined));
-    } else {
-      obj.packetFees = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<IdentifiedPacketFees>, I>>(object: I): IdentifiedPacketFees {
     const message = createBaseIdentifiedPacketFees();
     if (object.packetId !== undefined && object.packetId !== null) {
@@ -298,5 +408,44 @@ export const IdentifiedPacketFees = {
     }
     message.packetFees = object.packetFees?.map((e) => PacketFee.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: IdentifiedPacketFeesAmino): IdentifiedPacketFees {
+    const message = createBaseIdentifiedPacketFees();
+    if (object.packet_id !== undefined && object.packet_id !== null) {
+      message.packetId = PacketId.fromAmino(object.packet_id);
+    }
+    message.packetFees = object.packet_fees?.map((e) => PacketFee.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: IdentifiedPacketFees): IdentifiedPacketFeesAmino {
+    const obj: any = {};
+    obj.packet_id = message.packetId ? PacketId.toAmino(message.packetId) : undefined;
+    if (message.packetFees) {
+      obj.packet_fees = message.packetFees.map((e) => (e ? PacketFee.toAmino(e) : undefined));
+    } else {
+      obj.packet_fees = message.packetFees;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: IdentifiedPacketFeesAminoMsg): IdentifiedPacketFees {
+    return IdentifiedPacketFees.fromAmino(object.value);
+  },
+  toAminoMsg(message: IdentifiedPacketFees): IdentifiedPacketFeesAminoMsg {
+    return {
+      type: "cosmos-sdk/IdentifiedPacketFees",
+      value: IdentifiedPacketFees.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: IdentifiedPacketFeesProtoMsg): IdentifiedPacketFees {
+    return IdentifiedPacketFees.decode(message.value);
+  },
+  toProto(message: IdentifiedPacketFees): Uint8Array {
+    return IdentifiedPacketFees.encode(message).finish();
+  },
+  toProtoMsg(message: IdentifiedPacketFees): IdentifiedPacketFeesProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.fee.v1.IdentifiedPacketFees",
+      value: IdentifiedPacketFees.encode(message).finish(),
+    };
   },
 };

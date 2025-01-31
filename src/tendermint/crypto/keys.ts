@@ -1,11 +1,25 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../binary";
-import { isSet, bytesFromBase64, base64FromBytes, DeepPartial, Exact } from "../../helpers";
+import { DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../helpers";
 export const protobufPackage = "tendermint.crypto";
 /** PublicKey defines the keys available for use with Validators */
 export interface PublicKey {
   ed25519?: Uint8Array;
   secp256k1?: Uint8Array;
+}
+export interface PublicKeyProtoMsg {
+  typeUrl: "/tendermint.crypto.PublicKey";
+  value: Uint8Array;
+}
+/** PublicKey defines the keys available for use with Validators */
+export interface PublicKeyAmino {
+  ed25519?: string;
+  secp256k1?: string;
+}
+export interface PublicKeyAminoMsg {
+  type: "/tendermint.crypto.PublicKey";
+  value: PublicKeyAmino;
 }
 function createBasePublicKey(): PublicKey {
   return {
@@ -44,24 +58,41 @@ export const PublicKey = {
     }
     return message;
   },
-  fromJSON(object: any): PublicKey {
-    const obj = createBasePublicKey();
-    if (isSet(object.ed25519)) obj.ed25519 = bytesFromBase64(object.ed25519);
-    if (isSet(object.secp256k1)) obj.secp256k1 = bytesFromBase64(object.secp256k1);
-    return obj;
-  },
-  toJSON(message: PublicKey): unknown {
-    const obj: any = {};
-    message.ed25519 !== undefined &&
-      (obj.ed25519 = message.ed25519 !== undefined ? base64FromBytes(message.ed25519) : undefined);
-    message.secp256k1 !== undefined &&
-      (obj.secp256k1 = message.secp256k1 !== undefined ? base64FromBytes(message.secp256k1) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<PublicKey>, I>>(object: I): PublicKey {
     const message = createBasePublicKey();
     message.ed25519 = object.ed25519 ?? undefined;
     message.secp256k1 = object.secp256k1 ?? undefined;
     return message;
+  },
+  fromAmino(object: PublicKeyAmino): PublicKey {
+    const message = createBasePublicKey();
+    if (object.ed25519 !== undefined && object.ed25519 !== null) {
+      message.ed25519 = bytesFromBase64(object.ed25519);
+    }
+    if (object.secp256k1 !== undefined && object.secp256k1 !== null) {
+      message.secp256k1 = bytesFromBase64(object.secp256k1);
+    }
+    return message;
+  },
+  toAmino(message: PublicKey): PublicKeyAmino {
+    const obj: any = {};
+    obj.ed25519 = message.ed25519 ? base64FromBytes(message.ed25519) : undefined;
+    obj.secp256k1 = message.secp256k1 ? base64FromBytes(message.secp256k1) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: PublicKeyAminoMsg): PublicKey {
+    return PublicKey.fromAmino(object.value);
+  },
+  fromProtoMsg(message: PublicKeyProtoMsg): PublicKey {
+    return PublicKey.decode(message.value);
+  },
+  toProto(message: PublicKey): Uint8Array {
+    return PublicKey.encode(message).finish();
+  },
+  toProtoMsg(message: PublicKey): PublicKeyProtoMsg {
+    return {
+      typeUrl: "/tendermint.crypto.PublicKey",
+      value: PublicKey.encode(message).finish(),
+    };
   },
 };

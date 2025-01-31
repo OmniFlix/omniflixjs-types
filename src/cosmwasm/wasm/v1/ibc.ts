@@ -1,6 +1,7 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, bytesFromBase64, base64FromBytes, DeepPartial, Exact } from "../../../helpers";
+import { DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../../helpers";
 export const protobufPackage = "cosmwasm.wasm.v1";
 /** MsgIBCSend */
 export interface MsgIBCSend {
@@ -22,14 +23,67 @@ export interface MsgIBCSend {
    */
   data: Uint8Array;
 }
+export interface MsgIBCSendProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.MsgIBCSend";
+  value: Uint8Array;
+}
+/** MsgIBCSend */
+export interface MsgIBCSendAmino {
+  /** the channel by which the packet will be sent */
+  channel?: string;
+  /**
+   * Timeout height relative to the current block height.
+   * The timeout is disabled when set to 0.
+   */
+  timeout_height?: string;
+  /**
+   * Timeout timestamp (in nanoseconds) relative to the current block timestamp.
+   * The timeout is disabled when set to 0.
+   */
+  timeout_timestamp?: string;
+  /**
+   * Data is the payload to transfer. We must not make assumption what format or
+   * content is in here.
+   */
+  data?: string;
+}
+export interface MsgIBCSendAminoMsg {
+  type: "wasm/MsgIBCSend";
+  value: MsgIBCSendAmino;
+}
 /** MsgIBCSendResponse */
 export interface MsgIBCSendResponse {
   /** Sequence number of the IBC packet sent */
   sequence: bigint;
 }
+export interface MsgIBCSendResponseProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.MsgIBCSendResponse";
+  value: Uint8Array;
+}
+/** MsgIBCSendResponse */
+export interface MsgIBCSendResponseAmino {
+  /** Sequence number of the IBC packet sent */
+  sequence?: string;
+}
+export interface MsgIBCSendResponseAminoMsg {
+  type: "wasm/MsgIBCSendResponse";
+  value: MsgIBCSendResponseAmino;
+}
 /** MsgIBCCloseChannel port and channel need to be owned by the contract */
 export interface MsgIBCCloseChannel {
   channel: string;
+}
+export interface MsgIBCCloseChannelProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.MsgIBCCloseChannel";
+  value: Uint8Array;
+}
+/** MsgIBCCloseChannel port and channel need to be owned by the contract */
+export interface MsgIBCCloseChannelAmino {
+  channel?: string;
+}
+export interface MsgIBCCloseChannelAminoMsg {
+  type: "wasm/MsgIBCCloseChannel";
+  value: MsgIBCCloseChannelAmino;
 }
 function createBaseMsgIBCSend(): MsgIBCSend {
   return {
@@ -82,25 +136,6 @@ export const MsgIBCSend = {
     }
     return message;
   },
-  fromJSON(object: any): MsgIBCSend {
-    const obj = createBaseMsgIBCSend();
-    if (isSet(object.channel)) obj.channel = String(object.channel);
-    if (isSet(object.timeoutHeight)) obj.timeoutHeight = BigInt(object.timeoutHeight.toString());
-    if (isSet(object.timeoutTimestamp)) obj.timeoutTimestamp = BigInt(object.timeoutTimestamp.toString());
-    if (isSet(object.data)) obj.data = bytesFromBase64(object.data);
-    return obj;
-  },
-  toJSON(message: MsgIBCSend): unknown {
-    const obj: any = {};
-    message.channel !== undefined && (obj.channel = message.channel);
-    message.timeoutHeight !== undefined &&
-      (obj.timeoutHeight = (message.timeoutHeight || BigInt(0)).toString());
-    message.timeoutTimestamp !== undefined &&
-      (obj.timeoutTimestamp = (message.timeoutTimestamp || BigInt(0)).toString());
-    message.data !== undefined &&
-      (obj.data = base64FromBytes(message.data !== undefined ? message.data : new Uint8Array()));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgIBCSend>, I>>(object: I): MsgIBCSend {
     const message = createBaseMsgIBCSend();
     message.channel = object.channel ?? "";
@@ -112,6 +147,52 @@ export const MsgIBCSend = {
     }
     message.data = object.data ?? new Uint8Array();
     return message;
+  },
+  fromAmino(object: MsgIBCSendAmino): MsgIBCSend {
+    const message = createBaseMsgIBCSend();
+    if (object.channel !== undefined && object.channel !== null) {
+      message.channel = object.channel;
+    }
+    if (object.timeout_height !== undefined && object.timeout_height !== null) {
+      message.timeoutHeight = BigInt(object.timeout_height);
+    }
+    if (object.timeout_timestamp !== undefined && object.timeout_timestamp !== null) {
+      message.timeoutTimestamp = BigInt(object.timeout_timestamp);
+    }
+    if (object.data !== undefined && object.data !== null) {
+      message.data = bytesFromBase64(object.data);
+    }
+    return message;
+  },
+  toAmino(message: MsgIBCSend): MsgIBCSendAmino {
+    const obj: any = {};
+    obj.channel = message.channel === "" ? undefined : message.channel;
+    obj.timeout_height = message.timeoutHeight !== BigInt(0) ? message.timeoutHeight?.toString() : undefined;
+    obj.timeout_timestamp =
+      message.timeoutTimestamp !== BigInt(0) ? message.timeoutTimestamp?.toString() : undefined;
+    obj.data = message.data ? base64FromBytes(message.data) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: MsgIBCSendAminoMsg): MsgIBCSend {
+    return MsgIBCSend.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgIBCSend): MsgIBCSendAminoMsg {
+    return {
+      type: "wasm/MsgIBCSend",
+      value: MsgIBCSend.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgIBCSendProtoMsg): MsgIBCSend {
+    return MsgIBCSend.decode(message.value);
+  },
+  toProto(message: MsgIBCSend): Uint8Array {
+    return MsgIBCSend.encode(message).finish();
+  },
+  toProtoMsg(message: MsgIBCSend): MsgIBCSendProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgIBCSend",
+      value: MsgIBCSend.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgIBCSendResponse(): MsgIBCSendResponse {
@@ -144,22 +225,45 @@ export const MsgIBCSendResponse = {
     }
     return message;
   },
-  fromJSON(object: any): MsgIBCSendResponse {
-    const obj = createBaseMsgIBCSendResponse();
-    if (isSet(object.sequence)) obj.sequence = BigInt(object.sequence.toString());
-    return obj;
-  },
-  toJSON(message: MsgIBCSendResponse): unknown {
-    const obj: any = {};
-    message.sequence !== undefined && (obj.sequence = (message.sequence || BigInt(0)).toString());
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgIBCSendResponse>, I>>(object: I): MsgIBCSendResponse {
     const message = createBaseMsgIBCSendResponse();
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = BigInt(object.sequence.toString());
     }
     return message;
+  },
+  fromAmino(object: MsgIBCSendResponseAmino): MsgIBCSendResponse {
+    const message = createBaseMsgIBCSendResponse();
+    if (object.sequence !== undefined && object.sequence !== null) {
+      message.sequence = BigInt(object.sequence);
+    }
+    return message;
+  },
+  toAmino(message: MsgIBCSendResponse): MsgIBCSendResponseAmino {
+    const obj: any = {};
+    obj.sequence = message.sequence !== BigInt(0) ? message.sequence?.toString() : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: MsgIBCSendResponseAminoMsg): MsgIBCSendResponse {
+    return MsgIBCSendResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgIBCSendResponse): MsgIBCSendResponseAminoMsg {
+    return {
+      type: "wasm/MsgIBCSendResponse",
+      value: MsgIBCSendResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgIBCSendResponseProtoMsg): MsgIBCSendResponse {
+    return MsgIBCSendResponse.decode(message.value);
+  },
+  toProto(message: MsgIBCSendResponse): Uint8Array {
+    return MsgIBCSendResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgIBCSendResponse): MsgIBCSendResponseProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgIBCSendResponse",
+      value: MsgIBCSendResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgIBCCloseChannel(): MsgIBCCloseChannel {
@@ -192,19 +296,42 @@ export const MsgIBCCloseChannel = {
     }
     return message;
   },
-  fromJSON(object: any): MsgIBCCloseChannel {
-    const obj = createBaseMsgIBCCloseChannel();
-    if (isSet(object.channel)) obj.channel = String(object.channel);
-    return obj;
-  },
-  toJSON(message: MsgIBCCloseChannel): unknown {
-    const obj: any = {};
-    message.channel !== undefined && (obj.channel = message.channel);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgIBCCloseChannel>, I>>(object: I): MsgIBCCloseChannel {
     const message = createBaseMsgIBCCloseChannel();
     message.channel = object.channel ?? "";
     return message;
+  },
+  fromAmino(object: MsgIBCCloseChannelAmino): MsgIBCCloseChannel {
+    const message = createBaseMsgIBCCloseChannel();
+    if (object.channel !== undefined && object.channel !== null) {
+      message.channel = object.channel;
+    }
+    return message;
+  },
+  toAmino(message: MsgIBCCloseChannel): MsgIBCCloseChannelAmino {
+    const obj: any = {};
+    obj.channel = message.channel === "" ? undefined : message.channel;
+    return obj;
+  },
+  fromAminoMsg(object: MsgIBCCloseChannelAminoMsg): MsgIBCCloseChannel {
+    return MsgIBCCloseChannel.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgIBCCloseChannel): MsgIBCCloseChannelAminoMsg {
+    return {
+      type: "wasm/MsgIBCCloseChannel",
+      value: MsgIBCCloseChannel.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgIBCCloseChannelProtoMsg): MsgIBCCloseChannel {
+    return MsgIBCCloseChannel.decode(message.value);
+  },
+  toProto(message: MsgIBCCloseChannel): Uint8Array {
+    return MsgIBCCloseChannel.encode(message).finish();
+  },
+  toProtoMsg(message: MsgIBCCloseChannel): MsgIBCCloseChannelProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.MsgIBCCloseChannel",
+      value: MsgIBCCloseChannel.encode(message).finish(),
+    };
   },
 };

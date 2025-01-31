@@ -1,6 +1,7 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../../helpers";
+import { DeepPartial, Exact } from "../../../../helpers";
 export const protobufPackage = "cosmos.staking.module.v1";
 /** Module is the config object of the staking module. */
 export interface Module {
@@ -12,6 +13,25 @@ export interface Module {
   hooksOrder: string[];
   /** authority defines the custom module authority. If not set, defaults to the governance module. */
   authority: string;
+}
+export interface ModuleProtoMsg {
+  typeUrl: "/cosmos.staking.module.v1.Module";
+  value: Uint8Array;
+}
+/** Module is the config object of the staking module. */
+export interface ModuleAmino {
+  /**
+   * hooks_order specifies the order of staking hooks and should be a list
+   * of module names which provide a staking hooks instance. If no order is
+   * provided, then hooks will be applied in alphabetical order of module names.
+   */
+  hooks_order?: string[];
+  /** authority defines the custom module authority. If not set, defaults to the governance module. */
+  authority?: string;
+}
+export interface ModuleAminoMsg {
+  type: "cosmos-sdk/Module";
+  value: ModuleAmino;
 }
 function createBaseModule(): Module {
   return {
@@ -50,26 +70,49 @@ export const Module = {
     }
     return message;
   },
-  fromJSON(object: any): Module {
-    const obj = createBaseModule();
-    if (Array.isArray(object?.hooksOrder)) obj.hooksOrder = object.hooksOrder.map((e: any) => String(e));
-    if (isSet(object.authority)) obj.authority = String(object.authority);
-    return obj;
-  },
-  toJSON(message: Module): unknown {
-    const obj: any = {};
-    if (message.hooksOrder) {
-      obj.hooksOrder = message.hooksOrder.map((e) => e);
-    } else {
-      obj.hooksOrder = [];
-    }
-    message.authority !== undefined && (obj.authority = message.authority);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Module>, I>>(object: I): Module {
     const message = createBaseModule();
     message.hooksOrder = object.hooksOrder?.map((e) => e) || [];
     message.authority = object.authority ?? "";
     return message;
+  },
+  fromAmino(object: ModuleAmino): Module {
+    const message = createBaseModule();
+    message.hooksOrder = object.hooks_order?.map((e) => e) || [];
+    if (object.authority !== undefined && object.authority !== null) {
+      message.authority = object.authority;
+    }
+    return message;
+  },
+  toAmino(message: Module): ModuleAmino {
+    const obj: any = {};
+    if (message.hooksOrder) {
+      obj.hooks_order = message.hooksOrder.map((e) => e);
+    } else {
+      obj.hooks_order = message.hooksOrder;
+    }
+    obj.authority = message.authority === "" ? undefined : message.authority;
+    return obj;
+  },
+  fromAminoMsg(object: ModuleAminoMsg): Module {
+    return Module.fromAmino(object.value);
+  },
+  toAminoMsg(message: Module): ModuleAminoMsg {
+    return {
+      type: "cosmos-sdk/Module",
+      value: Module.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ModuleProtoMsg): Module {
+    return Module.decode(message.value);
+  },
+  toProto(message: Module): Uint8Array {
+    return Module.encode(message).finish();
+  },
+  toProtoMsg(message: Module): ModuleProtoMsg {
+    return {
+      typeUrl: "/cosmos.staking.module.v1.Module",
+      value: Module.encode(message).finish(),
+    };
   },
 };

@@ -1,6 +1,7 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, bytesFromBase64, base64FromBytes, DeepPartial, Exact } from "../../../helpers";
+import { DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../../helpers";
 export const protobufPackage = "cosmos.ics23.v1";
 export enum HashOp {
   /** NO_HASH - NO_HASH is the default if no data passed. Note this is an illegal argument some places. */
@@ -14,6 +15,7 @@ export enum HashOp {
   SHA512_256 = 6,
   UNRECOGNIZED = -1,
 }
+export const HashOpAmino = HashOp;
 export function hashOpFromJSON(object: any): HashOp {
   switch (object) {
     case 0:
@@ -91,6 +93,7 @@ export enum LengthOp {
   REQUIRE_64_BYTES = 8,
   UNRECOGNIZED = -1,
 }
+export const LengthOpAmino = LengthOp;
 export function lengthOpFromJSON(object: any): LengthOp {
   switch (object) {
     case 0:
@@ -178,6 +181,41 @@ export interface ExistenceProof {
   leaf?: LeafOp;
   path: InnerOp[];
 }
+export interface ExistenceProofProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.ExistenceProof";
+  value: Uint8Array;
+}
+/**
+ * ExistenceProof takes a key and a value and a set of steps to perform on it.
+ * The result of peforming all these steps will provide a "root hash", which can
+ * be compared to the value in a header.
+ *
+ * Since it is computationally infeasible to produce a hash collission for any of the used
+ * cryptographic hash functions, if someone can provide a series of operations to transform
+ * a given key and value into a root hash that matches some trusted root, these key and values
+ * must be in the referenced merkle tree.
+ *
+ * The only possible issue is maliablity in LeafOp, such as providing extra prefix data,
+ * which should be controlled by a spec. Eg. with lengthOp as NONE,
+ * prefix = FOO, key = BAR, value = CHOICE
+ * and
+ * prefix = F, key = OOBAR, value = CHOICE
+ * would produce the same value.
+ *
+ * With LengthOp this is tricker but not impossible. Which is why the "leafPrefixEqual" field
+ * in the ProofSpec is valuable to prevent this mutability. And why all trees should
+ * length-prefix the data before hashing it.
+ */
+export interface ExistenceProofAmino {
+  key?: string;
+  value?: string;
+  leaf?: LeafOpAmino;
+  path?: InnerOpAmino[];
+}
+export interface ExistenceProofAminoMsg {
+  type: "cosmos-sdk/ExistenceProof";
+  value: ExistenceProofAmino;
+}
 /**
  * NonExistenceProof takes a proof of two neighbors, one left of the desired key,
  * one right of the desired key. If both proofs are valid AND they are neighbors,
@@ -189,12 +227,46 @@ export interface NonExistenceProof {
   left?: ExistenceProof;
   right?: ExistenceProof;
 }
+export interface NonExistenceProofProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.NonExistenceProof";
+  value: Uint8Array;
+}
+/**
+ * NonExistenceProof takes a proof of two neighbors, one left of the desired key,
+ * one right of the desired key. If both proofs are valid AND they are neighbors,
+ * then there is no valid proof for the given key.
+ */
+export interface NonExistenceProofAmino {
+  /** TODO: remove this as unnecessary??? we prove a range */
+  key?: string;
+  left?: ExistenceProofAmino;
+  right?: ExistenceProofAmino;
+}
+export interface NonExistenceProofAminoMsg {
+  type: "cosmos-sdk/NonExistenceProof";
+  value: NonExistenceProofAmino;
+}
 /** CommitmentProof is either an ExistenceProof or a NonExistenceProof, or a Batch of such messages */
 export interface CommitmentProof {
   exist?: ExistenceProof;
   nonexist?: NonExistenceProof;
   batch?: BatchProof;
   compressed?: CompressedBatchProof;
+}
+export interface CommitmentProofProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.CommitmentProof";
+  value: Uint8Array;
+}
+/** CommitmentProof is either an ExistenceProof or a NonExistenceProof, or a Batch of such messages */
+export interface CommitmentProofAmino {
+  exist?: ExistenceProofAmino;
+  nonexist?: NonExistenceProofAmino;
+  batch?: BatchProofAmino;
+  compressed?: CompressedBatchProofAmino;
+}
+export interface CommitmentProofAminoMsg {
+  type: "cosmos-sdk/CommitmentProof";
+  value: CommitmentProofAmino;
 }
 /**
  * LeafOp represents the raw key-value data we wish to prove, and
@@ -223,6 +295,41 @@ export interface LeafOp {
    */
   prefix: Uint8Array;
 }
+export interface LeafOpProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.LeafOp";
+  value: Uint8Array;
+}
+/**
+ * LeafOp represents the raw key-value data we wish to prove, and
+ * must be flexible to represent the internal transformation from
+ * the original key-value pairs into the basis hash, for many existing
+ * merkle trees.
+ *
+ * key and value are passed in. So that the signature of this operation is:
+ * leafOp(key, value) -> output
+ *
+ * To process this, first prehash the keys and values if needed (ANY means no hash in this case):
+ * hkey = prehashKey(key)
+ * hvalue = prehashValue(value)
+ *
+ * Then combine the bytes, and hash it
+ * output = hash(prefix || length(hkey) || hkey || length(hvalue) || hvalue)
+ */
+export interface LeafOpAmino {
+  hash?: HashOp;
+  prehash_key?: HashOp;
+  prehash_value?: HashOp;
+  length?: LengthOp;
+  /**
+   * prefix is a fixed bytes that may optionally be included at the beginning to differentiate
+   * a leaf node from an inner node.
+   */
+  prefix?: string;
+}
+export interface LeafOpAminoMsg {
+  type: "cosmos-sdk/LeafOp";
+  value: LeafOpAmino;
+}
 /**
  * InnerOp represents a merkle-proof step that is not a leaf.
  * It represents concatenating two children and hashing them to provide the next result.
@@ -244,6 +351,36 @@ export interface InnerOp {
   hash: HashOp;
   prefix: Uint8Array;
   suffix: Uint8Array;
+}
+export interface InnerOpProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.InnerOp";
+  value: Uint8Array;
+}
+/**
+ * InnerOp represents a merkle-proof step that is not a leaf.
+ * It represents concatenating two children and hashing them to provide the next result.
+ *
+ * The result of the previous step is passed in, so the signature of this op is:
+ * innerOp(child) -> output
+ *
+ * The result of applying InnerOp should be:
+ * output = op.hash(op.prefix || child || op.suffix)
+ *
+ * where the || operator is concatenation of binary data,
+ * and child is the result of hashing all the tree below this step.
+ *
+ * Any special data, like prepending child with the length, or prepending the entire operation with
+ * some value to differentiate from leaf nodes, should be included in prefix and suffix.
+ * If either of prefix or suffix is empty, we just treat it as an empty string
+ */
+export interface InnerOpAmino {
+  hash?: HashOp;
+  prefix?: string;
+  suffix?: string;
+}
+export interface InnerOpAminoMsg {
+  type: "cosmos-sdk/InnerOp";
+  value: InnerOpAmino;
 }
 /**
  * ProofSpec defines what the expected parameters are for a given proof type.
@@ -268,6 +405,38 @@ export interface ProofSpec {
   maxDepth: number;
   /** min_depth (if > 0) is the minimum number of InnerOps allowed (mainly for fixed-depth tries) */
   minDepth: number;
+}
+export interface ProofSpecProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.ProofSpec";
+  value: Uint8Array;
+}
+/**
+ * ProofSpec defines what the expected parameters are for a given proof type.
+ * This can be stored in the client and used to validate any incoming proofs.
+ *
+ * verify(ProofSpec, Proof) -> Proof | Error
+ *
+ * As demonstrated in tests, if we don't fix the algorithm used to calculate the
+ * LeafHash for a given tree, there are many possible key-value pairs that can
+ * generate a given hash (by interpretting the preimage differently).
+ * We need this for proper security, requires client knows a priori what
+ * tree format server uses. But not in code, rather a configuration object.
+ */
+export interface ProofSpecAmino {
+  /**
+   * any field in the ExistenceProof must be the same as in this spec.
+   * except Prefix, which is just the first bytes of prefix (spec can be longer)
+   */
+  leaf_spec?: LeafOpAmino;
+  inner_spec?: InnerSpecAmino;
+  /** max_depth (if > 0) is the maximum number of InnerOps allowed (mainly for fixed-depth tries) */
+  max_depth?: number;
+  /** min_depth (if > 0) is the minimum number of InnerOps allowed (mainly for fixed-depth tries) */
+  min_depth?: number;
+}
+export interface ProofSpecAminoMsg {
+  type: "cosmos-sdk/ProofSpec";
+  value: ProofSpecAmino;
 }
 /**
  * InnerSpec contains all store-specific structure info to determine if two proofs from a
@@ -294,23 +463,106 @@ export interface InnerSpec {
   /** hash is the algorithm that must be used for each InnerOp */
   hash: HashOp;
 }
+export interface InnerSpecProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.InnerSpec";
+  value: Uint8Array;
+}
+/**
+ * InnerSpec contains all store-specific structure info to determine if two proofs from a
+ * given store are neighbors.
+ *
+ * This enables:
+ *
+ * isLeftMost(spec: InnerSpec, op: InnerOp)
+ * isRightMost(spec: InnerSpec, op: InnerOp)
+ * isLeftNeighbor(spec: InnerSpec, left: InnerOp, right: InnerOp)
+ */
+export interface InnerSpecAmino {
+  /**
+   * Child order is the ordering of the children node, must count from 0
+   * iavl tree is [0, 1] (left then right)
+   * merk is [0, 2, 1] (left, right, here)
+   */
+  child_order?: number[];
+  child_size?: number;
+  min_prefix_length?: number;
+  max_prefix_length?: number;
+  /** empty child is the prehash image that is used when one child is nil (eg. 20 bytes of 0) */
+  empty_child?: string;
+  /** hash is the algorithm that must be used for each InnerOp */
+  hash?: HashOp;
+}
+export interface InnerSpecAminoMsg {
+  type: "cosmos-sdk/InnerSpec";
+  value: InnerSpecAmino;
+}
 /** BatchProof is a group of multiple proof types than can be compressed */
 export interface BatchProof {
   entries: BatchEntry[];
+}
+export interface BatchProofProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.BatchProof";
+  value: Uint8Array;
+}
+/** BatchProof is a group of multiple proof types than can be compressed */
+export interface BatchProofAmino {
+  entries?: BatchEntryAmino[];
+}
+export interface BatchProofAminoMsg {
+  type: "cosmos-sdk/BatchProof";
+  value: BatchProofAmino;
 }
 /** Use BatchEntry not CommitmentProof, to avoid recursion */
 export interface BatchEntry {
   exist?: ExistenceProof;
   nonexist?: NonExistenceProof;
 }
+export interface BatchEntryProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.BatchEntry";
+  value: Uint8Array;
+}
+/** Use BatchEntry not CommitmentProof, to avoid recursion */
+export interface BatchEntryAmino {
+  exist?: ExistenceProofAmino;
+  nonexist?: NonExistenceProofAmino;
+}
+export interface BatchEntryAminoMsg {
+  type: "cosmos-sdk/BatchEntry";
+  value: BatchEntryAmino;
+}
 export interface CompressedBatchProof {
   entries: CompressedBatchEntry[];
   lookupInners: InnerOp[];
+}
+export interface CompressedBatchProofProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.CompressedBatchProof";
+  value: Uint8Array;
+}
+export interface CompressedBatchProofAmino {
+  entries?: CompressedBatchEntryAmino[];
+  lookup_inners?: InnerOpAmino[];
+}
+export interface CompressedBatchProofAminoMsg {
+  type: "cosmos-sdk/CompressedBatchProof";
+  value: CompressedBatchProofAmino;
 }
 /** Use BatchEntry not CommitmentProof, to avoid recursion */
 export interface CompressedBatchEntry {
   exist?: CompressedExistenceProof;
   nonexist?: CompressedNonExistenceProof;
+}
+export interface CompressedBatchEntryProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.CompressedBatchEntry";
+  value: Uint8Array;
+}
+/** Use BatchEntry not CommitmentProof, to avoid recursion */
+export interface CompressedBatchEntryAmino {
+  exist?: CompressedExistenceProofAmino;
+  nonexist?: CompressedNonExistenceProofAmino;
+}
+export interface CompressedBatchEntryAminoMsg {
+  type: "cosmos-sdk/CompressedBatchEntry";
+  value: CompressedBatchEntryAmino;
 }
 export interface CompressedExistenceProof {
   key: Uint8Array;
@@ -319,11 +571,40 @@ export interface CompressedExistenceProof {
   /** these are indexes into the lookup_inners table in CompressedBatchProof */
   path: number[];
 }
+export interface CompressedExistenceProofProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.CompressedExistenceProof";
+  value: Uint8Array;
+}
+export interface CompressedExistenceProofAmino {
+  key?: string;
+  value?: string;
+  leaf?: LeafOpAmino;
+  /** these are indexes into the lookup_inners table in CompressedBatchProof */
+  path?: number[];
+}
+export interface CompressedExistenceProofAminoMsg {
+  type: "cosmos-sdk/CompressedExistenceProof";
+  value: CompressedExistenceProofAmino;
+}
 export interface CompressedNonExistenceProof {
   /** TODO: remove this as unnecessary??? we prove a range */
   key: Uint8Array;
   left?: CompressedExistenceProof;
   right?: CompressedExistenceProof;
+}
+export interface CompressedNonExistenceProofProtoMsg {
+  typeUrl: "/cosmos.ics23.v1.CompressedNonExistenceProof";
+  value: Uint8Array;
+}
+export interface CompressedNonExistenceProofAmino {
+  /** TODO: remove this as unnecessary??? we prove a range */
+  key?: string;
+  left?: CompressedExistenceProofAmino;
+  right?: CompressedExistenceProofAmino;
+}
+export interface CompressedNonExistenceProofAminoMsg {
+  type: "cosmos-sdk/CompressedNonExistenceProof";
+  value: CompressedNonExistenceProofAmino;
 }
 function createBaseExistenceProof(): ExistenceProof {
   return {
@@ -376,28 +657,6 @@ export const ExistenceProof = {
     }
     return message;
   },
-  fromJSON(object: any): ExistenceProof {
-    const obj = createBaseExistenceProof();
-    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
-    if (isSet(object.value)) obj.value = bytesFromBase64(object.value);
-    if (isSet(object.leaf)) obj.leaf = LeafOp.fromJSON(object.leaf);
-    if (Array.isArray(object?.path)) obj.path = object.path.map((e: any) => InnerOp.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: ExistenceProof): unknown {
-    const obj: any = {};
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
-    message.value !== undefined &&
-      (obj.value = base64FromBytes(message.value !== undefined ? message.value : new Uint8Array()));
-    message.leaf !== undefined && (obj.leaf = message.leaf ? LeafOp.toJSON(message.leaf) : undefined);
-    if (message.path) {
-      obj.path = message.path.map((e) => (e ? InnerOp.toJSON(e) : undefined));
-    } else {
-      obj.path = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<ExistenceProof>, I>>(object: I): ExistenceProof {
     const message = createBaseExistenceProof();
     message.key = object.key ?? new Uint8Array();
@@ -407,6 +666,53 @@ export const ExistenceProof = {
     }
     message.path = object.path?.map((e) => InnerOp.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: ExistenceProofAmino): ExistenceProof {
+    const message = createBaseExistenceProof();
+    if (object.key !== undefined && object.key !== null) {
+      message.key = bytesFromBase64(object.key);
+    }
+    if (object.value !== undefined && object.value !== null) {
+      message.value = bytesFromBase64(object.value);
+    }
+    if (object.leaf !== undefined && object.leaf !== null) {
+      message.leaf = LeafOp.fromAmino(object.leaf);
+    }
+    message.path = object.path?.map((e) => InnerOp.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: ExistenceProof): ExistenceProofAmino {
+    const obj: any = {};
+    obj.key = message.key ? base64FromBytes(message.key) : undefined;
+    obj.value = message.value ? base64FromBytes(message.value) : undefined;
+    obj.leaf = message.leaf ? LeafOp.toAmino(message.leaf) : undefined;
+    if (message.path) {
+      obj.path = message.path.map((e) => (e ? InnerOp.toAmino(e) : undefined));
+    } else {
+      obj.path = message.path;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: ExistenceProofAminoMsg): ExistenceProof {
+    return ExistenceProof.fromAmino(object.value);
+  },
+  toAminoMsg(message: ExistenceProof): ExistenceProofAminoMsg {
+    return {
+      type: "cosmos-sdk/ExistenceProof",
+      value: ExistenceProof.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ExistenceProofProtoMsg): ExistenceProof {
+    return ExistenceProof.decode(message.value);
+  },
+  toProto(message: ExistenceProof): Uint8Array {
+    return ExistenceProof.encode(message).finish();
+  },
+  toProtoMsg(message: ExistenceProof): ExistenceProofProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.ExistenceProof",
+      value: ExistenceProof.encode(message).finish(),
+    };
   },
 };
 function createBaseNonExistenceProof(): NonExistenceProof {
@@ -453,22 +759,6 @@ export const NonExistenceProof = {
     }
     return message;
   },
-  fromJSON(object: any): NonExistenceProof {
-    const obj = createBaseNonExistenceProof();
-    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
-    if (isSet(object.left)) obj.left = ExistenceProof.fromJSON(object.left);
-    if (isSet(object.right)) obj.right = ExistenceProof.fromJSON(object.right);
-    return obj;
-  },
-  toJSON(message: NonExistenceProof): unknown {
-    const obj: any = {};
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
-    message.left !== undefined && (obj.left = message.left ? ExistenceProof.toJSON(message.left) : undefined);
-    message.right !== undefined &&
-      (obj.right = message.right ? ExistenceProof.toJSON(message.right) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<NonExistenceProof>, I>>(object: I): NonExistenceProof {
     const message = createBaseNonExistenceProof();
     message.key = object.key ?? new Uint8Array();
@@ -479,6 +769,47 @@ export const NonExistenceProof = {
       message.right = ExistenceProof.fromPartial(object.right);
     }
     return message;
+  },
+  fromAmino(object: NonExistenceProofAmino): NonExistenceProof {
+    const message = createBaseNonExistenceProof();
+    if (object.key !== undefined && object.key !== null) {
+      message.key = bytesFromBase64(object.key);
+    }
+    if (object.left !== undefined && object.left !== null) {
+      message.left = ExistenceProof.fromAmino(object.left);
+    }
+    if (object.right !== undefined && object.right !== null) {
+      message.right = ExistenceProof.fromAmino(object.right);
+    }
+    return message;
+  },
+  toAmino(message: NonExistenceProof): NonExistenceProofAmino {
+    const obj: any = {};
+    obj.key = message.key ? base64FromBytes(message.key) : undefined;
+    obj.left = message.left ? ExistenceProof.toAmino(message.left) : undefined;
+    obj.right = message.right ? ExistenceProof.toAmino(message.right) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: NonExistenceProofAminoMsg): NonExistenceProof {
+    return NonExistenceProof.fromAmino(object.value);
+  },
+  toAminoMsg(message: NonExistenceProof): NonExistenceProofAminoMsg {
+    return {
+      type: "cosmos-sdk/NonExistenceProof",
+      value: NonExistenceProof.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: NonExistenceProofProtoMsg): NonExistenceProof {
+    return NonExistenceProof.decode(message.value);
+  },
+  toProto(message: NonExistenceProof): Uint8Array {
+    return NonExistenceProof.encode(message).finish();
+  },
+  toProtoMsg(message: NonExistenceProof): NonExistenceProofProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.NonExistenceProof",
+      value: NonExistenceProof.encode(message).finish(),
+    };
   },
 };
 function createBaseCommitmentProof(): CommitmentProof {
@@ -532,25 +863,6 @@ export const CommitmentProof = {
     }
     return message;
   },
-  fromJSON(object: any): CommitmentProof {
-    const obj = createBaseCommitmentProof();
-    if (isSet(object.exist)) obj.exist = ExistenceProof.fromJSON(object.exist);
-    if (isSet(object.nonexist)) obj.nonexist = NonExistenceProof.fromJSON(object.nonexist);
-    if (isSet(object.batch)) obj.batch = BatchProof.fromJSON(object.batch);
-    if (isSet(object.compressed)) obj.compressed = CompressedBatchProof.fromJSON(object.compressed);
-    return obj;
-  },
-  toJSON(message: CommitmentProof): unknown {
-    const obj: any = {};
-    message.exist !== undefined &&
-      (obj.exist = message.exist ? ExistenceProof.toJSON(message.exist) : undefined);
-    message.nonexist !== undefined &&
-      (obj.nonexist = message.nonexist ? NonExistenceProof.toJSON(message.nonexist) : undefined);
-    message.batch !== undefined && (obj.batch = message.batch ? BatchProof.toJSON(message.batch) : undefined);
-    message.compressed !== undefined &&
-      (obj.compressed = message.compressed ? CompressedBatchProof.toJSON(message.compressed) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<CommitmentProof>, I>>(object: I): CommitmentProof {
     const message = createBaseCommitmentProof();
     if (object.exist !== undefined && object.exist !== null) {
@@ -566,6 +878,51 @@ export const CommitmentProof = {
       message.compressed = CompressedBatchProof.fromPartial(object.compressed);
     }
     return message;
+  },
+  fromAmino(object: CommitmentProofAmino): CommitmentProof {
+    const message = createBaseCommitmentProof();
+    if (object.exist !== undefined && object.exist !== null) {
+      message.exist = ExistenceProof.fromAmino(object.exist);
+    }
+    if (object.nonexist !== undefined && object.nonexist !== null) {
+      message.nonexist = NonExistenceProof.fromAmino(object.nonexist);
+    }
+    if (object.batch !== undefined && object.batch !== null) {
+      message.batch = BatchProof.fromAmino(object.batch);
+    }
+    if (object.compressed !== undefined && object.compressed !== null) {
+      message.compressed = CompressedBatchProof.fromAmino(object.compressed);
+    }
+    return message;
+  },
+  toAmino(message: CommitmentProof): CommitmentProofAmino {
+    const obj: any = {};
+    obj.exist = message.exist ? ExistenceProof.toAmino(message.exist) : undefined;
+    obj.nonexist = message.nonexist ? NonExistenceProof.toAmino(message.nonexist) : undefined;
+    obj.batch = message.batch ? BatchProof.toAmino(message.batch) : undefined;
+    obj.compressed = message.compressed ? CompressedBatchProof.toAmino(message.compressed) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: CommitmentProofAminoMsg): CommitmentProof {
+    return CommitmentProof.fromAmino(object.value);
+  },
+  toAminoMsg(message: CommitmentProof): CommitmentProofAminoMsg {
+    return {
+      type: "cosmos-sdk/CommitmentProof",
+      value: CommitmentProof.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: CommitmentProofProtoMsg): CommitmentProof {
+    return CommitmentProof.decode(message.value);
+  },
+  toProto(message: CommitmentProof): Uint8Array {
+    return CommitmentProof.encode(message).finish();
+  },
+  toProtoMsg(message: CommitmentProof): CommitmentProofProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.CommitmentProof",
+      value: CommitmentProof.encode(message).finish(),
+    };
   },
 };
 function createBaseLeafOp(): LeafOp {
@@ -626,25 +983,6 @@ export const LeafOp = {
     }
     return message;
   },
-  fromJSON(object: any): LeafOp {
-    const obj = createBaseLeafOp();
-    if (isSet(object.hash)) obj.hash = hashOpFromJSON(object.hash);
-    if (isSet(object.prehashKey)) obj.prehashKey = hashOpFromJSON(object.prehashKey);
-    if (isSet(object.prehashValue)) obj.prehashValue = hashOpFromJSON(object.prehashValue);
-    if (isSet(object.length)) obj.length = lengthOpFromJSON(object.length);
-    if (isSet(object.prefix)) obj.prefix = bytesFromBase64(object.prefix);
-    return obj;
-  },
-  toJSON(message: LeafOp): unknown {
-    const obj: any = {};
-    message.hash !== undefined && (obj.hash = hashOpToJSON(message.hash));
-    message.prehashKey !== undefined && (obj.prehashKey = hashOpToJSON(message.prehashKey));
-    message.prehashValue !== undefined && (obj.prehashValue = hashOpToJSON(message.prehashValue));
-    message.length !== undefined && (obj.length = lengthOpToJSON(message.length));
-    message.prefix !== undefined &&
-      (obj.prefix = base64FromBytes(message.prefix !== undefined ? message.prefix : new Uint8Array()));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<LeafOp>, I>>(object: I): LeafOp {
     const message = createBaseLeafOp();
     message.hash = object.hash ?? 0;
@@ -653,6 +991,55 @@ export const LeafOp = {
     message.length = object.length ?? 0;
     message.prefix = object.prefix ?? new Uint8Array();
     return message;
+  },
+  fromAmino(object: LeafOpAmino): LeafOp {
+    const message = createBaseLeafOp();
+    if (object.hash !== undefined && object.hash !== null) {
+      message.hash = object.hash;
+    }
+    if (object.prehash_key !== undefined && object.prehash_key !== null) {
+      message.prehashKey = object.prehash_key;
+    }
+    if (object.prehash_value !== undefined && object.prehash_value !== null) {
+      message.prehashValue = object.prehash_value;
+    }
+    if (object.length !== undefined && object.length !== null) {
+      message.length = object.length;
+    }
+    if (object.prefix !== undefined && object.prefix !== null) {
+      message.prefix = bytesFromBase64(object.prefix);
+    }
+    return message;
+  },
+  toAmino(message: LeafOp): LeafOpAmino {
+    const obj: any = {};
+    obj.hash = message.hash === 0 ? undefined : message.hash;
+    obj.prehash_key = message.prehashKey === 0 ? undefined : message.prehashKey;
+    obj.prehash_value = message.prehashValue === 0 ? undefined : message.prehashValue;
+    obj.length = message.length === 0 ? undefined : message.length;
+    obj.prefix = message.prefix ? base64FromBytes(message.prefix) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: LeafOpAminoMsg): LeafOp {
+    return LeafOp.fromAmino(object.value);
+  },
+  toAminoMsg(message: LeafOp): LeafOpAminoMsg {
+    return {
+      type: "cosmos-sdk/LeafOp",
+      value: LeafOp.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: LeafOpProtoMsg): LeafOp {
+    return LeafOp.decode(message.value);
+  },
+  toProto(message: LeafOp): Uint8Array {
+    return LeafOp.encode(message).finish();
+  },
+  toProtoMsg(message: LeafOp): LeafOpProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.LeafOp",
+      value: LeafOp.encode(message).finish(),
+    };
   },
 };
 function createBaseInnerOp(): InnerOp {
@@ -699,28 +1086,53 @@ export const InnerOp = {
     }
     return message;
   },
-  fromJSON(object: any): InnerOp {
-    const obj = createBaseInnerOp();
-    if (isSet(object.hash)) obj.hash = hashOpFromJSON(object.hash);
-    if (isSet(object.prefix)) obj.prefix = bytesFromBase64(object.prefix);
-    if (isSet(object.suffix)) obj.suffix = bytesFromBase64(object.suffix);
-    return obj;
-  },
-  toJSON(message: InnerOp): unknown {
-    const obj: any = {};
-    message.hash !== undefined && (obj.hash = hashOpToJSON(message.hash));
-    message.prefix !== undefined &&
-      (obj.prefix = base64FromBytes(message.prefix !== undefined ? message.prefix : new Uint8Array()));
-    message.suffix !== undefined &&
-      (obj.suffix = base64FromBytes(message.suffix !== undefined ? message.suffix : new Uint8Array()));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<InnerOp>, I>>(object: I): InnerOp {
     const message = createBaseInnerOp();
     message.hash = object.hash ?? 0;
     message.prefix = object.prefix ?? new Uint8Array();
     message.suffix = object.suffix ?? new Uint8Array();
     return message;
+  },
+  fromAmino(object: InnerOpAmino): InnerOp {
+    const message = createBaseInnerOp();
+    if (object.hash !== undefined && object.hash !== null) {
+      message.hash = object.hash;
+    }
+    if (object.prefix !== undefined && object.prefix !== null) {
+      message.prefix = bytesFromBase64(object.prefix);
+    }
+    if (object.suffix !== undefined && object.suffix !== null) {
+      message.suffix = bytesFromBase64(object.suffix);
+    }
+    return message;
+  },
+  toAmino(message: InnerOp): InnerOpAmino {
+    const obj: any = {};
+    obj.hash = message.hash === 0 ? undefined : message.hash;
+    obj.prefix = message.prefix ? base64FromBytes(message.prefix) : undefined;
+    obj.suffix = message.suffix ? base64FromBytes(message.suffix) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: InnerOpAminoMsg): InnerOp {
+    return InnerOp.fromAmino(object.value);
+  },
+  toAminoMsg(message: InnerOp): InnerOpAminoMsg {
+    return {
+      type: "cosmos-sdk/InnerOp",
+      value: InnerOp.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: InnerOpProtoMsg): InnerOp {
+    return InnerOp.decode(message.value);
+  },
+  toProto(message: InnerOp): Uint8Array {
+    return InnerOp.encode(message).finish();
+  },
+  toProtoMsg(message: InnerOp): InnerOpProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.InnerOp",
+      value: InnerOp.encode(message).finish(),
+    };
   },
 };
 function createBaseProofSpec(): ProofSpec {
@@ -774,24 +1186,6 @@ export const ProofSpec = {
     }
     return message;
   },
-  fromJSON(object: any): ProofSpec {
-    const obj = createBaseProofSpec();
-    if (isSet(object.leafSpec)) obj.leafSpec = LeafOp.fromJSON(object.leafSpec);
-    if (isSet(object.innerSpec)) obj.innerSpec = InnerSpec.fromJSON(object.innerSpec);
-    if (isSet(object.maxDepth)) obj.maxDepth = Number(object.maxDepth);
-    if (isSet(object.minDepth)) obj.minDepth = Number(object.minDepth);
-    return obj;
-  },
-  toJSON(message: ProofSpec): unknown {
-    const obj: any = {};
-    message.leafSpec !== undefined &&
-      (obj.leafSpec = message.leafSpec ? LeafOp.toJSON(message.leafSpec) : undefined);
-    message.innerSpec !== undefined &&
-      (obj.innerSpec = message.innerSpec ? InnerSpec.toJSON(message.innerSpec) : undefined);
-    message.maxDepth !== undefined && (obj.maxDepth = Math.round(message.maxDepth));
-    message.minDepth !== undefined && (obj.minDepth = Math.round(message.minDepth));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<ProofSpec>, I>>(object: I): ProofSpec {
     const message = createBaseProofSpec();
     if (object.leafSpec !== undefined && object.leafSpec !== null) {
@@ -803,6 +1197,51 @@ export const ProofSpec = {
     message.maxDepth = object.maxDepth ?? 0;
     message.minDepth = object.minDepth ?? 0;
     return message;
+  },
+  fromAmino(object: ProofSpecAmino): ProofSpec {
+    const message = createBaseProofSpec();
+    if (object.leaf_spec !== undefined && object.leaf_spec !== null) {
+      message.leafSpec = LeafOp.fromAmino(object.leaf_spec);
+    }
+    if (object.inner_spec !== undefined && object.inner_spec !== null) {
+      message.innerSpec = InnerSpec.fromAmino(object.inner_spec);
+    }
+    if (object.max_depth !== undefined && object.max_depth !== null) {
+      message.maxDepth = object.max_depth;
+    }
+    if (object.min_depth !== undefined && object.min_depth !== null) {
+      message.minDepth = object.min_depth;
+    }
+    return message;
+  },
+  toAmino(message: ProofSpec): ProofSpecAmino {
+    const obj: any = {};
+    obj.leaf_spec = message.leafSpec ? LeafOp.toAmino(message.leafSpec) : undefined;
+    obj.inner_spec = message.innerSpec ? InnerSpec.toAmino(message.innerSpec) : undefined;
+    obj.max_depth = message.maxDepth === 0 ? undefined : message.maxDepth;
+    obj.min_depth = message.minDepth === 0 ? undefined : message.minDepth;
+    return obj;
+  },
+  fromAminoMsg(object: ProofSpecAminoMsg): ProofSpec {
+    return ProofSpec.fromAmino(object.value);
+  },
+  toAminoMsg(message: ProofSpec): ProofSpecAminoMsg {
+    return {
+      type: "cosmos-sdk/ProofSpec",
+      value: ProofSpec.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ProofSpecProtoMsg): ProofSpec {
+    return ProofSpec.decode(message.value);
+  },
+  toProto(message: ProofSpec): Uint8Array {
+    return ProofSpec.encode(message).finish();
+  },
+  toProtoMsg(message: ProofSpec): ProofSpecProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.ProofSpec",
+      value: ProofSpec.encode(message).finish(),
+    };
   },
 };
 function createBaseInnerSpec(): InnerSpec {
@@ -879,33 +1318,6 @@ export const InnerSpec = {
     }
     return message;
   },
-  fromJSON(object: any): InnerSpec {
-    const obj = createBaseInnerSpec();
-    if (Array.isArray(object?.childOrder)) obj.childOrder = object.childOrder.map((e: any) => Number(e));
-    if (isSet(object.childSize)) obj.childSize = Number(object.childSize);
-    if (isSet(object.minPrefixLength)) obj.minPrefixLength = Number(object.minPrefixLength);
-    if (isSet(object.maxPrefixLength)) obj.maxPrefixLength = Number(object.maxPrefixLength);
-    if (isSet(object.emptyChild)) obj.emptyChild = bytesFromBase64(object.emptyChild);
-    if (isSet(object.hash)) obj.hash = hashOpFromJSON(object.hash);
-    return obj;
-  },
-  toJSON(message: InnerSpec): unknown {
-    const obj: any = {};
-    if (message.childOrder) {
-      obj.childOrder = message.childOrder.map((e) => Math.round(e));
-    } else {
-      obj.childOrder = [];
-    }
-    message.childSize !== undefined && (obj.childSize = Math.round(message.childSize));
-    message.minPrefixLength !== undefined && (obj.minPrefixLength = Math.round(message.minPrefixLength));
-    message.maxPrefixLength !== undefined && (obj.maxPrefixLength = Math.round(message.maxPrefixLength));
-    message.emptyChild !== undefined &&
-      (obj.emptyChild = base64FromBytes(
-        message.emptyChild !== undefined ? message.emptyChild : new Uint8Array(),
-      ));
-    message.hash !== undefined && (obj.hash = hashOpToJSON(message.hash));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<InnerSpec>, I>>(object: I): InnerSpec {
     const message = createBaseInnerSpec();
     message.childOrder = object.childOrder?.map((e) => e) || [];
@@ -915,6 +1327,61 @@ export const InnerSpec = {
     message.emptyChild = object.emptyChild ?? new Uint8Array();
     message.hash = object.hash ?? 0;
     return message;
+  },
+  fromAmino(object: InnerSpecAmino): InnerSpec {
+    const message = createBaseInnerSpec();
+    message.childOrder = object.child_order?.map((e) => e) || [];
+    if (object.child_size !== undefined && object.child_size !== null) {
+      message.childSize = object.child_size;
+    }
+    if (object.min_prefix_length !== undefined && object.min_prefix_length !== null) {
+      message.minPrefixLength = object.min_prefix_length;
+    }
+    if (object.max_prefix_length !== undefined && object.max_prefix_length !== null) {
+      message.maxPrefixLength = object.max_prefix_length;
+    }
+    if (object.empty_child !== undefined && object.empty_child !== null) {
+      message.emptyChild = bytesFromBase64(object.empty_child);
+    }
+    if (object.hash !== undefined && object.hash !== null) {
+      message.hash = object.hash;
+    }
+    return message;
+  },
+  toAmino(message: InnerSpec): InnerSpecAmino {
+    const obj: any = {};
+    if (message.childOrder) {
+      obj.child_order = message.childOrder.map((e) => e);
+    } else {
+      obj.child_order = message.childOrder;
+    }
+    obj.child_size = message.childSize === 0 ? undefined : message.childSize;
+    obj.min_prefix_length = message.minPrefixLength === 0 ? undefined : message.minPrefixLength;
+    obj.max_prefix_length = message.maxPrefixLength === 0 ? undefined : message.maxPrefixLength;
+    obj.empty_child = message.emptyChild ? base64FromBytes(message.emptyChild) : undefined;
+    obj.hash = message.hash === 0 ? undefined : message.hash;
+    return obj;
+  },
+  fromAminoMsg(object: InnerSpecAminoMsg): InnerSpec {
+    return InnerSpec.fromAmino(object.value);
+  },
+  toAminoMsg(message: InnerSpec): InnerSpecAminoMsg {
+    return {
+      type: "cosmos-sdk/InnerSpec",
+      value: InnerSpec.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: InnerSpecProtoMsg): InnerSpec {
+    return InnerSpec.decode(message.value);
+  },
+  toProto(message: InnerSpec): Uint8Array {
+    return InnerSpec.encode(message).finish();
+  },
+  toProtoMsg(message: InnerSpec): InnerSpecProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.InnerSpec",
+      value: InnerSpec.encode(message).finish(),
+    };
   },
 };
 function createBaseBatchProof(): BatchProof {
@@ -947,24 +1414,45 @@ export const BatchProof = {
     }
     return message;
   },
-  fromJSON(object: any): BatchProof {
-    const obj = createBaseBatchProof();
-    if (Array.isArray(object?.entries)) obj.entries = object.entries.map((e: any) => BatchEntry.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: BatchProof): unknown {
-    const obj: any = {};
-    if (message.entries) {
-      obj.entries = message.entries.map((e) => (e ? BatchEntry.toJSON(e) : undefined));
-    } else {
-      obj.entries = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<BatchProof>, I>>(object: I): BatchProof {
     const message = createBaseBatchProof();
     message.entries = object.entries?.map((e) => BatchEntry.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: BatchProofAmino): BatchProof {
+    const message = createBaseBatchProof();
+    message.entries = object.entries?.map((e) => BatchEntry.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: BatchProof): BatchProofAmino {
+    const obj: any = {};
+    if (message.entries) {
+      obj.entries = message.entries.map((e) => (e ? BatchEntry.toAmino(e) : undefined));
+    } else {
+      obj.entries = message.entries;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: BatchProofAminoMsg): BatchProof {
+    return BatchProof.fromAmino(object.value);
+  },
+  toAminoMsg(message: BatchProof): BatchProofAminoMsg {
+    return {
+      type: "cosmos-sdk/BatchProof",
+      value: BatchProof.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: BatchProofProtoMsg): BatchProof {
+    return BatchProof.decode(message.value);
+  },
+  toProto(message: BatchProof): Uint8Array {
+    return BatchProof.encode(message).finish();
+  },
+  toProtoMsg(message: BatchProof): BatchProofProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.BatchProof",
+      value: BatchProof.encode(message).finish(),
+    };
   },
 };
 function createBaseBatchEntry(): BatchEntry {
@@ -1004,20 +1492,6 @@ export const BatchEntry = {
     }
     return message;
   },
-  fromJSON(object: any): BatchEntry {
-    const obj = createBaseBatchEntry();
-    if (isSet(object.exist)) obj.exist = ExistenceProof.fromJSON(object.exist);
-    if (isSet(object.nonexist)) obj.nonexist = NonExistenceProof.fromJSON(object.nonexist);
-    return obj;
-  },
-  toJSON(message: BatchEntry): unknown {
-    const obj: any = {};
-    message.exist !== undefined &&
-      (obj.exist = message.exist ? ExistenceProof.toJSON(message.exist) : undefined);
-    message.nonexist !== undefined &&
-      (obj.nonexist = message.nonexist ? NonExistenceProof.toJSON(message.nonexist) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<BatchEntry>, I>>(object: I): BatchEntry {
     const message = createBaseBatchEntry();
     if (object.exist !== undefined && object.exist !== null) {
@@ -1027,6 +1501,43 @@ export const BatchEntry = {
       message.nonexist = NonExistenceProof.fromPartial(object.nonexist);
     }
     return message;
+  },
+  fromAmino(object: BatchEntryAmino): BatchEntry {
+    const message = createBaseBatchEntry();
+    if (object.exist !== undefined && object.exist !== null) {
+      message.exist = ExistenceProof.fromAmino(object.exist);
+    }
+    if (object.nonexist !== undefined && object.nonexist !== null) {
+      message.nonexist = NonExistenceProof.fromAmino(object.nonexist);
+    }
+    return message;
+  },
+  toAmino(message: BatchEntry): BatchEntryAmino {
+    const obj: any = {};
+    obj.exist = message.exist ? ExistenceProof.toAmino(message.exist) : undefined;
+    obj.nonexist = message.nonexist ? NonExistenceProof.toAmino(message.nonexist) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: BatchEntryAminoMsg): BatchEntry {
+    return BatchEntry.fromAmino(object.value);
+  },
+  toAminoMsg(message: BatchEntry): BatchEntryAminoMsg {
+    return {
+      type: "cosmos-sdk/BatchEntry",
+      value: BatchEntry.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: BatchEntryProtoMsg): BatchEntry {
+    return BatchEntry.decode(message.value);
+  },
+  toProto(message: BatchEntry): Uint8Array {
+    return BatchEntry.encode(message).finish();
+  },
+  toProtoMsg(message: BatchEntry): BatchEntryProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.BatchEntry",
+      value: BatchEntry.encode(message).finish(),
+    };
   },
 };
 function createBaseCompressedBatchProof(): CompressedBatchProof {
@@ -1066,33 +1577,52 @@ export const CompressedBatchProof = {
     }
     return message;
   },
-  fromJSON(object: any): CompressedBatchProof {
-    const obj = createBaseCompressedBatchProof();
-    if (Array.isArray(object?.entries))
-      obj.entries = object.entries.map((e: any) => CompressedBatchEntry.fromJSON(e));
-    if (Array.isArray(object?.lookupInners))
-      obj.lookupInners = object.lookupInners.map((e: any) => InnerOp.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: CompressedBatchProof): unknown {
-    const obj: any = {};
-    if (message.entries) {
-      obj.entries = message.entries.map((e) => (e ? CompressedBatchEntry.toJSON(e) : undefined));
-    } else {
-      obj.entries = [];
-    }
-    if (message.lookupInners) {
-      obj.lookupInners = message.lookupInners.map((e) => (e ? InnerOp.toJSON(e) : undefined));
-    } else {
-      obj.lookupInners = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<CompressedBatchProof>, I>>(object: I): CompressedBatchProof {
     const message = createBaseCompressedBatchProof();
     message.entries = object.entries?.map((e) => CompressedBatchEntry.fromPartial(e)) || [];
     message.lookupInners = object.lookupInners?.map((e) => InnerOp.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: CompressedBatchProofAmino): CompressedBatchProof {
+    const message = createBaseCompressedBatchProof();
+    message.entries = object.entries?.map((e) => CompressedBatchEntry.fromAmino(e)) || [];
+    message.lookupInners = object.lookup_inners?.map((e) => InnerOp.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: CompressedBatchProof): CompressedBatchProofAmino {
+    const obj: any = {};
+    if (message.entries) {
+      obj.entries = message.entries.map((e) => (e ? CompressedBatchEntry.toAmino(e) : undefined));
+    } else {
+      obj.entries = message.entries;
+    }
+    if (message.lookupInners) {
+      obj.lookup_inners = message.lookupInners.map((e) => (e ? InnerOp.toAmino(e) : undefined));
+    } else {
+      obj.lookup_inners = message.lookupInners;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: CompressedBatchProofAminoMsg): CompressedBatchProof {
+    return CompressedBatchProof.fromAmino(object.value);
+  },
+  toAminoMsg(message: CompressedBatchProof): CompressedBatchProofAminoMsg {
+    return {
+      type: "cosmos-sdk/CompressedBatchProof",
+      value: CompressedBatchProof.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: CompressedBatchProofProtoMsg): CompressedBatchProof {
+    return CompressedBatchProof.decode(message.value);
+  },
+  toProto(message: CompressedBatchProof): Uint8Array {
+    return CompressedBatchProof.encode(message).finish();
+  },
+  toProtoMsg(message: CompressedBatchProof): CompressedBatchProofProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.CompressedBatchProof",
+      value: CompressedBatchProof.encode(message).finish(),
+    };
   },
 };
 function createBaseCompressedBatchEntry(): CompressedBatchEntry {
@@ -1132,20 +1662,6 @@ export const CompressedBatchEntry = {
     }
     return message;
   },
-  fromJSON(object: any): CompressedBatchEntry {
-    const obj = createBaseCompressedBatchEntry();
-    if (isSet(object.exist)) obj.exist = CompressedExistenceProof.fromJSON(object.exist);
-    if (isSet(object.nonexist)) obj.nonexist = CompressedNonExistenceProof.fromJSON(object.nonexist);
-    return obj;
-  },
-  toJSON(message: CompressedBatchEntry): unknown {
-    const obj: any = {};
-    message.exist !== undefined &&
-      (obj.exist = message.exist ? CompressedExistenceProof.toJSON(message.exist) : undefined);
-    message.nonexist !== undefined &&
-      (obj.nonexist = message.nonexist ? CompressedNonExistenceProof.toJSON(message.nonexist) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<CompressedBatchEntry>, I>>(object: I): CompressedBatchEntry {
     const message = createBaseCompressedBatchEntry();
     if (object.exist !== undefined && object.exist !== null) {
@@ -1155,6 +1671,43 @@ export const CompressedBatchEntry = {
       message.nonexist = CompressedNonExistenceProof.fromPartial(object.nonexist);
     }
     return message;
+  },
+  fromAmino(object: CompressedBatchEntryAmino): CompressedBatchEntry {
+    const message = createBaseCompressedBatchEntry();
+    if (object.exist !== undefined && object.exist !== null) {
+      message.exist = CompressedExistenceProof.fromAmino(object.exist);
+    }
+    if (object.nonexist !== undefined && object.nonexist !== null) {
+      message.nonexist = CompressedNonExistenceProof.fromAmino(object.nonexist);
+    }
+    return message;
+  },
+  toAmino(message: CompressedBatchEntry): CompressedBatchEntryAmino {
+    const obj: any = {};
+    obj.exist = message.exist ? CompressedExistenceProof.toAmino(message.exist) : undefined;
+    obj.nonexist = message.nonexist ? CompressedNonExistenceProof.toAmino(message.nonexist) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: CompressedBatchEntryAminoMsg): CompressedBatchEntry {
+    return CompressedBatchEntry.fromAmino(object.value);
+  },
+  toAminoMsg(message: CompressedBatchEntry): CompressedBatchEntryAminoMsg {
+    return {
+      type: "cosmos-sdk/CompressedBatchEntry",
+      value: CompressedBatchEntry.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: CompressedBatchEntryProtoMsg): CompressedBatchEntry {
+    return CompressedBatchEntry.decode(message.value);
+  },
+  toProto(message: CompressedBatchEntry): Uint8Array {
+    return CompressedBatchEntry.encode(message).finish();
+  },
+  toProtoMsg(message: CompressedBatchEntry): CompressedBatchEntryProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.CompressedBatchEntry",
+      value: CompressedBatchEntry.encode(message).finish(),
+    };
   },
 };
 function createBaseCompressedExistenceProof(): CompressedExistenceProof {
@@ -1217,28 +1770,6 @@ export const CompressedExistenceProof = {
     }
     return message;
   },
-  fromJSON(object: any): CompressedExistenceProof {
-    const obj = createBaseCompressedExistenceProof();
-    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
-    if (isSet(object.value)) obj.value = bytesFromBase64(object.value);
-    if (isSet(object.leaf)) obj.leaf = LeafOp.fromJSON(object.leaf);
-    if (Array.isArray(object?.path)) obj.path = object.path.map((e: any) => Number(e));
-    return obj;
-  },
-  toJSON(message: CompressedExistenceProof): unknown {
-    const obj: any = {};
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
-    message.value !== undefined &&
-      (obj.value = base64FromBytes(message.value !== undefined ? message.value : new Uint8Array()));
-    message.leaf !== undefined && (obj.leaf = message.leaf ? LeafOp.toJSON(message.leaf) : undefined);
-    if (message.path) {
-      obj.path = message.path.map((e) => Math.round(e));
-    } else {
-      obj.path = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<CompressedExistenceProof>, I>>(
     object: I,
   ): CompressedExistenceProof {
@@ -1250,6 +1781,53 @@ export const CompressedExistenceProof = {
     }
     message.path = object.path?.map((e) => e) || [];
     return message;
+  },
+  fromAmino(object: CompressedExistenceProofAmino): CompressedExistenceProof {
+    const message = createBaseCompressedExistenceProof();
+    if (object.key !== undefined && object.key !== null) {
+      message.key = bytesFromBase64(object.key);
+    }
+    if (object.value !== undefined && object.value !== null) {
+      message.value = bytesFromBase64(object.value);
+    }
+    if (object.leaf !== undefined && object.leaf !== null) {
+      message.leaf = LeafOp.fromAmino(object.leaf);
+    }
+    message.path = object.path?.map((e) => e) || [];
+    return message;
+  },
+  toAmino(message: CompressedExistenceProof): CompressedExistenceProofAmino {
+    const obj: any = {};
+    obj.key = message.key ? base64FromBytes(message.key) : undefined;
+    obj.value = message.value ? base64FromBytes(message.value) : undefined;
+    obj.leaf = message.leaf ? LeafOp.toAmino(message.leaf) : undefined;
+    if (message.path) {
+      obj.path = message.path.map((e) => e);
+    } else {
+      obj.path = message.path;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: CompressedExistenceProofAminoMsg): CompressedExistenceProof {
+    return CompressedExistenceProof.fromAmino(object.value);
+  },
+  toAminoMsg(message: CompressedExistenceProof): CompressedExistenceProofAminoMsg {
+    return {
+      type: "cosmos-sdk/CompressedExistenceProof",
+      value: CompressedExistenceProof.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: CompressedExistenceProofProtoMsg): CompressedExistenceProof {
+    return CompressedExistenceProof.decode(message.value);
+  },
+  toProto(message: CompressedExistenceProof): Uint8Array {
+    return CompressedExistenceProof.encode(message).finish();
+  },
+  toProtoMsg(message: CompressedExistenceProof): CompressedExistenceProofProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.CompressedExistenceProof",
+      value: CompressedExistenceProof.encode(message).finish(),
+    };
   },
 };
 function createBaseCompressedNonExistenceProof(): CompressedNonExistenceProof {
@@ -1296,23 +1874,6 @@ export const CompressedNonExistenceProof = {
     }
     return message;
   },
-  fromJSON(object: any): CompressedNonExistenceProof {
-    const obj = createBaseCompressedNonExistenceProof();
-    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
-    if (isSet(object.left)) obj.left = CompressedExistenceProof.fromJSON(object.left);
-    if (isSet(object.right)) obj.right = CompressedExistenceProof.fromJSON(object.right);
-    return obj;
-  },
-  toJSON(message: CompressedNonExistenceProof): unknown {
-    const obj: any = {};
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
-    message.left !== undefined &&
-      (obj.left = message.left ? CompressedExistenceProof.toJSON(message.left) : undefined);
-    message.right !== undefined &&
-      (obj.right = message.right ? CompressedExistenceProof.toJSON(message.right) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<CompressedNonExistenceProof>, I>>(
     object: I,
   ): CompressedNonExistenceProof {
@@ -1325,5 +1886,46 @@ export const CompressedNonExistenceProof = {
       message.right = CompressedExistenceProof.fromPartial(object.right);
     }
     return message;
+  },
+  fromAmino(object: CompressedNonExistenceProofAmino): CompressedNonExistenceProof {
+    const message = createBaseCompressedNonExistenceProof();
+    if (object.key !== undefined && object.key !== null) {
+      message.key = bytesFromBase64(object.key);
+    }
+    if (object.left !== undefined && object.left !== null) {
+      message.left = CompressedExistenceProof.fromAmino(object.left);
+    }
+    if (object.right !== undefined && object.right !== null) {
+      message.right = CompressedExistenceProof.fromAmino(object.right);
+    }
+    return message;
+  },
+  toAmino(message: CompressedNonExistenceProof): CompressedNonExistenceProofAmino {
+    const obj: any = {};
+    obj.key = message.key ? base64FromBytes(message.key) : undefined;
+    obj.left = message.left ? CompressedExistenceProof.toAmino(message.left) : undefined;
+    obj.right = message.right ? CompressedExistenceProof.toAmino(message.right) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: CompressedNonExistenceProofAminoMsg): CompressedNonExistenceProof {
+    return CompressedNonExistenceProof.fromAmino(object.value);
+  },
+  toAminoMsg(message: CompressedNonExistenceProof): CompressedNonExistenceProofAminoMsg {
+    return {
+      type: "cosmos-sdk/CompressedNonExistenceProof",
+      value: CompressedNonExistenceProof.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: CompressedNonExistenceProofProtoMsg): CompressedNonExistenceProof {
+    return CompressedNonExistenceProof.decode(message.value);
+  },
+  toProto(message: CompressedNonExistenceProof): Uint8Array {
+    return CompressedNonExistenceProof.encode(message).finish();
+  },
+  toProtoMsg(message: CompressedNonExistenceProof): CompressedNonExistenceProofProtoMsg {
+    return {
+      typeUrl: "/cosmos.ics23.v1.CompressedNonExistenceProof",
+      value: CompressedNonExistenceProof.encode(message).finish(),
+    };
   },
 };

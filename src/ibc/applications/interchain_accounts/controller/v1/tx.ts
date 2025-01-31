@@ -1,7 +1,8 @@
+//@ts-nocheck
 /* eslint-disable */
-import { InterchainAccountPacketData } from "../../v1/packet";
+import { InterchainAccountPacketData, InterchainAccountPacketDataAmino } from "../../v1/packet";
 import { BinaryReader, BinaryWriter } from "../../../../../binary";
-import { isSet, DeepPartial, Exact, Rpc } from "../../../../../helpers";
+import { DeepPartial, Exact, Rpc } from "../../../../../helpers";
 export const protobufPackage = "ibc.applications.interchain_accounts.controller.v1";
 /** MsgRegisterInterchainAccount defines the payload for Msg/RegisterAccount */
 export interface MsgRegisterInterchainAccount {
@@ -9,9 +10,35 @@ export interface MsgRegisterInterchainAccount {
   connectionId: string;
   version: string;
 }
+export interface MsgRegisterInterchainAccountProtoMsg {
+  typeUrl: "/ibc.applications.interchain_accounts.controller.v1.MsgRegisterInterchainAccount";
+  value: Uint8Array;
+}
+/** MsgRegisterInterchainAccount defines the payload for Msg/RegisterAccount */
+export interface MsgRegisterInterchainAccountAmino {
+  owner?: string;
+  connection_id?: string;
+  version?: string;
+}
+export interface MsgRegisterInterchainAccountAminoMsg {
+  type: "cosmos-sdk/MsgRegisterInterchainAccount";
+  value: MsgRegisterInterchainAccountAmino;
+}
 /** MsgRegisterInterchainAccountResponse defines the response for Msg/RegisterAccount */
 export interface MsgRegisterInterchainAccountResponse {
   channelId: string;
+}
+export interface MsgRegisterInterchainAccountResponseProtoMsg {
+  typeUrl: "/ibc.applications.interchain_accounts.controller.v1.MsgRegisterInterchainAccountResponse";
+  value: Uint8Array;
+}
+/** MsgRegisterInterchainAccountResponse defines the response for Msg/RegisterAccount */
+export interface MsgRegisterInterchainAccountResponseAmino {
+  channel_id?: string;
+}
+export interface MsgRegisterInterchainAccountResponseAminoMsg {
+  type: "cosmos-sdk/MsgRegisterInterchainAccountResponse";
+  value: MsgRegisterInterchainAccountResponseAmino;
 }
 /** MsgSendTx defines the payload for Msg/SendTx */
 export interface MsgSendTx {
@@ -24,9 +51,40 @@ export interface MsgSendTx {
    */
   relativeTimeout: bigint;
 }
+export interface MsgSendTxProtoMsg {
+  typeUrl: "/ibc.applications.interchain_accounts.controller.v1.MsgSendTx";
+  value: Uint8Array;
+}
+/** MsgSendTx defines the payload for Msg/SendTx */
+export interface MsgSendTxAmino {
+  owner?: string;
+  connection_id?: string;
+  packet_data?: InterchainAccountPacketDataAmino;
+  /**
+   * Relative timeout timestamp provided will be added to the current block time during transaction execution.
+   * The timeout timestamp must be non-zero.
+   */
+  relative_timeout?: string;
+}
+export interface MsgSendTxAminoMsg {
+  type: "cosmos-sdk/MsgSendTx";
+  value: MsgSendTxAmino;
+}
 /** MsgSendTxResponse defines the response for MsgSendTx */
 export interface MsgSendTxResponse {
   sequence: bigint;
+}
+export interface MsgSendTxResponseProtoMsg {
+  typeUrl: "/ibc.applications.interchain_accounts.controller.v1.MsgSendTxResponse";
+  value: Uint8Array;
+}
+/** MsgSendTxResponse defines the response for MsgSendTx */
+export interface MsgSendTxResponseAmino {
+  sequence?: string;
+}
+export interface MsgSendTxResponseAminoMsg {
+  type: "cosmos-sdk/MsgSendTxResponse";
+  value: MsgSendTxResponseAmino;
 }
 function createBaseMsgRegisterInterchainAccount(): MsgRegisterInterchainAccount {
   return {
@@ -72,20 +130,6 @@ export const MsgRegisterInterchainAccount = {
     }
     return message;
   },
-  fromJSON(object: any): MsgRegisterInterchainAccount {
-    const obj = createBaseMsgRegisterInterchainAccount();
-    if (isSet(object.owner)) obj.owner = String(object.owner);
-    if (isSet(object.connectionId)) obj.connectionId = String(object.connectionId);
-    if (isSet(object.version)) obj.version = String(object.version);
-    return obj;
-  },
-  toJSON(message: MsgRegisterInterchainAccount): unknown {
-    const obj: any = {};
-    message.owner !== undefined && (obj.owner = message.owner);
-    message.connectionId !== undefined && (obj.connectionId = message.connectionId);
-    message.version !== undefined && (obj.version = message.version);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgRegisterInterchainAccount>, I>>(
     object: I,
   ): MsgRegisterInterchainAccount {
@@ -94,6 +138,47 @@ export const MsgRegisterInterchainAccount = {
     message.connectionId = object.connectionId ?? "";
     message.version = object.version ?? "";
     return message;
+  },
+  fromAmino(object: MsgRegisterInterchainAccountAmino): MsgRegisterInterchainAccount {
+    const message = createBaseMsgRegisterInterchainAccount();
+    if (object.owner !== undefined && object.owner !== null) {
+      message.owner = object.owner;
+    }
+    if (object.connection_id !== undefined && object.connection_id !== null) {
+      message.connectionId = object.connection_id;
+    }
+    if (object.version !== undefined && object.version !== null) {
+      message.version = object.version;
+    }
+    return message;
+  },
+  toAmino(message: MsgRegisterInterchainAccount): MsgRegisterInterchainAccountAmino {
+    const obj: any = {};
+    obj.owner = message.owner === "" ? undefined : message.owner;
+    obj.connection_id = message.connectionId === "" ? undefined : message.connectionId;
+    obj.version = message.version === "" ? undefined : message.version;
+    return obj;
+  },
+  fromAminoMsg(object: MsgRegisterInterchainAccountAminoMsg): MsgRegisterInterchainAccount {
+    return MsgRegisterInterchainAccount.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgRegisterInterchainAccount): MsgRegisterInterchainAccountAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgRegisterInterchainAccount",
+      value: MsgRegisterInterchainAccount.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgRegisterInterchainAccountProtoMsg): MsgRegisterInterchainAccount {
+    return MsgRegisterInterchainAccount.decode(message.value);
+  },
+  toProto(message: MsgRegisterInterchainAccount): Uint8Array {
+    return MsgRegisterInterchainAccount.encode(message).finish();
+  },
+  toProtoMsg(message: MsgRegisterInterchainAccount): MsgRegisterInterchainAccountProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.interchain_accounts.controller.v1.MsgRegisterInterchainAccount",
+      value: MsgRegisterInterchainAccount.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgRegisterInterchainAccountResponse(): MsgRegisterInterchainAccountResponse {
@@ -129,22 +214,45 @@ export const MsgRegisterInterchainAccountResponse = {
     }
     return message;
   },
-  fromJSON(object: any): MsgRegisterInterchainAccountResponse {
-    const obj = createBaseMsgRegisterInterchainAccountResponse();
-    if (isSet(object.channelId)) obj.channelId = String(object.channelId);
-    return obj;
-  },
-  toJSON(message: MsgRegisterInterchainAccountResponse): unknown {
-    const obj: any = {};
-    message.channelId !== undefined && (obj.channelId = message.channelId);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgRegisterInterchainAccountResponse>, I>>(
     object: I,
   ): MsgRegisterInterchainAccountResponse {
     const message = createBaseMsgRegisterInterchainAccountResponse();
     message.channelId = object.channelId ?? "";
     return message;
+  },
+  fromAmino(object: MsgRegisterInterchainAccountResponseAmino): MsgRegisterInterchainAccountResponse {
+    const message = createBaseMsgRegisterInterchainAccountResponse();
+    if (object.channel_id !== undefined && object.channel_id !== null) {
+      message.channelId = object.channel_id;
+    }
+    return message;
+  },
+  toAmino(message: MsgRegisterInterchainAccountResponse): MsgRegisterInterchainAccountResponseAmino {
+    const obj: any = {};
+    obj.channel_id = message.channelId === "" ? undefined : message.channelId;
+    return obj;
+  },
+  fromAminoMsg(object: MsgRegisterInterchainAccountResponseAminoMsg): MsgRegisterInterchainAccountResponse {
+    return MsgRegisterInterchainAccountResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgRegisterInterchainAccountResponse): MsgRegisterInterchainAccountResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgRegisterInterchainAccountResponse",
+      value: MsgRegisterInterchainAccountResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgRegisterInterchainAccountResponseProtoMsg): MsgRegisterInterchainAccountResponse {
+    return MsgRegisterInterchainAccountResponse.decode(message.value);
+  },
+  toProto(message: MsgRegisterInterchainAccountResponse): Uint8Array {
+    return MsgRegisterInterchainAccountResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgRegisterInterchainAccountResponse): MsgRegisterInterchainAccountResponseProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.interchain_accounts.controller.v1.MsgRegisterInterchainAccountResponse",
+      value: MsgRegisterInterchainAccountResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgSendTx(): MsgSendTx {
@@ -198,26 +306,6 @@ export const MsgSendTx = {
     }
     return message;
   },
-  fromJSON(object: any): MsgSendTx {
-    const obj = createBaseMsgSendTx();
-    if (isSet(object.owner)) obj.owner = String(object.owner);
-    if (isSet(object.connectionId)) obj.connectionId = String(object.connectionId);
-    if (isSet(object.packetData)) obj.packetData = InterchainAccountPacketData.fromJSON(object.packetData);
-    if (isSet(object.relativeTimeout)) obj.relativeTimeout = BigInt(object.relativeTimeout.toString());
-    return obj;
-  },
-  toJSON(message: MsgSendTx): unknown {
-    const obj: any = {};
-    message.owner !== undefined && (obj.owner = message.owner);
-    message.connectionId !== undefined && (obj.connectionId = message.connectionId);
-    message.packetData !== undefined &&
-      (obj.packetData = message.packetData
-        ? InterchainAccountPacketData.toJSON(message.packetData)
-        : undefined);
-    message.relativeTimeout !== undefined &&
-      (obj.relativeTimeout = (message.relativeTimeout || BigInt(0)).toString());
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgSendTx>, I>>(object: I): MsgSendTx {
     const message = createBaseMsgSendTx();
     message.owner = object.owner ?? "";
@@ -229,6 +317,54 @@ export const MsgSendTx = {
       message.relativeTimeout = BigInt(object.relativeTimeout.toString());
     }
     return message;
+  },
+  fromAmino(object: MsgSendTxAmino): MsgSendTx {
+    const message = createBaseMsgSendTx();
+    if (object.owner !== undefined && object.owner !== null) {
+      message.owner = object.owner;
+    }
+    if (object.connection_id !== undefined && object.connection_id !== null) {
+      message.connectionId = object.connection_id;
+    }
+    if (object.packet_data !== undefined && object.packet_data !== null) {
+      message.packetData = InterchainAccountPacketData.fromAmino(object.packet_data);
+    }
+    if (object.relative_timeout !== undefined && object.relative_timeout !== null) {
+      message.relativeTimeout = BigInt(object.relative_timeout);
+    }
+    return message;
+  },
+  toAmino(message: MsgSendTx): MsgSendTxAmino {
+    const obj: any = {};
+    obj.owner = message.owner === "" ? undefined : message.owner;
+    obj.connection_id = message.connectionId === "" ? undefined : message.connectionId;
+    obj.packet_data = message.packetData
+      ? InterchainAccountPacketData.toAmino(message.packetData)
+      : undefined;
+    obj.relative_timeout =
+      message.relativeTimeout !== BigInt(0) ? message.relativeTimeout?.toString() : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: MsgSendTxAminoMsg): MsgSendTx {
+    return MsgSendTx.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgSendTx): MsgSendTxAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgSendTx",
+      value: MsgSendTx.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgSendTxProtoMsg): MsgSendTx {
+    return MsgSendTx.decode(message.value);
+  },
+  toProto(message: MsgSendTx): Uint8Array {
+    return MsgSendTx.encode(message).finish();
+  },
+  toProtoMsg(message: MsgSendTx): MsgSendTxProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.interchain_accounts.controller.v1.MsgSendTx",
+      value: MsgSendTx.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgSendTxResponse(): MsgSendTxResponse {
@@ -261,22 +397,45 @@ export const MsgSendTxResponse = {
     }
     return message;
   },
-  fromJSON(object: any): MsgSendTxResponse {
-    const obj = createBaseMsgSendTxResponse();
-    if (isSet(object.sequence)) obj.sequence = BigInt(object.sequence.toString());
-    return obj;
-  },
-  toJSON(message: MsgSendTxResponse): unknown {
-    const obj: any = {};
-    message.sequence !== undefined && (obj.sequence = (message.sequence || BigInt(0)).toString());
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgSendTxResponse>, I>>(object: I): MsgSendTxResponse {
     const message = createBaseMsgSendTxResponse();
     if (object.sequence !== undefined && object.sequence !== null) {
       message.sequence = BigInt(object.sequence.toString());
     }
     return message;
+  },
+  fromAmino(object: MsgSendTxResponseAmino): MsgSendTxResponse {
+    const message = createBaseMsgSendTxResponse();
+    if (object.sequence !== undefined && object.sequence !== null) {
+      message.sequence = BigInt(object.sequence);
+    }
+    return message;
+  },
+  toAmino(message: MsgSendTxResponse): MsgSendTxResponseAmino {
+    const obj: any = {};
+    obj.sequence = message.sequence !== BigInt(0) ? message.sequence?.toString() : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: MsgSendTxResponseAminoMsg): MsgSendTxResponse {
+    return MsgSendTxResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgSendTxResponse): MsgSendTxResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgSendTxResponse",
+      value: MsgSendTxResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgSendTxResponseProtoMsg): MsgSendTxResponse {
+    return MsgSendTxResponse.decode(message.value);
+  },
+  toProto(message: MsgSendTxResponse): Uint8Array {
+    return MsgSendTxResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgSendTxResponse): MsgSendTxResponseProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.interchain_accounts.controller.v1.MsgSendTxResponse",
+      value: MsgSendTxResponse.encode(message).finish(),
+    };
   },
 };
 /** Msg defines the 27-interchain-accounts/controller Msg service. */

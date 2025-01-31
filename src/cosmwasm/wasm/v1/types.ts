@@ -1,7 +1,9 @@
+//@ts-nocheck
 /* eslint-disable */
-import { Any } from "../../../google/protobuf/any";
+import { Any, AnyAmino } from "../../../google/protobuf/any";
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../../helpers";
+import { DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../../helpers";
+import { toUtf8, fromUtf8 } from "@cosmjs/encoding";
 export const protobufPackage = "cosmwasm.wasm.v1";
 /** AccessType permission types */
 export enum AccessType {
@@ -20,6 +22,7 @@ export enum AccessType {
   ACCESS_TYPE_ANY_OF_ADDRESSES = 4,
   UNRECOGNIZED = -1,
 }
+export const AccessTypeAmino = AccessType;
 export function accessTypeFromJSON(object: any): AccessType {
   switch (object) {
     case 0:
@@ -72,6 +75,7 @@ export enum ContractCodeHistoryOperationType {
   CONTRACT_CODE_HISTORY_OPERATION_TYPE_GENESIS = 3,
   UNRECOGNIZED = -1,
 }
+export const ContractCodeHistoryOperationTypeAmino = ContractCodeHistoryOperationType;
 export function contractCodeHistoryOperationTypeFromJSON(object: any): ContractCodeHistoryOperationType {
   switch (object) {
     case 0:
@@ -111,6 +115,18 @@ export function contractCodeHistoryOperationTypeToJSON(object: ContractCodeHisto
 export interface AccessTypeParam {
   value: AccessType;
 }
+export interface AccessTypeParamProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.AccessTypeParam";
+  value: Uint8Array;
+}
+/** AccessTypeParam */
+export interface AccessTypeParamAmino {
+  value?: AccessType;
+}
+export interface AccessTypeParamAminoMsg {
+  type: "wasm/AccessTypeParam";
+  value: AccessTypeParamAmino;
+}
 /** AccessConfig access control type. */
 export interface AccessConfig {
   permission: AccessType;
@@ -121,10 +137,41 @@ export interface AccessConfig {
   address: string;
   addresses: string[];
 }
+export interface AccessConfigProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.AccessConfig";
+  value: Uint8Array;
+}
+/** AccessConfig access control type. */
+export interface AccessConfigAmino {
+  permission?: AccessType;
+  /**
+   * Address
+   * Deprecated: replaced by addresses
+   */
+  address?: string;
+  addresses?: string[];
+}
+export interface AccessConfigAminoMsg {
+  type: "wasm/AccessConfig";
+  value: AccessConfigAmino;
+}
 /** Params defines the set of wasm parameters. */
 export interface Params {
   codeUploadAccess: AccessConfig;
   instantiateDefaultPermission: AccessType;
+}
+export interface ParamsProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.Params";
+  value: Uint8Array;
+}
+/** Params defines the set of wasm parameters. */
+export interface ParamsAmino {
+  code_upload_access?: AccessConfigAmino;
+  instantiate_default_permission?: AccessType;
+}
+export interface ParamsAminoMsg {
+  type: "wasm/Params";
+  value: ParamsAmino;
 }
 /** CodeInfo is data for the uploaded contract WASM code */
 export interface CodeInfo {
@@ -134,6 +181,23 @@ export interface CodeInfo {
   creator: string;
   /** InstantiateConfig access control to apply on contract creation, optional */
   instantiateConfig: AccessConfig;
+}
+export interface CodeInfoProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.CodeInfo";
+  value: Uint8Array;
+}
+/** CodeInfo is data for the uploaded contract WASM code */
+export interface CodeInfoAmino {
+  /** CodeHash is the unique identifier created by wasmvm */
+  code_hash?: string;
+  /** Creator address who initially stored the code */
+  creator?: string;
+  /** InstantiateConfig access control to apply on contract creation, optional */
+  instantiate_config?: AccessConfigAmino;
+}
+export interface CodeInfoAminoMsg {
+  type: "wasm/CodeInfo";
+  value: CodeInfoAmino;
 }
 /** ContractInfo stores a WASM contract instance */
 export interface ContractInfo {
@@ -154,6 +218,33 @@ export interface ContractInfo {
    */
   extension?: Any;
 }
+export interface ContractInfoProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.ContractInfo";
+  value: Uint8Array;
+}
+/** ContractInfo stores a WASM contract instance */
+export interface ContractInfoAmino {
+  /** CodeID is the reference to the stored Wasm code */
+  code_id?: string;
+  /** Creator address who initially instantiated the contract */
+  creator?: string;
+  /** Admin is an optional address that can execute migrations */
+  admin?: string;
+  /** Label is optional metadata to be stored with a contract instance. */
+  label?: string;
+  /** Created Tx position when the contract was instantiated. */
+  created?: AbsoluteTxPositionAmino;
+  ibc_port_id?: string;
+  /**
+   * Extension is an extension point to store custom metadata within the
+   * persistence model.
+   */
+  extension?: AnyAmino;
+}
+export interface ContractInfoAminoMsg {
+  type: "wasm/ContractInfo";
+  value: ContractInfoAmino;
+}
 /** ContractCodeHistoryEntry metadata to a contract. */
 export interface ContractCodeHistoryEntry {
   operation: ContractCodeHistoryOperationType;
@@ -162,6 +253,23 @@ export interface ContractCodeHistoryEntry {
   /** Updated Tx position when the operation was executed. */
   updated?: AbsoluteTxPosition;
   msg: Uint8Array;
+}
+export interface ContractCodeHistoryEntryProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.ContractCodeHistoryEntry";
+  value: Uint8Array;
+}
+/** ContractCodeHistoryEntry metadata to a contract. */
+export interface ContractCodeHistoryEntryAmino {
+  operation?: ContractCodeHistoryOperationType;
+  /** CodeID is the reference to the stored WASM code */
+  code_id?: string;
+  /** Updated Tx position when the operation was executed. */
+  updated?: AbsoluteTxPositionAmino;
+  msg?: any;
+}
+export interface ContractCodeHistoryEntryAminoMsg {
+  type: "wasm/ContractCodeHistoryEntry";
+  value: ContractCodeHistoryEntryAmino;
 }
 /**
  * AbsoluteTxPosition is a unique transaction position that allows for global
@@ -176,12 +284,48 @@ export interface AbsoluteTxPosition {
    */
   txIndex: bigint;
 }
+export interface AbsoluteTxPositionProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.AbsoluteTxPosition";
+  value: Uint8Array;
+}
+/**
+ * AbsoluteTxPosition is a unique transaction position that allows for global
+ * ordering of transactions.
+ */
+export interface AbsoluteTxPositionAmino {
+  /** BlockHeight is the block the contract was created at */
+  block_height?: string;
+  /**
+   * TxIndex is a monotonic counter within the block (actual transaction index,
+   * or gas consumed)
+   */
+  tx_index?: string;
+}
+export interface AbsoluteTxPositionAminoMsg {
+  type: "wasm/AbsoluteTxPosition";
+  value: AbsoluteTxPositionAmino;
+}
 /** Model is a struct that holds a KV pair */
 export interface Model {
   /** hex-encode key to read it better (this is often ascii) */
   key: Uint8Array;
   /** base64-encode raw value */
   value: Uint8Array;
+}
+export interface ModelProtoMsg {
+  typeUrl: "/cosmwasm.wasm.v1.Model";
+  value: Uint8Array;
+}
+/** Model is a struct that holds a KV pair */
+export interface ModelAmino {
+  /** hex-encode key to read it better (this is often ascii) */
+  key?: string;
+  /** base64-encode raw value */
+  value?: string;
+}
+export interface ModelAminoMsg {
+  type: "wasm/Model";
+  value: ModelAmino;
 }
 function createBaseAccessTypeParam(): AccessTypeParam {
   return {
@@ -213,20 +357,43 @@ export const AccessTypeParam = {
     }
     return message;
   },
-  fromJSON(object: any): AccessTypeParam {
-    const obj = createBaseAccessTypeParam();
-    if (isSet(object.value)) obj.value = accessTypeFromJSON(object.value);
-    return obj;
-  },
-  toJSON(message: AccessTypeParam): unknown {
-    const obj: any = {};
-    message.value !== undefined && (obj.value = accessTypeToJSON(message.value));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<AccessTypeParam>, I>>(object: I): AccessTypeParam {
     const message = createBaseAccessTypeParam();
     message.value = object.value ?? 0;
     return message;
+  },
+  fromAmino(object: AccessTypeParamAmino): AccessTypeParam {
+    const message = createBaseAccessTypeParam();
+    if (object.value !== undefined && object.value !== null) {
+      message.value = object.value;
+    }
+    return message;
+  },
+  toAmino(message: AccessTypeParam): AccessTypeParamAmino {
+    const obj: any = {};
+    obj.value = message.value === 0 ? undefined : message.value;
+    return obj;
+  },
+  fromAminoMsg(object: AccessTypeParamAminoMsg): AccessTypeParam {
+    return AccessTypeParam.fromAmino(object.value);
+  },
+  toAminoMsg(message: AccessTypeParam): AccessTypeParamAminoMsg {
+    return {
+      type: "wasm/AccessTypeParam",
+      value: AccessTypeParam.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: AccessTypeParamProtoMsg): AccessTypeParam {
+    return AccessTypeParam.decode(message.value);
+  },
+  toProto(message: AccessTypeParam): Uint8Array {
+    return AccessTypeParam.encode(message).finish();
+  },
+  toProtoMsg(message: AccessTypeParam): AccessTypeParamProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.AccessTypeParam",
+      value: AccessTypeParam.encode(message).finish(),
+    };
   },
 };
 function createBaseAccessConfig(): AccessConfig {
@@ -273,30 +440,55 @@ export const AccessConfig = {
     }
     return message;
   },
-  fromJSON(object: any): AccessConfig {
-    const obj = createBaseAccessConfig();
-    if (isSet(object.permission)) obj.permission = accessTypeFromJSON(object.permission);
-    if (isSet(object.address)) obj.address = String(object.address);
-    if (Array.isArray(object?.addresses)) obj.addresses = object.addresses.map((e: any) => String(e));
-    return obj;
-  },
-  toJSON(message: AccessConfig): unknown {
-    const obj: any = {};
-    message.permission !== undefined && (obj.permission = accessTypeToJSON(message.permission));
-    message.address !== undefined && (obj.address = message.address);
-    if (message.addresses) {
-      obj.addresses = message.addresses.map((e) => e);
-    } else {
-      obj.addresses = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<AccessConfig>, I>>(object: I): AccessConfig {
     const message = createBaseAccessConfig();
     message.permission = object.permission ?? 0;
     message.address = object.address ?? "";
     message.addresses = object.addresses?.map((e) => e) || [];
     return message;
+  },
+  fromAmino(object: AccessConfigAmino): AccessConfig {
+    const message = createBaseAccessConfig();
+    if (object.permission !== undefined && object.permission !== null) {
+      message.permission = object.permission;
+    }
+    if (object.address !== undefined && object.address !== null) {
+      message.address = object.address;
+    }
+    message.addresses = object.addresses?.map((e) => e) || [];
+    return message;
+  },
+  toAmino(message: AccessConfig): AccessConfigAmino {
+    const obj: any = {};
+    obj.permission = message.permission === 0 ? undefined : message.permission;
+    obj.address = message.address === "" ? undefined : message.address;
+    if (message.addresses) {
+      obj.addresses = message.addresses.map((e) => e);
+    } else {
+      obj.addresses = message.addresses;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: AccessConfigAminoMsg): AccessConfig {
+    return AccessConfig.fromAmino(object.value);
+  },
+  toAminoMsg(message: AccessConfig): AccessConfigAminoMsg {
+    return {
+      type: "wasm/AccessConfig",
+      value: AccessConfig.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: AccessConfigProtoMsg): AccessConfig {
+    return AccessConfig.decode(message.value);
+  },
+  toProto(message: AccessConfig): Uint8Array {
+    return AccessConfig.encode(message).finish();
+  },
+  toProtoMsg(message: AccessConfig): AccessConfigProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.AccessConfig",
+      value: AccessConfig.encode(message).finish(),
+    };
   },
 };
 function createBaseParams(): Params {
@@ -336,23 +528,6 @@ export const Params = {
     }
     return message;
   },
-  fromJSON(object: any): Params {
-    const obj = createBaseParams();
-    if (isSet(object.codeUploadAccess)) obj.codeUploadAccess = AccessConfig.fromJSON(object.codeUploadAccess);
-    if (isSet(object.instantiateDefaultPermission))
-      obj.instantiateDefaultPermission = accessTypeFromJSON(object.instantiateDefaultPermission);
-    return obj;
-  },
-  toJSON(message: Params): unknown {
-    const obj: any = {};
-    message.codeUploadAccess !== undefined &&
-      (obj.codeUploadAccess = message.codeUploadAccess
-        ? AccessConfig.toJSON(message.codeUploadAccess)
-        : undefined);
-    message.instantiateDefaultPermission !== undefined &&
-      (obj.instantiateDefaultPermission = accessTypeToJSON(message.instantiateDefaultPermission));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Params>, I>>(object: I): Params {
     const message = createBaseParams();
     if (object.codeUploadAccess !== undefined && object.codeUploadAccess !== null) {
@@ -360,6 +535,49 @@ export const Params = {
     }
     message.instantiateDefaultPermission = object.instantiateDefaultPermission ?? 0;
     return message;
+  },
+  fromAmino(object: ParamsAmino): Params {
+    const message = createBaseParams();
+    if (object.code_upload_access !== undefined && object.code_upload_access !== null) {
+      message.codeUploadAccess = AccessConfig.fromAmino(object.code_upload_access);
+    }
+    if (
+      object.instantiate_default_permission !== undefined &&
+      object.instantiate_default_permission !== null
+    ) {
+      message.instantiateDefaultPermission = object.instantiate_default_permission;
+    }
+    return message;
+  },
+  toAmino(message: Params): ParamsAmino {
+    const obj: any = {};
+    obj.code_upload_access = message.codeUploadAccess
+      ? AccessConfig.toAmino(message.codeUploadAccess)
+      : undefined;
+    obj.instantiate_default_permission =
+      message.instantiateDefaultPermission === 0 ? undefined : message.instantiateDefaultPermission;
+    return obj;
+  },
+  fromAminoMsg(object: ParamsAminoMsg): Params {
+    return Params.fromAmino(object.value);
+  },
+  toAminoMsg(message: Params): ParamsAminoMsg {
+    return {
+      type: "wasm/Params",
+      value: Params.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ParamsProtoMsg): Params {
+    return Params.decode(message.value);
+  },
+  toProto(message: Params): Uint8Array {
+    return Params.encode(message).finish();
+  },
+  toProtoMsg(message: Params): ParamsProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.Params",
+      value: Params.encode(message).finish(),
+    };
   },
 };
 function createBaseCodeInfo(): CodeInfo {
@@ -406,25 +624,6 @@ export const CodeInfo = {
     }
     return message;
   },
-  fromJSON(object: any): CodeInfo {
-    const obj = createBaseCodeInfo();
-    if (isSet(object.codeHash)) obj.codeHash = bytesFromBase64(object.codeHash);
-    if (isSet(object.creator)) obj.creator = String(object.creator);
-    if (isSet(object.instantiateConfig))
-      obj.instantiateConfig = AccessConfig.fromJSON(object.instantiateConfig);
-    return obj;
-  },
-  toJSON(message: CodeInfo): unknown {
-    const obj: any = {};
-    message.codeHash !== undefined &&
-      (obj.codeHash = base64FromBytes(message.codeHash !== undefined ? message.codeHash : new Uint8Array()));
-    message.creator !== undefined && (obj.creator = message.creator);
-    message.instantiateConfig !== undefined &&
-      (obj.instantiateConfig = message.instantiateConfig
-        ? AccessConfig.toJSON(message.instantiateConfig)
-        : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<CodeInfo>, I>>(object: I): CodeInfo {
     const message = createBaseCodeInfo();
     message.codeHash = object.codeHash ?? new Uint8Array();
@@ -433,6 +632,49 @@ export const CodeInfo = {
       message.instantiateConfig = AccessConfig.fromPartial(object.instantiateConfig);
     }
     return message;
+  },
+  fromAmino(object: CodeInfoAmino): CodeInfo {
+    const message = createBaseCodeInfo();
+    if (object.code_hash !== undefined && object.code_hash !== null) {
+      message.codeHash = bytesFromBase64(object.code_hash);
+    }
+    if (object.creator !== undefined && object.creator !== null) {
+      message.creator = object.creator;
+    }
+    if (object.instantiate_config !== undefined && object.instantiate_config !== null) {
+      message.instantiateConfig = AccessConfig.fromAmino(object.instantiate_config);
+    }
+    return message;
+  },
+  toAmino(message: CodeInfo): CodeInfoAmino {
+    const obj: any = {};
+    obj.code_hash = message.codeHash ? base64FromBytes(message.codeHash) : undefined;
+    obj.creator = message.creator === "" ? undefined : message.creator;
+    obj.instantiate_config = message.instantiateConfig
+      ? AccessConfig.toAmino(message.instantiateConfig)
+      : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: CodeInfoAminoMsg): CodeInfo {
+    return CodeInfo.fromAmino(object.value);
+  },
+  toAminoMsg(message: CodeInfo): CodeInfoAminoMsg {
+    return {
+      type: "wasm/CodeInfo",
+      value: CodeInfo.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: CodeInfoProtoMsg): CodeInfo {
+    return CodeInfo.decode(message.value);
+  },
+  toProto(message: CodeInfo): Uint8Array {
+    return CodeInfo.encode(message).finish();
+  },
+  toProtoMsg(message: CodeInfo): CodeInfoProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.CodeInfo",
+      value: CodeInfo.encode(message).finish(),
+    };
   },
 };
 function createBaseContractInfo(): ContractInfo {
@@ -507,30 +749,6 @@ export const ContractInfo = {
     }
     return message;
   },
-  fromJSON(object: any): ContractInfo {
-    const obj = createBaseContractInfo();
-    if (isSet(object.codeId)) obj.codeId = BigInt(object.codeId.toString());
-    if (isSet(object.creator)) obj.creator = String(object.creator);
-    if (isSet(object.admin)) obj.admin = String(object.admin);
-    if (isSet(object.label)) obj.label = String(object.label);
-    if (isSet(object.created)) obj.created = AbsoluteTxPosition.fromJSON(object.created);
-    if (isSet(object.ibcPortId)) obj.ibcPortId = String(object.ibcPortId);
-    if (isSet(object.extension)) obj.extension = Any.fromJSON(object.extension);
-    return obj;
-  },
-  toJSON(message: ContractInfo): unknown {
-    const obj: any = {};
-    message.codeId !== undefined && (obj.codeId = (message.codeId || BigInt(0)).toString());
-    message.creator !== undefined && (obj.creator = message.creator);
-    message.admin !== undefined && (obj.admin = message.admin);
-    message.label !== undefined && (obj.label = message.label);
-    message.created !== undefined &&
-      (obj.created = message.created ? AbsoluteTxPosition.toJSON(message.created) : undefined);
-    message.ibcPortId !== undefined && (obj.ibcPortId = message.ibcPortId);
-    message.extension !== undefined &&
-      (obj.extension = message.extension ? Any.toJSON(message.extension) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<ContractInfo>, I>>(object: I): ContractInfo {
     const message = createBaseContractInfo();
     if (object.codeId !== undefined && object.codeId !== null) {
@@ -547,6 +765,63 @@ export const ContractInfo = {
       message.extension = Any.fromPartial(object.extension);
     }
     return message;
+  },
+  fromAmino(object: ContractInfoAmino): ContractInfo {
+    const message = createBaseContractInfo();
+    if (object.code_id !== undefined && object.code_id !== null) {
+      message.codeId = BigInt(object.code_id);
+    }
+    if (object.creator !== undefined && object.creator !== null) {
+      message.creator = object.creator;
+    }
+    if (object.admin !== undefined && object.admin !== null) {
+      message.admin = object.admin;
+    }
+    if (object.label !== undefined && object.label !== null) {
+      message.label = object.label;
+    }
+    if (object.created !== undefined && object.created !== null) {
+      message.created = AbsoluteTxPosition.fromAmino(object.created);
+    }
+    if (object.ibc_port_id !== undefined && object.ibc_port_id !== null) {
+      message.ibcPortId = object.ibc_port_id;
+    }
+    if (object.extension !== undefined && object.extension !== null) {
+      message.extension = Any.fromAmino(object.extension);
+    }
+    return message;
+  },
+  toAmino(message: ContractInfo): ContractInfoAmino {
+    const obj: any = {};
+    obj.code_id = message.codeId !== BigInt(0) ? message.codeId?.toString() : undefined;
+    obj.creator = message.creator === "" ? undefined : message.creator;
+    obj.admin = message.admin === "" ? undefined : message.admin;
+    obj.label = message.label === "" ? undefined : message.label;
+    obj.created = message.created ? AbsoluteTxPosition.toAmino(message.created) : undefined;
+    obj.ibc_port_id = message.ibcPortId === "" ? undefined : message.ibcPortId;
+    obj.extension = message.extension ? Any.toAmino(message.extension) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: ContractInfoAminoMsg): ContractInfo {
+    return ContractInfo.fromAmino(object.value);
+  },
+  toAminoMsg(message: ContractInfo): ContractInfoAminoMsg {
+    return {
+      type: "wasm/ContractInfo",
+      value: ContractInfo.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ContractInfoProtoMsg): ContractInfo {
+    return ContractInfo.decode(message.value);
+  },
+  toProto(message: ContractInfo): Uint8Array {
+    return ContractInfo.encode(message).finish();
+  },
+  toProtoMsg(message: ContractInfo): ContractInfoProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.ContractInfo",
+      value: ContractInfo.encode(message).finish(),
+    };
   },
 };
 function createBaseContractCodeHistoryEntry(): ContractCodeHistoryEntry {
@@ -600,25 +875,6 @@ export const ContractCodeHistoryEntry = {
     }
     return message;
   },
-  fromJSON(object: any): ContractCodeHistoryEntry {
-    const obj = createBaseContractCodeHistoryEntry();
-    if (isSet(object.operation)) obj.operation = contractCodeHistoryOperationTypeFromJSON(object.operation);
-    if (isSet(object.codeId)) obj.codeId = BigInt(object.codeId.toString());
-    if (isSet(object.updated)) obj.updated = AbsoluteTxPosition.fromJSON(object.updated);
-    if (isSet(object.msg)) obj.msg = bytesFromBase64(object.msg);
-    return obj;
-  },
-  toJSON(message: ContractCodeHistoryEntry): unknown {
-    const obj: any = {};
-    message.operation !== undefined &&
-      (obj.operation = contractCodeHistoryOperationTypeToJSON(message.operation));
-    message.codeId !== undefined && (obj.codeId = (message.codeId || BigInt(0)).toString());
-    message.updated !== undefined &&
-      (obj.updated = message.updated ? AbsoluteTxPosition.toJSON(message.updated) : undefined);
-    message.msg !== undefined &&
-      (obj.msg = base64FromBytes(message.msg !== undefined ? message.msg : new Uint8Array()));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<ContractCodeHistoryEntry>, I>>(
     object: I,
   ): ContractCodeHistoryEntry {
@@ -632,6 +888,51 @@ export const ContractCodeHistoryEntry = {
     }
     message.msg = object.msg ?? new Uint8Array();
     return message;
+  },
+  fromAmino(object: ContractCodeHistoryEntryAmino): ContractCodeHistoryEntry {
+    const message = createBaseContractCodeHistoryEntry();
+    if (object.operation !== undefined && object.operation !== null) {
+      message.operation = object.operation;
+    }
+    if (object.code_id !== undefined && object.code_id !== null) {
+      message.codeId = BigInt(object.code_id);
+    }
+    if (object.updated !== undefined && object.updated !== null) {
+      message.updated = AbsoluteTxPosition.fromAmino(object.updated);
+    }
+    if (object.msg !== undefined && object.msg !== null) {
+      message.msg = toUtf8(JSON.stringify(object.msg));
+    }
+    return message;
+  },
+  toAmino(message: ContractCodeHistoryEntry): ContractCodeHistoryEntryAmino {
+    const obj: any = {};
+    obj.operation = message.operation === 0 ? undefined : message.operation;
+    obj.code_id = message.codeId !== BigInt(0) ? message.codeId?.toString() : undefined;
+    obj.updated = message.updated ? AbsoluteTxPosition.toAmino(message.updated) : undefined;
+    obj.msg = message.msg ? JSON.parse(fromUtf8(message.msg)) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: ContractCodeHistoryEntryAminoMsg): ContractCodeHistoryEntry {
+    return ContractCodeHistoryEntry.fromAmino(object.value);
+  },
+  toAminoMsg(message: ContractCodeHistoryEntry): ContractCodeHistoryEntryAminoMsg {
+    return {
+      type: "wasm/ContractCodeHistoryEntry",
+      value: ContractCodeHistoryEntry.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ContractCodeHistoryEntryProtoMsg): ContractCodeHistoryEntry {
+    return ContractCodeHistoryEntry.decode(message.value);
+  },
+  toProto(message: ContractCodeHistoryEntry): Uint8Array {
+    return ContractCodeHistoryEntry.encode(message).finish();
+  },
+  toProtoMsg(message: ContractCodeHistoryEntry): ContractCodeHistoryEntryProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.ContractCodeHistoryEntry",
+      value: ContractCodeHistoryEntry.encode(message).finish(),
+    };
   },
 };
 function createBaseAbsoluteTxPosition(): AbsoluteTxPosition {
@@ -671,18 +972,6 @@ export const AbsoluteTxPosition = {
     }
     return message;
   },
-  fromJSON(object: any): AbsoluteTxPosition {
-    const obj = createBaseAbsoluteTxPosition();
-    if (isSet(object.blockHeight)) obj.blockHeight = BigInt(object.blockHeight.toString());
-    if (isSet(object.txIndex)) obj.txIndex = BigInt(object.txIndex.toString());
-    return obj;
-  },
-  toJSON(message: AbsoluteTxPosition): unknown {
-    const obj: any = {};
-    message.blockHeight !== undefined && (obj.blockHeight = (message.blockHeight || BigInt(0)).toString());
-    message.txIndex !== undefined && (obj.txIndex = (message.txIndex || BigInt(0)).toString());
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<AbsoluteTxPosition>, I>>(object: I): AbsoluteTxPosition {
     const message = createBaseAbsoluteTxPosition();
     if (object.blockHeight !== undefined && object.blockHeight !== null) {
@@ -692,6 +981,43 @@ export const AbsoluteTxPosition = {
       message.txIndex = BigInt(object.txIndex.toString());
     }
     return message;
+  },
+  fromAmino(object: AbsoluteTxPositionAmino): AbsoluteTxPosition {
+    const message = createBaseAbsoluteTxPosition();
+    if (object.block_height !== undefined && object.block_height !== null) {
+      message.blockHeight = BigInt(object.block_height);
+    }
+    if (object.tx_index !== undefined && object.tx_index !== null) {
+      message.txIndex = BigInt(object.tx_index);
+    }
+    return message;
+  },
+  toAmino(message: AbsoluteTxPosition): AbsoluteTxPositionAmino {
+    const obj: any = {};
+    obj.block_height = message.blockHeight !== BigInt(0) ? message.blockHeight?.toString() : undefined;
+    obj.tx_index = message.txIndex !== BigInt(0) ? message.txIndex?.toString() : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: AbsoluteTxPositionAminoMsg): AbsoluteTxPosition {
+    return AbsoluteTxPosition.fromAmino(object.value);
+  },
+  toAminoMsg(message: AbsoluteTxPosition): AbsoluteTxPositionAminoMsg {
+    return {
+      type: "wasm/AbsoluteTxPosition",
+      value: AbsoluteTxPosition.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: AbsoluteTxPositionProtoMsg): AbsoluteTxPosition {
+    return AbsoluteTxPosition.decode(message.value);
+  },
+  toProto(message: AbsoluteTxPosition): Uint8Array {
+    return AbsoluteTxPosition.encode(message).finish();
+  },
+  toProtoMsg(message: AbsoluteTxPosition): AbsoluteTxPositionProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.AbsoluteTxPosition",
+      value: AbsoluteTxPosition.encode(message).finish(),
+    };
   },
 };
 function createBaseModel(): Model {
@@ -731,24 +1057,47 @@ export const Model = {
     }
     return message;
   },
-  fromJSON(object: any): Model {
-    const obj = createBaseModel();
-    if (isSet(object.key)) obj.key = bytesFromBase64(object.key);
-    if (isSet(object.value)) obj.value = bytesFromBase64(object.value);
-    return obj;
-  },
-  toJSON(message: Model): unknown {
-    const obj: any = {};
-    message.key !== undefined &&
-      (obj.key = base64FromBytes(message.key !== undefined ? message.key : new Uint8Array()));
-    message.value !== undefined &&
-      (obj.value = base64FromBytes(message.value !== undefined ? message.value : new Uint8Array()));
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Model>, I>>(object: I): Model {
     const message = createBaseModel();
     message.key = object.key ?? new Uint8Array();
     message.value = object.value ?? new Uint8Array();
     return message;
+  },
+  fromAmino(object: ModelAmino): Model {
+    const message = createBaseModel();
+    if (object.key !== undefined && object.key !== null) {
+      message.key = bytesFromBase64(object.key);
+    }
+    if (object.value !== undefined && object.value !== null) {
+      message.value = bytesFromBase64(object.value);
+    }
+    return message;
+  },
+  toAmino(message: Model): ModelAmino {
+    const obj: any = {};
+    obj.key = message.key ? base64FromBytes(message.key) : undefined;
+    obj.value = message.value ? base64FromBytes(message.value) : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: ModelAminoMsg): Model {
+    return Model.fromAmino(object.value);
+  },
+  toAminoMsg(message: Model): ModelAminoMsg {
+    return {
+      type: "wasm/Model",
+      value: Model.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ModelProtoMsg): Model {
+    return Model.decode(message.value);
+  },
+  toProto(message: Model): Uint8Array {
+    return Model.encode(message).finish();
+  },
+  toProtoMsg(message: Model): ModelProtoMsg {
+    return {
+      typeUrl: "/cosmwasm.wasm.v1.Model",
+      value: Model.encode(message).finish(),
+    };
   },
 };

@@ -1,9 +1,10 @@
+//@ts-nocheck
 /* eslint-disable */
-import { Any } from "../../../google/protobuf/any";
-import { Coin } from "../../base/v1beta1/coin";
-import { VoteOption, WeightedVoteOption, Params, voteOptionFromJSON, voteOptionToJSON } from "./gov";
+import { Any, AnyAmino } from "../../../google/protobuf/any";
+import { Coin, CoinAmino } from "../../base/v1beta1/coin";
+import { VoteOption, WeightedVoteOption, WeightedVoteOptionAmino, Params, ParamsAmino } from "./gov";
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, DeepPartial, Exact, Rpc } from "../../../helpers";
+import { DeepPartial, Exact, Rpc } from "../../../helpers";
 export const protobufPackage = "cosmos.gov.v1";
 /**
  * MsgSubmitProposal defines an sdk.Msg type that supports submitting arbitrary
@@ -31,10 +32,57 @@ export interface MsgSubmitProposal {
    */
   summary: string;
 }
+export interface MsgSubmitProposalProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgSubmitProposal";
+  value: Uint8Array;
+}
+/**
+ * MsgSubmitProposal defines an sdk.Msg type that supports submitting arbitrary
+ * proposal Content.
+ */
+export interface MsgSubmitProposalAmino {
+  /** messages are the arbitrary messages to be executed if proposal passes. */
+  messages?: AnyAmino[];
+  /** initial_deposit is the deposit value that must be paid at proposal submission. */
+  initial_deposit: CoinAmino[];
+  /** proposer is the account address of the proposer. */
+  proposer?: string;
+  /** metadata is any arbitrary metadata attached to the proposal. */
+  metadata?: string;
+  /**
+   * title is the title of the proposal.
+   *
+   * Since: cosmos-sdk 0.47
+   */
+  title?: string;
+  /**
+   * summary is the summary of the proposal
+   *
+   * Since: cosmos-sdk 0.47
+   */
+  summary?: string;
+}
+export interface MsgSubmitProposalAminoMsg {
+  type: "cosmos-sdk/v1/MsgSubmitProposal";
+  value: MsgSubmitProposalAmino;
+}
 /** MsgSubmitProposalResponse defines the Msg/SubmitProposal response type. */
 export interface MsgSubmitProposalResponse {
   /** proposal_id defines the unique id of the proposal. */
   proposalId: bigint;
+}
+export interface MsgSubmitProposalResponseProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgSubmitProposalResponse";
+  value: Uint8Array;
+}
+/** MsgSubmitProposalResponse defines the Msg/SubmitProposal response type. */
+export interface MsgSubmitProposalResponseAmino {
+  /** proposal_id defines the unique id of the proposal. */
+  proposal_id?: string;
+}
+export interface MsgSubmitProposalResponseAminoMsg {
+  type: "cosmos-sdk/v1/MsgSubmitProposalResponse";
+  value: MsgSubmitProposalResponseAmino;
 }
 /**
  * MsgExecLegacyContent is used to wrap the legacy content field into a message.
@@ -46,8 +94,36 @@ export interface MsgExecLegacyContent {
   /** authority must be the gov module address. */
   authority: string;
 }
+export interface MsgExecLegacyContentProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgExecLegacyContent";
+  value: Uint8Array;
+}
+/**
+ * MsgExecLegacyContent is used to wrap the legacy content field into a message.
+ * This ensures backwards compatibility with v1beta1.MsgSubmitProposal.
+ */
+export interface MsgExecLegacyContentAmino {
+  /** content is the proposal's content. */
+  content?: AnyAmino;
+  /** authority must be the gov module address. */
+  authority?: string;
+}
+export interface MsgExecLegacyContentAminoMsg {
+  type: "cosmos-sdk/v1/MsgExecLegacyContent";
+  value: MsgExecLegacyContentAmino;
+}
 /** MsgExecLegacyContentResponse defines the Msg/ExecLegacyContent response type. */
 export interface MsgExecLegacyContentResponse {}
+export interface MsgExecLegacyContentResponseProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgExecLegacyContentResponse";
+  value: Uint8Array;
+}
+/** MsgExecLegacyContentResponse defines the Msg/ExecLegacyContent response type. */
+export interface MsgExecLegacyContentResponseAmino {}
+export interface MsgExecLegacyContentResponseAminoMsg {
+  type: "cosmos-sdk/v1/MsgExecLegacyContentResponse";
+  value: MsgExecLegacyContentResponseAmino;
+}
 /** MsgVote defines a message to cast a vote. */
 export interface MsgVote {
   /** proposal_id defines the unique id of the proposal. */
@@ -59,8 +135,37 @@ export interface MsgVote {
   /** metadata is any arbitrary metadata attached to the Vote. */
   metadata: string;
 }
+export interface MsgVoteProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgVote";
+  value: Uint8Array;
+}
+/** MsgVote defines a message to cast a vote. */
+export interface MsgVoteAmino {
+  /** proposal_id defines the unique id of the proposal. */
+  proposal_id: string;
+  /** voter is the voter address for the proposal. */
+  voter?: string;
+  /** option defines the vote option. */
+  option?: VoteOption;
+  /** metadata is any arbitrary metadata attached to the Vote. */
+  metadata?: string;
+}
+export interface MsgVoteAminoMsg {
+  type: "cosmos-sdk/v1/MsgVote";
+  value: MsgVoteAmino;
+}
 /** MsgVoteResponse defines the Msg/Vote response type. */
 export interface MsgVoteResponse {}
+export interface MsgVoteResponseProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgVoteResponse";
+  value: Uint8Array;
+}
+/** MsgVoteResponse defines the Msg/Vote response type. */
+export interface MsgVoteResponseAmino {}
+export interface MsgVoteResponseAminoMsg {
+  type: "cosmos-sdk/v1/MsgVoteResponse";
+  value: MsgVoteResponseAmino;
+}
 /** MsgVoteWeighted defines a message to cast a vote. */
 export interface MsgVoteWeighted {
   /** proposal_id defines the unique id of the proposal. */
@@ -72,8 +177,37 @@ export interface MsgVoteWeighted {
   /** metadata is any arbitrary metadata attached to the VoteWeighted. */
   metadata: string;
 }
+export interface MsgVoteWeightedProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgVoteWeighted";
+  value: Uint8Array;
+}
+/** MsgVoteWeighted defines a message to cast a vote. */
+export interface MsgVoteWeightedAmino {
+  /** proposal_id defines the unique id of the proposal. */
+  proposal_id: string;
+  /** voter is the voter address for the proposal. */
+  voter?: string;
+  /** options defines the weighted vote options. */
+  options?: WeightedVoteOptionAmino[];
+  /** metadata is any arbitrary metadata attached to the VoteWeighted. */
+  metadata?: string;
+}
+export interface MsgVoteWeightedAminoMsg {
+  type: "cosmos-sdk/v1/MsgVoteWeighted";
+  value: MsgVoteWeightedAmino;
+}
 /** MsgVoteWeightedResponse defines the Msg/VoteWeighted response type. */
 export interface MsgVoteWeightedResponse {}
+export interface MsgVoteWeightedResponseProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgVoteWeightedResponse";
+  value: Uint8Array;
+}
+/** MsgVoteWeightedResponse defines the Msg/VoteWeighted response type. */
+export interface MsgVoteWeightedResponseAmino {}
+export interface MsgVoteWeightedResponseAminoMsg {
+  type: "cosmos-sdk/v1/MsgVoteWeightedResponse";
+  value: MsgVoteWeightedResponseAmino;
+}
 /** MsgDeposit defines a message to submit a deposit to an existing proposal. */
 export interface MsgDeposit {
   /** proposal_id defines the unique id of the proposal. */
@@ -83,8 +217,35 @@ export interface MsgDeposit {
   /** amount to be deposited by depositor. */
   amount: Coin[];
 }
+export interface MsgDepositProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgDeposit";
+  value: Uint8Array;
+}
+/** MsgDeposit defines a message to submit a deposit to an existing proposal. */
+export interface MsgDepositAmino {
+  /** proposal_id defines the unique id of the proposal. */
+  proposal_id: string;
+  /** depositor defines the deposit addresses from the proposals. */
+  depositor?: string;
+  /** amount to be deposited by depositor. */
+  amount: CoinAmino[];
+}
+export interface MsgDepositAminoMsg {
+  type: "cosmos-sdk/v1/MsgDeposit";
+  value: MsgDepositAmino;
+}
 /** MsgDepositResponse defines the Msg/Deposit response type. */
 export interface MsgDepositResponse {}
+export interface MsgDepositResponseProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgDepositResponse";
+  value: Uint8Array;
+}
+/** MsgDepositResponse defines the Msg/Deposit response type. */
+export interface MsgDepositResponseAmino {}
+export interface MsgDepositResponseAminoMsg {
+  type: "cosmos-sdk/v1/MsgDepositResponse";
+  value: MsgDepositResponseAmino;
+}
 /**
  * MsgUpdateParams is the Msg/UpdateParams request type.
  *
@@ -100,6 +261,29 @@ export interface MsgUpdateParams {
    */
   params: Params;
 }
+export interface MsgUpdateParamsProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgUpdateParams";
+  value: Uint8Array;
+}
+/**
+ * MsgUpdateParams is the Msg/UpdateParams request type.
+ *
+ * Since: cosmos-sdk 0.47
+ */
+export interface MsgUpdateParamsAmino {
+  /** authority is the address that controls the module (defaults to x/gov unless overwritten). */
+  authority?: string;
+  /**
+   * params defines the x/gov parameters to update.
+   *
+   * NOTE: All parameters must be supplied.
+   */
+  params: ParamsAmino;
+}
+export interface MsgUpdateParamsAminoMsg {
+  type: "cosmos-sdk/x/gov/v1/MsgUpdateParams";
+  value: MsgUpdateParamsAmino;
+}
 /**
  * MsgUpdateParamsResponse defines the response structure for executing a
  * MsgUpdateParams message.
@@ -107,6 +291,21 @@ export interface MsgUpdateParams {
  * Since: cosmos-sdk 0.47
  */
 export interface MsgUpdateParamsResponse {}
+export interface MsgUpdateParamsResponseProtoMsg {
+  typeUrl: "/cosmos.gov.v1.MsgUpdateParamsResponse";
+  value: Uint8Array;
+}
+/**
+ * MsgUpdateParamsResponse defines the response structure for executing a
+ * MsgUpdateParams message.
+ *
+ * Since: cosmos-sdk 0.47
+ */
+export interface MsgUpdateParamsResponseAmino {}
+export interface MsgUpdateParamsResponseAminoMsg {
+  type: "cosmos-sdk/v1/MsgUpdateParamsResponse";
+  value: MsgUpdateParamsResponseAmino;
+}
 function createBaseMsgSubmitProposal(): MsgSubmitProposal {
   return {
     messages: [],
@@ -172,35 +371,6 @@ export const MsgSubmitProposal = {
     }
     return message;
   },
-  fromJSON(object: any): MsgSubmitProposal {
-    const obj = createBaseMsgSubmitProposal();
-    if (Array.isArray(object?.messages)) obj.messages = object.messages.map((e: any) => Any.fromJSON(e));
-    if (Array.isArray(object?.initialDeposit))
-      obj.initialDeposit = object.initialDeposit.map((e: any) => Coin.fromJSON(e));
-    if (isSet(object.proposer)) obj.proposer = String(object.proposer);
-    if (isSet(object.metadata)) obj.metadata = String(object.metadata);
-    if (isSet(object.title)) obj.title = String(object.title);
-    if (isSet(object.summary)) obj.summary = String(object.summary);
-    return obj;
-  },
-  toJSON(message: MsgSubmitProposal): unknown {
-    const obj: any = {};
-    if (message.messages) {
-      obj.messages = message.messages.map((e) => (e ? Any.toJSON(e) : undefined));
-    } else {
-      obj.messages = [];
-    }
-    if (message.initialDeposit) {
-      obj.initialDeposit = message.initialDeposit.map((e) => (e ? Coin.toJSON(e) : undefined));
-    } else {
-      obj.initialDeposit = [];
-    }
-    message.proposer !== undefined && (obj.proposer = message.proposer);
-    message.metadata !== undefined && (obj.metadata = message.metadata);
-    message.title !== undefined && (obj.title = message.title);
-    message.summary !== undefined && (obj.summary = message.summary);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgSubmitProposal>, I>>(object: I): MsgSubmitProposal {
     const message = createBaseMsgSubmitProposal();
     message.messages = object.messages?.map((e) => Any.fromPartial(e)) || [];
@@ -210,6 +380,63 @@ export const MsgSubmitProposal = {
     message.title = object.title ?? "";
     message.summary = object.summary ?? "";
     return message;
+  },
+  fromAmino(object: MsgSubmitProposalAmino): MsgSubmitProposal {
+    const message = createBaseMsgSubmitProposal();
+    message.messages = object.messages?.map((e) => Any.fromAmino(e)) || [];
+    message.initialDeposit = object.initial_deposit?.map((e) => Coin.fromAmino(e)) || [];
+    if (object.proposer !== undefined && object.proposer !== null) {
+      message.proposer = object.proposer;
+    }
+    if (object.metadata !== undefined && object.metadata !== null) {
+      message.metadata = object.metadata;
+    }
+    if (object.title !== undefined && object.title !== null) {
+      message.title = object.title;
+    }
+    if (object.summary !== undefined && object.summary !== null) {
+      message.summary = object.summary;
+    }
+    return message;
+  },
+  toAmino(message: MsgSubmitProposal): MsgSubmitProposalAmino {
+    const obj: any = {};
+    if (message.messages) {
+      obj.messages = message.messages.map((e) => (e ? Any.toAmino(e) : undefined));
+    } else {
+      obj.messages = message.messages;
+    }
+    if (message.initialDeposit) {
+      obj.initial_deposit = message.initialDeposit.map((e) => (e ? Coin.toAmino(e) : undefined));
+    } else {
+      obj.initial_deposit = message.initialDeposit;
+    }
+    obj.proposer = message.proposer === "" ? undefined : message.proposer;
+    obj.metadata = message.metadata === "" ? undefined : message.metadata;
+    obj.title = message.title === "" ? undefined : message.title;
+    obj.summary = message.summary === "" ? undefined : message.summary;
+    return obj;
+  },
+  fromAminoMsg(object: MsgSubmitProposalAminoMsg): MsgSubmitProposal {
+    return MsgSubmitProposal.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgSubmitProposal): MsgSubmitProposalAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgSubmitProposal",
+      value: MsgSubmitProposal.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgSubmitProposalProtoMsg): MsgSubmitProposal {
+    return MsgSubmitProposal.decode(message.value);
+  },
+  toProto(message: MsgSubmitProposal): Uint8Array {
+    return MsgSubmitProposal.encode(message).finish();
+  },
+  toProtoMsg(message: MsgSubmitProposal): MsgSubmitProposalProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgSubmitProposal",
+      value: MsgSubmitProposal.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgSubmitProposalResponse(): MsgSubmitProposalResponse {
@@ -242,16 +469,6 @@ export const MsgSubmitProposalResponse = {
     }
     return message;
   },
-  fromJSON(object: any): MsgSubmitProposalResponse {
-    const obj = createBaseMsgSubmitProposalResponse();
-    if (isSet(object.proposalId)) obj.proposalId = BigInt(object.proposalId.toString());
-    return obj;
-  },
-  toJSON(message: MsgSubmitProposalResponse): unknown {
-    const obj: any = {};
-    message.proposalId !== undefined && (obj.proposalId = (message.proposalId || BigInt(0)).toString());
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgSubmitProposalResponse>, I>>(
     object: I,
   ): MsgSubmitProposalResponse {
@@ -260,6 +477,39 @@ export const MsgSubmitProposalResponse = {
       message.proposalId = BigInt(object.proposalId.toString());
     }
     return message;
+  },
+  fromAmino(object: MsgSubmitProposalResponseAmino): MsgSubmitProposalResponse {
+    const message = createBaseMsgSubmitProposalResponse();
+    if (object.proposal_id !== undefined && object.proposal_id !== null) {
+      message.proposalId = BigInt(object.proposal_id);
+    }
+    return message;
+  },
+  toAmino(message: MsgSubmitProposalResponse): MsgSubmitProposalResponseAmino {
+    const obj: any = {};
+    obj.proposal_id = message.proposalId !== BigInt(0) ? message.proposalId?.toString() : undefined;
+    return obj;
+  },
+  fromAminoMsg(object: MsgSubmitProposalResponseAminoMsg): MsgSubmitProposalResponse {
+    return MsgSubmitProposalResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgSubmitProposalResponse): MsgSubmitProposalResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgSubmitProposalResponse",
+      value: MsgSubmitProposalResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgSubmitProposalResponseProtoMsg): MsgSubmitProposalResponse {
+    return MsgSubmitProposalResponse.decode(message.value);
+  },
+  toProto(message: MsgSubmitProposalResponse): Uint8Array {
+    return MsgSubmitProposalResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgSubmitProposalResponse): MsgSubmitProposalResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgSubmitProposalResponse",
+      value: MsgSubmitProposalResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgExecLegacyContent(): MsgExecLegacyContent {
@@ -299,19 +549,6 @@ export const MsgExecLegacyContent = {
     }
     return message;
   },
-  fromJSON(object: any): MsgExecLegacyContent {
-    const obj = createBaseMsgExecLegacyContent();
-    if (isSet(object.content)) obj.content = Any.fromJSON(object.content);
-    if (isSet(object.authority)) obj.authority = String(object.authority);
-    return obj;
-  },
-  toJSON(message: MsgExecLegacyContent): unknown {
-    const obj: any = {};
-    message.content !== undefined &&
-      (obj.content = message.content ? Any.toJSON(message.content) : undefined);
-    message.authority !== undefined && (obj.authority = message.authority);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgExecLegacyContent>, I>>(object: I): MsgExecLegacyContent {
     const message = createBaseMsgExecLegacyContent();
     if (object.content !== undefined && object.content !== null) {
@@ -319,6 +556,43 @@ export const MsgExecLegacyContent = {
     }
     message.authority = object.authority ?? "";
     return message;
+  },
+  fromAmino(object: MsgExecLegacyContentAmino): MsgExecLegacyContent {
+    const message = createBaseMsgExecLegacyContent();
+    if (object.content !== undefined && object.content !== null) {
+      message.content = Any.fromAmino(object.content);
+    }
+    if (object.authority !== undefined && object.authority !== null) {
+      message.authority = object.authority;
+    }
+    return message;
+  },
+  toAmino(message: MsgExecLegacyContent): MsgExecLegacyContentAmino {
+    const obj: any = {};
+    obj.content = message.content ? Any.toAmino(message.content) : undefined;
+    obj.authority = message.authority === "" ? undefined : message.authority;
+    return obj;
+  },
+  fromAminoMsg(object: MsgExecLegacyContentAminoMsg): MsgExecLegacyContent {
+    return MsgExecLegacyContent.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgExecLegacyContent): MsgExecLegacyContentAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgExecLegacyContent",
+      value: MsgExecLegacyContent.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgExecLegacyContentProtoMsg): MsgExecLegacyContent {
+    return MsgExecLegacyContent.decode(message.value);
+  },
+  toProto(message: MsgExecLegacyContent): Uint8Array {
+    return MsgExecLegacyContent.encode(message).finish();
+  },
+  toProtoMsg(message: MsgExecLegacyContent): MsgExecLegacyContentProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgExecLegacyContent",
+      value: MsgExecLegacyContent.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgExecLegacyContentResponse(): MsgExecLegacyContentResponse {
@@ -343,19 +617,40 @@ export const MsgExecLegacyContentResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgExecLegacyContentResponse {
-    const obj = createBaseMsgExecLegacyContentResponse();
-    return obj;
-  },
-  toJSON(_: MsgExecLegacyContentResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgExecLegacyContentResponse>, I>>(
     _: I,
   ): MsgExecLegacyContentResponse {
     const message = createBaseMsgExecLegacyContentResponse();
     return message;
+  },
+  fromAmino(_: MsgExecLegacyContentResponseAmino): MsgExecLegacyContentResponse {
+    const message = createBaseMsgExecLegacyContentResponse();
+    return message;
+  },
+  toAmino(_: MsgExecLegacyContentResponse): MsgExecLegacyContentResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgExecLegacyContentResponseAminoMsg): MsgExecLegacyContentResponse {
+    return MsgExecLegacyContentResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgExecLegacyContentResponse): MsgExecLegacyContentResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgExecLegacyContentResponse",
+      value: MsgExecLegacyContentResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgExecLegacyContentResponseProtoMsg): MsgExecLegacyContentResponse {
+    return MsgExecLegacyContentResponse.decode(message.value);
+  },
+  toProto(message: MsgExecLegacyContentResponse): Uint8Array {
+    return MsgExecLegacyContentResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgExecLegacyContentResponse): MsgExecLegacyContentResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgExecLegacyContentResponse",
+      value: MsgExecLegacyContentResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgVote(): MsgVote {
@@ -409,22 +704,6 @@ export const MsgVote = {
     }
     return message;
   },
-  fromJSON(object: any): MsgVote {
-    const obj = createBaseMsgVote();
-    if (isSet(object.proposalId)) obj.proposalId = BigInt(object.proposalId.toString());
-    if (isSet(object.voter)) obj.voter = String(object.voter);
-    if (isSet(object.option)) obj.option = voteOptionFromJSON(object.option);
-    if (isSet(object.metadata)) obj.metadata = String(object.metadata);
-    return obj;
-  },
-  toJSON(message: MsgVote): unknown {
-    const obj: any = {};
-    message.proposalId !== undefined && (obj.proposalId = (message.proposalId || BigInt(0)).toString());
-    message.voter !== undefined && (obj.voter = message.voter);
-    message.option !== undefined && (obj.option = voteOptionToJSON(message.option));
-    message.metadata !== undefined && (obj.metadata = message.metadata);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgVote>, I>>(object: I): MsgVote {
     const message = createBaseMsgVote();
     if (object.proposalId !== undefined && object.proposalId !== null) {
@@ -434,6 +713,51 @@ export const MsgVote = {
     message.option = object.option ?? 0;
     message.metadata = object.metadata ?? "";
     return message;
+  },
+  fromAmino(object: MsgVoteAmino): MsgVote {
+    const message = createBaseMsgVote();
+    if (object.proposal_id !== undefined && object.proposal_id !== null) {
+      message.proposalId = BigInt(object.proposal_id);
+    }
+    if (object.voter !== undefined && object.voter !== null) {
+      message.voter = object.voter;
+    }
+    if (object.option !== undefined && object.option !== null) {
+      message.option = object.option;
+    }
+    if (object.metadata !== undefined && object.metadata !== null) {
+      message.metadata = object.metadata;
+    }
+    return message;
+  },
+  toAmino(message: MsgVote): MsgVoteAmino {
+    const obj: any = {};
+    obj.proposal_id = message.proposalId ? message.proposalId?.toString() : "0";
+    obj.voter = message.voter === "" ? undefined : message.voter;
+    obj.option = message.option === 0 ? undefined : message.option;
+    obj.metadata = message.metadata === "" ? undefined : message.metadata;
+    return obj;
+  },
+  fromAminoMsg(object: MsgVoteAminoMsg): MsgVote {
+    return MsgVote.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgVote): MsgVoteAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgVote",
+      value: MsgVote.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgVoteProtoMsg): MsgVote {
+    return MsgVote.decode(message.value);
+  },
+  toProto(message: MsgVote): Uint8Array {
+    return MsgVote.encode(message).finish();
+  },
+  toProtoMsg(message: MsgVote): MsgVoteProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgVote",
+      value: MsgVote.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgVoteResponse(): MsgVoteResponse {
@@ -458,17 +782,38 @@ export const MsgVoteResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgVoteResponse {
-    const obj = createBaseMsgVoteResponse();
-    return obj;
-  },
-  toJSON(_: MsgVoteResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgVoteResponse>, I>>(_: I): MsgVoteResponse {
     const message = createBaseMsgVoteResponse();
     return message;
+  },
+  fromAmino(_: MsgVoteResponseAmino): MsgVoteResponse {
+    const message = createBaseMsgVoteResponse();
+    return message;
+  },
+  toAmino(_: MsgVoteResponse): MsgVoteResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgVoteResponseAminoMsg): MsgVoteResponse {
+    return MsgVoteResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgVoteResponse): MsgVoteResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgVoteResponse",
+      value: MsgVoteResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgVoteResponseProtoMsg): MsgVoteResponse {
+    return MsgVoteResponse.decode(message.value);
+  },
+  toProto(message: MsgVoteResponse): Uint8Array {
+    return MsgVoteResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgVoteResponse): MsgVoteResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgVoteResponse",
+      value: MsgVoteResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgVoteWeighted(): MsgVoteWeighted {
@@ -522,27 +867,6 @@ export const MsgVoteWeighted = {
     }
     return message;
   },
-  fromJSON(object: any): MsgVoteWeighted {
-    const obj = createBaseMsgVoteWeighted();
-    if (isSet(object.proposalId)) obj.proposalId = BigInt(object.proposalId.toString());
-    if (isSet(object.voter)) obj.voter = String(object.voter);
-    if (Array.isArray(object?.options))
-      obj.options = object.options.map((e: any) => WeightedVoteOption.fromJSON(e));
-    if (isSet(object.metadata)) obj.metadata = String(object.metadata);
-    return obj;
-  },
-  toJSON(message: MsgVoteWeighted): unknown {
-    const obj: any = {};
-    message.proposalId !== undefined && (obj.proposalId = (message.proposalId || BigInt(0)).toString());
-    message.voter !== undefined && (obj.voter = message.voter);
-    if (message.options) {
-      obj.options = message.options.map((e) => (e ? WeightedVoteOption.toJSON(e) : undefined));
-    } else {
-      obj.options = [];
-    }
-    message.metadata !== undefined && (obj.metadata = message.metadata);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgVoteWeighted>, I>>(object: I): MsgVoteWeighted {
     const message = createBaseMsgVoteWeighted();
     if (object.proposalId !== undefined && object.proposalId !== null) {
@@ -552,6 +876,53 @@ export const MsgVoteWeighted = {
     message.options = object.options?.map((e) => WeightedVoteOption.fromPartial(e)) || [];
     message.metadata = object.metadata ?? "";
     return message;
+  },
+  fromAmino(object: MsgVoteWeightedAmino): MsgVoteWeighted {
+    const message = createBaseMsgVoteWeighted();
+    if (object.proposal_id !== undefined && object.proposal_id !== null) {
+      message.proposalId = BigInt(object.proposal_id);
+    }
+    if (object.voter !== undefined && object.voter !== null) {
+      message.voter = object.voter;
+    }
+    message.options = object.options?.map((e) => WeightedVoteOption.fromAmino(e)) || [];
+    if (object.metadata !== undefined && object.metadata !== null) {
+      message.metadata = object.metadata;
+    }
+    return message;
+  },
+  toAmino(message: MsgVoteWeighted): MsgVoteWeightedAmino {
+    const obj: any = {};
+    obj.proposal_id = message.proposalId ? message.proposalId?.toString() : "0";
+    obj.voter = message.voter === "" ? undefined : message.voter;
+    if (message.options) {
+      obj.options = message.options.map((e) => (e ? WeightedVoteOption.toAmino(e) : undefined));
+    } else {
+      obj.options = message.options;
+    }
+    obj.metadata = message.metadata === "" ? undefined : message.metadata;
+    return obj;
+  },
+  fromAminoMsg(object: MsgVoteWeightedAminoMsg): MsgVoteWeighted {
+    return MsgVoteWeighted.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgVoteWeighted): MsgVoteWeightedAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgVoteWeighted",
+      value: MsgVoteWeighted.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgVoteWeightedProtoMsg): MsgVoteWeighted {
+    return MsgVoteWeighted.decode(message.value);
+  },
+  toProto(message: MsgVoteWeighted): Uint8Array {
+    return MsgVoteWeighted.encode(message).finish();
+  },
+  toProtoMsg(message: MsgVoteWeighted): MsgVoteWeightedProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgVoteWeighted",
+      value: MsgVoteWeighted.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgVoteWeightedResponse(): MsgVoteWeightedResponse {
@@ -576,17 +947,38 @@ export const MsgVoteWeightedResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgVoteWeightedResponse {
-    const obj = createBaseMsgVoteWeightedResponse();
-    return obj;
-  },
-  toJSON(_: MsgVoteWeightedResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgVoteWeightedResponse>, I>>(_: I): MsgVoteWeightedResponse {
     const message = createBaseMsgVoteWeightedResponse();
     return message;
+  },
+  fromAmino(_: MsgVoteWeightedResponseAmino): MsgVoteWeightedResponse {
+    const message = createBaseMsgVoteWeightedResponse();
+    return message;
+  },
+  toAmino(_: MsgVoteWeightedResponse): MsgVoteWeightedResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgVoteWeightedResponseAminoMsg): MsgVoteWeightedResponse {
+    return MsgVoteWeightedResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgVoteWeightedResponse): MsgVoteWeightedResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgVoteWeightedResponse",
+      value: MsgVoteWeightedResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgVoteWeightedResponseProtoMsg): MsgVoteWeightedResponse {
+    return MsgVoteWeightedResponse.decode(message.value);
+  },
+  toProto(message: MsgVoteWeightedResponse): Uint8Array {
+    return MsgVoteWeightedResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgVoteWeightedResponse): MsgVoteWeightedResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgVoteWeightedResponse",
+      value: MsgVoteWeightedResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgDeposit(): MsgDeposit {
@@ -633,24 +1025,6 @@ export const MsgDeposit = {
     }
     return message;
   },
-  fromJSON(object: any): MsgDeposit {
-    const obj = createBaseMsgDeposit();
-    if (isSet(object.proposalId)) obj.proposalId = BigInt(object.proposalId.toString());
-    if (isSet(object.depositor)) obj.depositor = String(object.depositor);
-    if (Array.isArray(object?.amount)) obj.amount = object.amount.map((e: any) => Coin.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: MsgDeposit): unknown {
-    const obj: any = {};
-    message.proposalId !== undefined && (obj.proposalId = (message.proposalId || BigInt(0)).toString());
-    message.depositor !== undefined && (obj.depositor = message.depositor);
-    if (message.amount) {
-      obj.amount = message.amount.map((e) => (e ? Coin.toJSON(e) : undefined));
-    } else {
-      obj.amount = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgDeposit>, I>>(object: I): MsgDeposit {
     const message = createBaseMsgDeposit();
     if (object.proposalId !== undefined && object.proposalId !== null) {
@@ -659,6 +1033,49 @@ export const MsgDeposit = {
     message.depositor = object.depositor ?? "";
     message.amount = object.amount?.map((e) => Coin.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: MsgDepositAmino): MsgDeposit {
+    const message = createBaseMsgDeposit();
+    if (object.proposal_id !== undefined && object.proposal_id !== null) {
+      message.proposalId = BigInt(object.proposal_id);
+    }
+    if (object.depositor !== undefined && object.depositor !== null) {
+      message.depositor = object.depositor;
+    }
+    message.amount = object.amount?.map((e) => Coin.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: MsgDeposit): MsgDepositAmino {
+    const obj: any = {};
+    obj.proposal_id = message.proposalId ? message.proposalId?.toString() : "0";
+    obj.depositor = message.depositor === "" ? undefined : message.depositor;
+    if (message.amount) {
+      obj.amount = message.amount.map((e) => (e ? Coin.toAmino(e) : undefined));
+    } else {
+      obj.amount = message.amount;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: MsgDepositAminoMsg): MsgDeposit {
+    return MsgDeposit.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgDeposit): MsgDepositAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgDeposit",
+      value: MsgDeposit.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgDepositProtoMsg): MsgDeposit {
+    return MsgDeposit.decode(message.value);
+  },
+  toProto(message: MsgDeposit): Uint8Array {
+    return MsgDeposit.encode(message).finish();
+  },
+  toProtoMsg(message: MsgDeposit): MsgDepositProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgDeposit",
+      value: MsgDeposit.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgDepositResponse(): MsgDepositResponse {
@@ -683,17 +1100,38 @@ export const MsgDepositResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgDepositResponse {
-    const obj = createBaseMsgDepositResponse();
-    return obj;
-  },
-  toJSON(_: MsgDepositResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgDepositResponse>, I>>(_: I): MsgDepositResponse {
     const message = createBaseMsgDepositResponse();
     return message;
+  },
+  fromAmino(_: MsgDepositResponseAmino): MsgDepositResponse {
+    const message = createBaseMsgDepositResponse();
+    return message;
+  },
+  toAmino(_: MsgDepositResponse): MsgDepositResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgDepositResponseAminoMsg): MsgDepositResponse {
+    return MsgDepositResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgDepositResponse): MsgDepositResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgDepositResponse",
+      value: MsgDepositResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgDepositResponseProtoMsg): MsgDepositResponse {
+    return MsgDepositResponse.decode(message.value);
+  },
+  toProto(message: MsgDepositResponse): Uint8Array {
+    return MsgDepositResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgDepositResponse): MsgDepositResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgDepositResponse",
+      value: MsgDepositResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgUpdateParams(): MsgUpdateParams {
@@ -733,18 +1171,6 @@ export const MsgUpdateParams = {
     }
     return message;
   },
-  fromJSON(object: any): MsgUpdateParams {
-    const obj = createBaseMsgUpdateParams();
-    if (isSet(object.authority)) obj.authority = String(object.authority);
-    if (isSet(object.params)) obj.params = Params.fromJSON(object.params);
-    return obj;
-  },
-  toJSON(message: MsgUpdateParams): unknown {
-    const obj: any = {};
-    message.authority !== undefined && (obj.authority = message.authority);
-    message.params !== undefined && (obj.params = message.params ? Params.toJSON(message.params) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgUpdateParams>, I>>(object: I): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -752,6 +1178,43 @@ export const MsgUpdateParams = {
       message.params = Params.fromPartial(object.params);
     }
     return message;
+  },
+  fromAmino(object: MsgUpdateParamsAmino): MsgUpdateParams {
+    const message = createBaseMsgUpdateParams();
+    if (object.authority !== undefined && object.authority !== null) {
+      message.authority = object.authority;
+    }
+    if (object.params !== undefined && object.params !== null) {
+      message.params = Params.fromAmino(object.params);
+    }
+    return message;
+  },
+  toAmino(message: MsgUpdateParams): MsgUpdateParamsAmino {
+    const obj: any = {};
+    obj.authority = message.authority === "" ? undefined : message.authority;
+    obj.params = message.params ? Params.toAmino(message.params) : Params.toAmino(Params.fromPartial({}));
+    return obj;
+  },
+  fromAminoMsg(object: MsgUpdateParamsAminoMsg): MsgUpdateParams {
+    return MsgUpdateParams.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgUpdateParams): MsgUpdateParamsAminoMsg {
+    return {
+      type: "cosmos-sdk/x/gov/v1/MsgUpdateParams",
+      value: MsgUpdateParams.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgUpdateParamsProtoMsg): MsgUpdateParams {
+    return MsgUpdateParams.decode(message.value);
+  },
+  toProto(message: MsgUpdateParams): Uint8Array {
+    return MsgUpdateParams.encode(message).finish();
+  },
+  toProtoMsg(message: MsgUpdateParams): MsgUpdateParamsProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgUpdateParams",
+      value: MsgUpdateParams.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgUpdateParamsResponse(): MsgUpdateParamsResponse {
@@ -776,17 +1239,38 @@ export const MsgUpdateParamsResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgUpdateParamsResponse {
-    const obj = createBaseMsgUpdateParamsResponse();
-    return obj;
-  },
-  toJSON(_: MsgUpdateParamsResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgUpdateParamsResponse>, I>>(_: I): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();
     return message;
+  },
+  fromAmino(_: MsgUpdateParamsResponseAmino): MsgUpdateParamsResponse {
+    const message = createBaseMsgUpdateParamsResponse();
+    return message;
+  },
+  toAmino(_: MsgUpdateParamsResponse): MsgUpdateParamsResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgUpdateParamsResponseAminoMsg): MsgUpdateParamsResponse {
+    return MsgUpdateParamsResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgUpdateParamsResponse): MsgUpdateParamsResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/v1/MsgUpdateParamsResponse",
+      value: MsgUpdateParamsResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgUpdateParamsResponseProtoMsg): MsgUpdateParamsResponse {
+    return MsgUpdateParamsResponse.decode(message.value);
+  },
+  toProto(message: MsgUpdateParamsResponse): Uint8Array {
+    return MsgUpdateParamsResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgUpdateParamsResponse): MsgUpdateParamsResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.gov.v1.MsgUpdateParamsResponse",
+      value: MsgUpdateParamsResponse.encode(message).finish(),
+    };
   },
 };
 /** Msg defines the gov Msg service. */

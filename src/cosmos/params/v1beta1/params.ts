@@ -1,12 +1,27 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../helpers";
+import { DeepPartial, Exact } from "../../../helpers";
 export const protobufPackage = "cosmos.params.v1beta1";
 /** ParameterChangeProposal defines a proposal to change one or more parameters. */
 export interface ParameterChangeProposal {
   title: string;
   description: string;
   changes: ParamChange[];
+}
+export interface ParameterChangeProposalProtoMsg {
+  typeUrl: "/cosmos.params.v1beta1.ParameterChangeProposal";
+  value: Uint8Array;
+}
+/** ParameterChangeProposal defines a proposal to change one or more parameters. */
+export interface ParameterChangeProposalAmino {
+  title?: string;
+  description?: string;
+  changes: ParamChangeAmino[];
+}
+export interface ParameterChangeProposalAminoMsg {
+  type: "cosmos-sdk/ParameterChangeProposal";
+  value: ParameterChangeProposalAmino;
 }
 /**
  * ParamChange defines an individual parameter change, for use in
@@ -16,6 +31,23 @@ export interface ParamChange {
   subspace: string;
   key: string;
   value: string;
+}
+export interface ParamChangeProtoMsg {
+  typeUrl: "/cosmos.params.v1beta1.ParamChange";
+  value: Uint8Array;
+}
+/**
+ * ParamChange defines an individual parameter change, for use in
+ * ParameterChangeProposal.
+ */
+export interface ParamChangeAmino {
+  subspace?: string;
+  key?: string;
+  value?: string;
+}
+export interface ParamChangeAminoMsg {
+  type: "cosmos-sdk/ParamChange";
+  value: ParamChangeAmino;
 }
 function createBaseParameterChangeProposal(): ParameterChangeProposal {
   return {
@@ -61,30 +93,55 @@ export const ParameterChangeProposal = {
     }
     return message;
   },
-  fromJSON(object: any): ParameterChangeProposal {
-    const obj = createBaseParameterChangeProposal();
-    if (isSet(object.title)) obj.title = String(object.title);
-    if (isSet(object.description)) obj.description = String(object.description);
-    if (Array.isArray(object?.changes)) obj.changes = object.changes.map((e: any) => ParamChange.fromJSON(e));
-    return obj;
-  },
-  toJSON(message: ParameterChangeProposal): unknown {
-    const obj: any = {};
-    message.title !== undefined && (obj.title = message.title);
-    message.description !== undefined && (obj.description = message.description);
-    if (message.changes) {
-      obj.changes = message.changes.map((e) => (e ? ParamChange.toJSON(e) : undefined));
-    } else {
-      obj.changes = [];
-    }
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<ParameterChangeProposal>, I>>(object: I): ParameterChangeProposal {
     const message = createBaseParameterChangeProposal();
     message.title = object.title ?? "";
     message.description = object.description ?? "";
     message.changes = object.changes?.map((e) => ParamChange.fromPartial(e)) || [];
     return message;
+  },
+  fromAmino(object: ParameterChangeProposalAmino): ParameterChangeProposal {
+    const message = createBaseParameterChangeProposal();
+    if (object.title !== undefined && object.title !== null) {
+      message.title = object.title;
+    }
+    if (object.description !== undefined && object.description !== null) {
+      message.description = object.description;
+    }
+    message.changes = object.changes?.map((e) => ParamChange.fromAmino(e)) || [];
+    return message;
+  },
+  toAmino(message: ParameterChangeProposal): ParameterChangeProposalAmino {
+    const obj: any = {};
+    obj.title = message.title === "" ? undefined : message.title;
+    obj.description = message.description === "" ? undefined : message.description;
+    if (message.changes) {
+      obj.changes = message.changes.map((e) => (e ? ParamChange.toAmino(e) : undefined));
+    } else {
+      obj.changes = message.changes;
+    }
+    return obj;
+  },
+  fromAminoMsg(object: ParameterChangeProposalAminoMsg): ParameterChangeProposal {
+    return ParameterChangeProposal.fromAmino(object.value);
+  },
+  toAminoMsg(message: ParameterChangeProposal): ParameterChangeProposalAminoMsg {
+    return {
+      type: "cosmos-sdk/ParameterChangeProposal",
+      value: ParameterChangeProposal.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ParameterChangeProposalProtoMsg): ParameterChangeProposal {
+    return ParameterChangeProposal.decode(message.value);
+  },
+  toProto(message: ParameterChangeProposal): Uint8Array {
+    return ParameterChangeProposal.encode(message).finish();
+  },
+  toProtoMsg(message: ParameterChangeProposal): ParameterChangeProposalProtoMsg {
+    return {
+      typeUrl: "/cosmos.params.v1beta1.ParameterChangeProposal",
+      value: ParameterChangeProposal.encode(message).finish(),
+    };
   },
 };
 function createBaseParamChange(): ParamChange {
@@ -131,25 +188,52 @@ export const ParamChange = {
     }
     return message;
   },
-  fromJSON(object: any): ParamChange {
-    const obj = createBaseParamChange();
-    if (isSet(object.subspace)) obj.subspace = String(object.subspace);
-    if (isSet(object.key)) obj.key = String(object.key);
-    if (isSet(object.value)) obj.value = String(object.value);
-    return obj;
-  },
-  toJSON(message: ParamChange): unknown {
-    const obj: any = {};
-    message.subspace !== undefined && (obj.subspace = message.subspace);
-    message.key !== undefined && (obj.key = message.key);
-    message.value !== undefined && (obj.value = message.value);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<ParamChange>, I>>(object: I): ParamChange {
     const message = createBaseParamChange();
     message.subspace = object.subspace ?? "";
     message.key = object.key ?? "";
     message.value = object.value ?? "";
     return message;
+  },
+  fromAmino(object: ParamChangeAmino): ParamChange {
+    const message = createBaseParamChange();
+    if (object.subspace !== undefined && object.subspace !== null) {
+      message.subspace = object.subspace;
+    }
+    if (object.key !== undefined && object.key !== null) {
+      message.key = object.key;
+    }
+    if (object.value !== undefined && object.value !== null) {
+      message.value = object.value;
+    }
+    return message;
+  },
+  toAmino(message: ParamChange): ParamChangeAmino {
+    const obj: any = {};
+    obj.subspace = message.subspace === "" ? undefined : message.subspace;
+    obj.key = message.key === "" ? undefined : message.key;
+    obj.value = message.value === "" ? undefined : message.value;
+    return obj;
+  },
+  fromAminoMsg(object: ParamChangeAminoMsg): ParamChange {
+    return ParamChange.fromAmino(object.value);
+  },
+  toAminoMsg(message: ParamChange): ParamChangeAminoMsg {
+    return {
+      type: "cosmos-sdk/ParamChange",
+      value: ParamChange.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ParamChangeProtoMsg): ParamChange {
+    return ParamChange.decode(message.value);
+  },
+  toProto(message: ParamChange): Uint8Array {
+    return ParamChange.encode(message).finish();
+  },
+  toProtoMsg(message: ParamChange): ParamChangeProtoMsg {
+    return {
+      typeUrl: "/cosmos.params.v1beta1.ParamChange",
+      value: ParamChange.encode(message).finish(),
+    };
   },
 };

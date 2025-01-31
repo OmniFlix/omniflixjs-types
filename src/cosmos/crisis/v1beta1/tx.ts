@@ -1,7 +1,8 @@
+//@ts-nocheck
 /* eslint-disable */
-import { Coin } from "../../base/v1beta1/coin";
+import { Coin, CoinAmino } from "../../base/v1beta1/coin";
 import { BinaryReader, BinaryWriter } from "../../../binary";
-import { isSet, DeepPartial, Exact, Rpc } from "../../../helpers";
+import { DeepPartial, Exact, Rpc } from "../../../helpers";
 export const protobufPackage = "cosmos.crisis.v1beta1";
 /** MsgVerifyInvariant represents a message to verify a particular invariance. */
 export interface MsgVerifyInvariant {
@@ -12,8 +13,35 @@ export interface MsgVerifyInvariant {
   /** invariant_route is the msg's invariant route. */
   invariantRoute: string;
 }
+export interface MsgVerifyInvariantProtoMsg {
+  typeUrl: "/cosmos.crisis.v1beta1.MsgVerifyInvariant";
+  value: Uint8Array;
+}
+/** MsgVerifyInvariant represents a message to verify a particular invariance. */
+export interface MsgVerifyInvariantAmino {
+  /** sender is the account address of private key to send coins to fee collector account. */
+  sender?: string;
+  /** name of the invariant module. */
+  invariant_module_name?: string;
+  /** invariant_route is the msg's invariant route. */
+  invariant_route?: string;
+}
+export interface MsgVerifyInvariantAminoMsg {
+  type: "cosmos-sdk/MsgVerifyInvariant";
+  value: MsgVerifyInvariantAmino;
+}
 /** MsgVerifyInvariantResponse defines the Msg/VerifyInvariant response type. */
 export interface MsgVerifyInvariantResponse {}
+export interface MsgVerifyInvariantResponseProtoMsg {
+  typeUrl: "/cosmos.crisis.v1beta1.MsgVerifyInvariantResponse";
+  value: Uint8Array;
+}
+/** MsgVerifyInvariantResponse defines the Msg/VerifyInvariant response type. */
+export interface MsgVerifyInvariantResponseAmino {}
+export interface MsgVerifyInvariantResponseAminoMsg {
+  type: "cosmos-sdk/MsgVerifyInvariantResponse";
+  value: MsgVerifyInvariantResponseAmino;
+}
 /**
  * MsgUpdateParams is the Msg/UpdateParams request type.
  *
@@ -25,6 +53,25 @@ export interface MsgUpdateParams {
   /** constant_fee defines the x/crisis parameter. */
   constantFee: Coin;
 }
+export interface MsgUpdateParamsProtoMsg {
+  typeUrl: "/cosmos.crisis.v1beta1.MsgUpdateParams";
+  value: Uint8Array;
+}
+/**
+ * MsgUpdateParams is the Msg/UpdateParams request type.
+ *
+ * Since: cosmos-sdk 0.47
+ */
+export interface MsgUpdateParamsAmino {
+  /** authority is the address that controls the module (defaults to x/gov unless overwritten). */
+  authority?: string;
+  /** constant_fee defines the x/crisis parameter. */
+  constant_fee: CoinAmino;
+}
+export interface MsgUpdateParamsAminoMsg {
+  type: "cosmos-sdk/x/crisis/MsgUpdateParams";
+  value: MsgUpdateParamsAmino;
+}
 /**
  * MsgUpdateParamsResponse defines the response structure for executing a
  * MsgUpdateParams message.
@@ -32,6 +79,21 @@ export interface MsgUpdateParams {
  * Since: cosmos-sdk 0.47
  */
 export interface MsgUpdateParamsResponse {}
+export interface MsgUpdateParamsResponseProtoMsg {
+  typeUrl: "/cosmos.crisis.v1beta1.MsgUpdateParamsResponse";
+  value: Uint8Array;
+}
+/**
+ * MsgUpdateParamsResponse defines the response structure for executing a
+ * MsgUpdateParams message.
+ *
+ * Since: cosmos-sdk 0.47
+ */
+export interface MsgUpdateParamsResponseAmino {}
+export interface MsgUpdateParamsResponseAminoMsg {
+  type: "cosmos-sdk/MsgUpdateParamsResponse";
+  value: MsgUpdateParamsResponseAmino;
+}
 function createBaseMsgVerifyInvariant(): MsgVerifyInvariant {
   return {
     sender: "",
@@ -76,26 +138,53 @@ export const MsgVerifyInvariant = {
     }
     return message;
   },
-  fromJSON(object: any): MsgVerifyInvariant {
-    const obj = createBaseMsgVerifyInvariant();
-    if (isSet(object.sender)) obj.sender = String(object.sender);
-    if (isSet(object.invariantModuleName)) obj.invariantModuleName = String(object.invariantModuleName);
-    if (isSet(object.invariantRoute)) obj.invariantRoute = String(object.invariantRoute);
-    return obj;
-  },
-  toJSON(message: MsgVerifyInvariant): unknown {
-    const obj: any = {};
-    message.sender !== undefined && (obj.sender = message.sender);
-    message.invariantModuleName !== undefined && (obj.invariantModuleName = message.invariantModuleName);
-    message.invariantRoute !== undefined && (obj.invariantRoute = message.invariantRoute);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgVerifyInvariant>, I>>(object: I): MsgVerifyInvariant {
     const message = createBaseMsgVerifyInvariant();
     message.sender = object.sender ?? "";
     message.invariantModuleName = object.invariantModuleName ?? "";
     message.invariantRoute = object.invariantRoute ?? "";
     return message;
+  },
+  fromAmino(object: MsgVerifyInvariantAmino): MsgVerifyInvariant {
+    const message = createBaseMsgVerifyInvariant();
+    if (object.sender !== undefined && object.sender !== null) {
+      message.sender = object.sender;
+    }
+    if (object.invariant_module_name !== undefined && object.invariant_module_name !== null) {
+      message.invariantModuleName = object.invariant_module_name;
+    }
+    if (object.invariant_route !== undefined && object.invariant_route !== null) {
+      message.invariantRoute = object.invariant_route;
+    }
+    return message;
+  },
+  toAmino(message: MsgVerifyInvariant): MsgVerifyInvariantAmino {
+    const obj: any = {};
+    obj.sender = message.sender === "" ? undefined : message.sender;
+    obj.invariant_module_name = message.invariantModuleName === "" ? undefined : message.invariantModuleName;
+    obj.invariant_route = message.invariantRoute === "" ? undefined : message.invariantRoute;
+    return obj;
+  },
+  fromAminoMsg(object: MsgVerifyInvariantAminoMsg): MsgVerifyInvariant {
+    return MsgVerifyInvariant.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgVerifyInvariant): MsgVerifyInvariantAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgVerifyInvariant",
+      value: MsgVerifyInvariant.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgVerifyInvariantProtoMsg): MsgVerifyInvariant {
+    return MsgVerifyInvariant.decode(message.value);
+  },
+  toProto(message: MsgVerifyInvariant): Uint8Array {
+    return MsgVerifyInvariant.encode(message).finish();
+  },
+  toProtoMsg(message: MsgVerifyInvariant): MsgVerifyInvariantProtoMsg {
+    return {
+      typeUrl: "/cosmos.crisis.v1beta1.MsgVerifyInvariant",
+      value: MsgVerifyInvariant.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgVerifyInvariantResponse(): MsgVerifyInvariantResponse {
@@ -120,17 +209,38 @@ export const MsgVerifyInvariantResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgVerifyInvariantResponse {
-    const obj = createBaseMsgVerifyInvariantResponse();
-    return obj;
-  },
-  toJSON(_: MsgVerifyInvariantResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgVerifyInvariantResponse>, I>>(_: I): MsgVerifyInvariantResponse {
     const message = createBaseMsgVerifyInvariantResponse();
     return message;
+  },
+  fromAmino(_: MsgVerifyInvariantResponseAmino): MsgVerifyInvariantResponse {
+    const message = createBaseMsgVerifyInvariantResponse();
+    return message;
+  },
+  toAmino(_: MsgVerifyInvariantResponse): MsgVerifyInvariantResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgVerifyInvariantResponseAminoMsg): MsgVerifyInvariantResponse {
+    return MsgVerifyInvariantResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgVerifyInvariantResponse): MsgVerifyInvariantResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgVerifyInvariantResponse",
+      value: MsgVerifyInvariantResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgVerifyInvariantResponseProtoMsg): MsgVerifyInvariantResponse {
+    return MsgVerifyInvariantResponse.decode(message.value);
+  },
+  toProto(message: MsgVerifyInvariantResponse): Uint8Array {
+    return MsgVerifyInvariantResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgVerifyInvariantResponse): MsgVerifyInvariantResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.crisis.v1beta1.MsgVerifyInvariantResponse",
+      value: MsgVerifyInvariantResponse.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgUpdateParams(): MsgUpdateParams {
@@ -170,19 +280,6 @@ export const MsgUpdateParams = {
     }
     return message;
   },
-  fromJSON(object: any): MsgUpdateParams {
-    const obj = createBaseMsgUpdateParams();
-    if (isSet(object.authority)) obj.authority = String(object.authority);
-    if (isSet(object.constantFee)) obj.constantFee = Coin.fromJSON(object.constantFee);
-    return obj;
-  },
-  toJSON(message: MsgUpdateParams): unknown {
-    const obj: any = {};
-    message.authority !== undefined && (obj.authority = message.authority);
-    message.constantFee !== undefined &&
-      (obj.constantFee = message.constantFee ? Coin.toJSON(message.constantFee) : undefined);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgUpdateParams>, I>>(object: I): MsgUpdateParams {
     const message = createBaseMsgUpdateParams();
     message.authority = object.authority ?? "";
@@ -190,6 +287,45 @@ export const MsgUpdateParams = {
       message.constantFee = Coin.fromPartial(object.constantFee);
     }
     return message;
+  },
+  fromAmino(object: MsgUpdateParamsAmino): MsgUpdateParams {
+    const message = createBaseMsgUpdateParams();
+    if (object.authority !== undefined && object.authority !== null) {
+      message.authority = object.authority;
+    }
+    if (object.constant_fee !== undefined && object.constant_fee !== null) {
+      message.constantFee = Coin.fromAmino(object.constant_fee);
+    }
+    return message;
+  },
+  toAmino(message: MsgUpdateParams): MsgUpdateParamsAmino {
+    const obj: any = {};
+    obj.authority = message.authority === "" ? undefined : message.authority;
+    obj.constant_fee = message.constantFee
+      ? Coin.toAmino(message.constantFee)
+      : Coin.toAmino(Coin.fromPartial({}));
+    return obj;
+  },
+  fromAminoMsg(object: MsgUpdateParamsAminoMsg): MsgUpdateParams {
+    return MsgUpdateParams.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgUpdateParams): MsgUpdateParamsAminoMsg {
+    return {
+      type: "cosmos-sdk/x/crisis/MsgUpdateParams",
+      value: MsgUpdateParams.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgUpdateParamsProtoMsg): MsgUpdateParams {
+    return MsgUpdateParams.decode(message.value);
+  },
+  toProto(message: MsgUpdateParams): Uint8Array {
+    return MsgUpdateParams.encode(message).finish();
+  },
+  toProtoMsg(message: MsgUpdateParams): MsgUpdateParamsProtoMsg {
+    return {
+      typeUrl: "/cosmos.crisis.v1beta1.MsgUpdateParams",
+      value: MsgUpdateParams.encode(message).finish(),
+    };
   },
 };
 function createBaseMsgUpdateParamsResponse(): MsgUpdateParamsResponse {
@@ -214,17 +350,38 @@ export const MsgUpdateParamsResponse = {
     }
     return message;
   },
-  fromJSON(_: any): MsgUpdateParamsResponse {
-    const obj = createBaseMsgUpdateParamsResponse();
-    return obj;
-  },
-  toJSON(_: MsgUpdateParamsResponse): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<MsgUpdateParamsResponse>, I>>(_: I): MsgUpdateParamsResponse {
     const message = createBaseMsgUpdateParamsResponse();
     return message;
+  },
+  fromAmino(_: MsgUpdateParamsResponseAmino): MsgUpdateParamsResponse {
+    const message = createBaseMsgUpdateParamsResponse();
+    return message;
+  },
+  toAmino(_: MsgUpdateParamsResponse): MsgUpdateParamsResponseAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: MsgUpdateParamsResponseAminoMsg): MsgUpdateParamsResponse {
+    return MsgUpdateParamsResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: MsgUpdateParamsResponse): MsgUpdateParamsResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/MsgUpdateParamsResponse",
+      value: MsgUpdateParamsResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MsgUpdateParamsResponseProtoMsg): MsgUpdateParamsResponse {
+    return MsgUpdateParamsResponse.decode(message.value);
+  },
+  toProto(message: MsgUpdateParamsResponse): Uint8Array {
+    return MsgUpdateParamsResponse.encode(message).finish();
+  },
+  toProtoMsg(message: MsgUpdateParamsResponse): MsgUpdateParamsResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.crisis.v1beta1.MsgUpdateParamsResponse",
+      value: MsgUpdateParamsResponse.encode(message).finish(),
+    };
   },
 };
 /** Msg defines the bank Msg service. */

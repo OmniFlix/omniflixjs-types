@@ -1,6 +1,7 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../../helpers";
+import { DeepPartial, Exact } from "../../../../helpers";
 export const protobufPackage = "ibc.applications.fee.v1";
 /**
  * Metadata defines the ICS29 channel specific metadata encoded into the channel version bytestring
@@ -11,6 +12,24 @@ export interface Metadata {
   feeVersion: string;
   /** app_version defines the underlying application version, which may or may not be a JSON encoded bytestring */
   appVersion: string;
+}
+export interface MetadataProtoMsg {
+  typeUrl: "/ibc.applications.fee.v1.Metadata";
+  value: Uint8Array;
+}
+/**
+ * Metadata defines the ICS29 channel specific metadata encoded into the channel version bytestring
+ * See ICS004: https://github.com/cosmos/ibc/tree/master/spec/core/ics-004-channel-and-packet-semantics#Versioning
+ */
+export interface MetadataAmino {
+  /** fee_version defines the ICS29 fee version */
+  fee_version?: string;
+  /** app_version defines the underlying application version, which may or may not be a JSON encoded bytestring */
+  app_version?: string;
+}
+export interface MetadataAminoMsg {
+  type: "cosmos-sdk/Metadata";
+  value: MetadataAmino;
 }
 function createBaseMetadata(): Metadata {
   return {
@@ -49,22 +68,47 @@ export const Metadata = {
     }
     return message;
   },
-  fromJSON(object: any): Metadata {
-    const obj = createBaseMetadata();
-    if (isSet(object.feeVersion)) obj.feeVersion = String(object.feeVersion);
-    if (isSet(object.appVersion)) obj.appVersion = String(object.appVersion);
-    return obj;
-  },
-  toJSON(message: Metadata): unknown {
-    const obj: any = {};
-    message.feeVersion !== undefined && (obj.feeVersion = message.feeVersion);
-    message.appVersion !== undefined && (obj.appVersion = message.appVersion);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Metadata>, I>>(object: I): Metadata {
     const message = createBaseMetadata();
     message.feeVersion = object.feeVersion ?? "";
     message.appVersion = object.appVersion ?? "";
     return message;
+  },
+  fromAmino(object: MetadataAmino): Metadata {
+    const message = createBaseMetadata();
+    if (object.fee_version !== undefined && object.fee_version !== null) {
+      message.feeVersion = object.fee_version;
+    }
+    if (object.app_version !== undefined && object.app_version !== null) {
+      message.appVersion = object.app_version;
+    }
+    return message;
+  },
+  toAmino(message: Metadata): MetadataAmino {
+    const obj: any = {};
+    obj.fee_version = message.feeVersion === "" ? undefined : message.feeVersion;
+    obj.app_version = message.appVersion === "" ? undefined : message.appVersion;
+    return obj;
+  },
+  fromAminoMsg(object: MetadataAminoMsg): Metadata {
+    return Metadata.fromAmino(object.value);
+  },
+  toAminoMsg(message: Metadata): MetadataAminoMsg {
+    return {
+      type: "cosmos-sdk/Metadata",
+      value: Metadata.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: MetadataProtoMsg): Metadata {
+    return Metadata.decode(message.value);
+  },
+  toProto(message: Metadata): Uint8Array {
+    return Metadata.encode(message).finish();
+  },
+  toProtoMsg(message: Metadata): MetadataProtoMsg {
+    return {
+      typeUrl: "/ibc.applications.fee.v1.Metadata",
+      value: Metadata.encode(message).finish(),
+    };
   },
 };

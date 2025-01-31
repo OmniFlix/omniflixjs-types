@@ -6,6 +6,7 @@ node_modules/
 /protos/ibc-go
 /protos/wasmd
 /protos/omniflixhub
+/protos/streampay
 
 /build/
 /confio/
@@ -17,6 +18,7 @@ node_modules/
 /ibc/
 /tendermint/
 /OmniFlix/
+/osmosis/
 /binary.*
 /helpers.*
 /index.*

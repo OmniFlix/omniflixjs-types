@@ -1,12 +1,35 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { DeepPartial, Exact, isSet, Rpc } from "../../../../helpers";
+import { DeepPartial, Exact, Rpc } from "../../../../helpers";
 export const protobufPackage = "cosmos.base.node.v1beta1";
 /** ConfigRequest defines the request structure for the Config gRPC query. */
 export interface ConfigRequest {}
+export interface ConfigRequestProtoMsg {
+  typeUrl: "/cosmos.base.node.v1beta1.ConfigRequest";
+  value: Uint8Array;
+}
+/** ConfigRequest defines the request structure for the Config gRPC query. */
+export interface ConfigRequestAmino {}
+export interface ConfigRequestAminoMsg {
+  type: "cosmos-sdk/ConfigRequest";
+  value: ConfigRequestAmino;
+}
 /** ConfigResponse defines the response structure for the Config gRPC query. */
 export interface ConfigResponse {
   minimumGasPrice: string;
+}
+export interface ConfigResponseProtoMsg {
+  typeUrl: "/cosmos.base.node.v1beta1.ConfigResponse";
+  value: Uint8Array;
+}
+/** ConfigResponse defines the response structure for the Config gRPC query. */
+export interface ConfigResponseAmino {
+  minimum_gas_price?: string;
+}
+export interface ConfigResponseAminoMsg {
+  type: "cosmos-sdk/ConfigResponse";
+  value: ConfigResponseAmino;
 }
 function createBaseConfigRequest(): ConfigRequest {
   return {};
@@ -30,17 +53,38 @@ export const ConfigRequest = {
     }
     return message;
   },
-  fromJSON(_: any): ConfigRequest {
-    const obj = createBaseConfigRequest();
-    return obj;
-  },
-  toJSON(_: ConfigRequest): unknown {
-    const obj: any = {};
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<ConfigRequest>, I>>(_: I): ConfigRequest {
     const message = createBaseConfigRequest();
     return message;
+  },
+  fromAmino(_: ConfigRequestAmino): ConfigRequest {
+    const message = createBaseConfigRequest();
+    return message;
+  },
+  toAmino(_: ConfigRequest): ConfigRequestAmino {
+    const obj: any = {};
+    return obj;
+  },
+  fromAminoMsg(object: ConfigRequestAminoMsg): ConfigRequest {
+    return ConfigRequest.fromAmino(object.value);
+  },
+  toAminoMsg(message: ConfigRequest): ConfigRequestAminoMsg {
+    return {
+      type: "cosmos-sdk/ConfigRequest",
+      value: ConfigRequest.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ConfigRequestProtoMsg): ConfigRequest {
+    return ConfigRequest.decode(message.value);
+  },
+  toProto(message: ConfigRequest): Uint8Array {
+    return ConfigRequest.encode(message).finish();
+  },
+  toProtoMsg(message: ConfigRequest): ConfigRequestProtoMsg {
+    return {
+      typeUrl: "/cosmos.base.node.v1beta1.ConfigRequest",
+      value: ConfigRequest.encode(message).finish(),
+    };
   },
 };
 function createBaseConfigResponse(): ConfigResponse {
@@ -73,20 +117,43 @@ export const ConfigResponse = {
     }
     return message;
   },
-  fromJSON(object: any): ConfigResponse {
-    const obj = createBaseConfigResponse();
-    if (isSet(object.minimumGasPrice)) obj.minimumGasPrice = String(object.minimumGasPrice);
-    return obj;
-  },
-  toJSON(message: ConfigResponse): unknown {
-    const obj: any = {};
-    message.minimumGasPrice !== undefined && (obj.minimumGasPrice = message.minimumGasPrice);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<ConfigResponse>, I>>(object: I): ConfigResponse {
     const message = createBaseConfigResponse();
     message.minimumGasPrice = object.minimumGasPrice ?? "";
     return message;
+  },
+  fromAmino(object: ConfigResponseAmino): ConfigResponse {
+    const message = createBaseConfigResponse();
+    if (object.minimum_gas_price !== undefined && object.minimum_gas_price !== null) {
+      message.minimumGasPrice = object.minimum_gas_price;
+    }
+    return message;
+  },
+  toAmino(message: ConfigResponse): ConfigResponseAmino {
+    const obj: any = {};
+    obj.minimum_gas_price = message.minimumGasPrice === "" ? undefined : message.minimumGasPrice;
+    return obj;
+  },
+  fromAminoMsg(object: ConfigResponseAminoMsg): ConfigResponse {
+    return ConfigResponse.fromAmino(object.value);
+  },
+  toAminoMsg(message: ConfigResponse): ConfigResponseAminoMsg {
+    return {
+      type: "cosmos-sdk/ConfigResponse",
+      value: ConfigResponse.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ConfigResponseProtoMsg): ConfigResponse {
+    return ConfigResponse.decode(message.value);
+  },
+  toProto(message: ConfigResponse): Uint8Array {
+    return ConfigResponse.encode(message).finish();
+  },
+  toProtoMsg(message: ConfigResponse): ConfigResponseProtoMsg {
+    return {
+      typeUrl: "/cosmos.base.node.v1beta1.ConfigResponse",
+      value: ConfigResponse.encode(message).finish(),
+    };
   },
 };
 /** Service defines the gRPC querier service for node related queries. */

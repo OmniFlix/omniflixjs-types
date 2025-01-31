@@ -1,6 +1,7 @@
+//@ts-nocheck
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { isSet, DeepPartial, Exact } from "../../../../helpers";
+import { DeepPartial, Exact } from "../../../../helpers";
 export const protobufPackage = "cosmos.capability.module.v1";
 /** Module is the config object of the capability module. */
 export interface Module {
@@ -9,6 +10,22 @@ export interface Module {
    * keeper. For more details check x/capability/keeper.go.
    */
   sealKeeper: boolean;
+}
+export interface ModuleProtoMsg {
+  typeUrl: "/cosmos.capability.module.v1.Module";
+  value: Uint8Array;
+}
+/** Module is the config object of the capability module. */
+export interface ModuleAmino {
+  /**
+   * seal_keeper defines if keeper.Seal() will run on BeginBlock() to prevent further modules from creating a scoped
+   * keeper. For more details check x/capability/keeper.go.
+   */
+  seal_keeper?: boolean;
+}
+export interface ModuleAminoMsg {
+  type: "cosmos-sdk/Module";
+  value: ModuleAmino;
 }
 function createBaseModule(): Module {
   return {
@@ -40,19 +57,42 @@ export const Module = {
     }
     return message;
   },
-  fromJSON(object: any): Module {
-    const obj = createBaseModule();
-    if (isSet(object.sealKeeper)) obj.sealKeeper = Boolean(object.sealKeeper);
-    return obj;
-  },
-  toJSON(message: Module): unknown {
-    const obj: any = {};
-    message.sealKeeper !== undefined && (obj.sealKeeper = message.sealKeeper);
-    return obj;
-  },
   fromPartial<I extends Exact<DeepPartial<Module>, I>>(object: I): Module {
     const message = createBaseModule();
     message.sealKeeper = object.sealKeeper ?? false;
     return message;
+  },
+  fromAmino(object: ModuleAmino): Module {
+    const message = createBaseModule();
+    if (object.seal_keeper !== undefined && object.seal_keeper !== null) {
+      message.sealKeeper = object.seal_keeper;
+    }
+    return message;
+  },
+  toAmino(message: Module): ModuleAmino {
+    const obj: any = {};
+    obj.seal_keeper = message.sealKeeper === false ? undefined : message.sealKeeper;
+    return obj;
+  },
+  fromAminoMsg(object: ModuleAminoMsg): Module {
+    return Module.fromAmino(object.value);
+  },
+  toAminoMsg(message: Module): ModuleAminoMsg {
+    return {
+      type: "cosmos-sdk/Module",
+      value: Module.toAmino(message),
+    };
+  },
+  fromProtoMsg(message: ModuleProtoMsg): Module {
+    return Module.decode(message.value);
+  },
+  toProto(message: Module): Uint8Array {
+    return Module.encode(message).finish();
+  },
+  toProtoMsg(message: Module): ModuleProtoMsg {
+    return {
+      typeUrl: "/cosmos.capability.module.v1.Module",
+      value: Module.encode(message).finish(),
+    };
   },
 };

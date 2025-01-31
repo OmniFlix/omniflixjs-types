@@ -10,3 +10,6 @@
 [submodule "protos/ibc-go-src"]
 	path = protos/ibc-go-src
 	url = https://github.com/cosmos/ibc-go.git
+[submodule "protos/streampay-src"]
+	path = protos/streampay-src
+	url = https://github.com/OmniFlix/streampay.git
