@@ -4,7 +4,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["es2020"],
+    "lib": ["es2022"],
     "module": "commonjs",
     "moduleResolution": "node",
     "newLine": "LF",
@@ -23,7 +23,7 @@
     "rootDir": "src",
     "sourceMap": true,
     "strict": true,
-    "target": "es2020"
+    "target": "es2022"
   },
   "include": ["src/**/*"]
 }
