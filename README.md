@@ -88,8 +88,8 @@ const nft = MsgMintONFT.fromPartial({
   extensible: true,
   nsfw: false,
   royaltyShare: "10000000000000000",
-  sender: "omniflix13gmkpgnx492ygghptkwdzdqee8ufvc9c0uj5ej",
-  recipient: "omniflix13gmkpgnx492ygghptkwdzdqee8ufvc9c0uj5ej",
+  sender: "sender-address",
+  recipient: "recipient-address",
 });
 ```
 
