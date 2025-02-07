@@ -20,6 +20,12 @@ export interface MsgCreateValidator {
   description: Description;
   commission: CommissionRates;
   minSelfDelegation: string;
+  /**
+   * Deprecated: Use of Delegator Address in MsgCreateValidator is deprecated.
+   * The validator address bytes and delegator address bytes refer to the same account while creating validator (defer
+   * only in bech32 notation).
+   */
+  /** @deprecated */
   delegatorAddress: string;
   validatorAddress: string;
   pubkey?: Any;
@@ -33,7 +39,13 @@ export interface MsgCreateValidatorProtoMsg {
 export interface MsgCreateValidatorAmino {
   description: DescriptionAmino;
   commission: CommissionRatesAmino;
-  min_self_delegation?: string;
+  min_self_delegation: string;
+  /**
+   * Deprecated: Use of Delegator Address in MsgCreateValidator is deprecated.
+   * The validator address bytes and delegator address bytes refer to the same account while creating validator (defer
+   * only in bech32 notation).
+   */
+  /** @deprecated */
   delegator_address?: string;
   validator_address?: string;
   pubkey?: AnyAmino;
@@ -212,6 +224,12 @@ export interface MsgUndelegateAminoMsg {
 /** MsgUndelegateResponse defines the Msg/Undelegate response type. */
 export interface MsgUndelegateResponse {
   completionTime: Timestamp;
+  /**
+   * amount returns the amount of undelegated coins
+   *
+   * Since: cosmos-sdk 0.50
+   */
+  amount: Coin;
 }
 export interface MsgUndelegateResponseProtoMsg {
   typeUrl: "/cosmos.staking.v1beta1.MsgUndelegateResponse";
@@ -220,6 +238,12 @@ export interface MsgUndelegateResponseProtoMsg {
 /** MsgUndelegateResponse defines the Msg/Undelegate response type. */
 export interface MsgUndelegateResponseAmino {
   completion_time: string;
+  /**
+   * amount returns the amount of undelegated coins
+   *
+   * Since: cosmos-sdk 0.50
+   */
+  amount: CoinAmino;
 }
 export interface MsgUndelegateResponseAminoMsg {
   type: "cosmos-sdk/MsgUndelegateResponse";
@@ -463,7 +487,7 @@ export const MsgCreateValidator = {
     obj.commission = message.commission
       ? CommissionRates.toAmino(message.commission)
       : CommissionRates.toAmino(CommissionRates.fromPartial({}));
-    obj.min_self_delegation = message.minSelfDelegation === "" ? undefined : message.minSelfDelegation;
+    obj.min_self_delegation = message.minSelfDelegation ?? "";
     obj.delegator_address = message.delegatorAddress === "" ? undefined : message.delegatorAddress;
     obj.validator_address = message.validatorAddress === "" ? undefined : message.validatorAddress;
     obj.pubkey = message.pubkey ? decodePubkey(message.pubkey) : undefined;
@@ -1144,6 +1168,7 @@ export const MsgUndelegate = {
 function createBaseMsgUndelegateResponse(): MsgUndelegateResponse {
   return {
     completionTime: Timestamp.fromPartial({}),
+    amount: Coin.fromPartial({}),
   };
 }
 export const MsgUndelegateResponse = {
@@ -1151,6 +1176,9 @@ export const MsgUndelegateResponse = {
   encode(message: MsgUndelegateResponse, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.completionTime !== undefined) {
       Timestamp.encode(message.completionTime, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.amount !== undefined) {
+      Coin.encode(message.amount, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -1164,6 +1192,9 @@ export const MsgUndelegateResponse = {
         case 1:
           message.completionTime = Timestamp.decode(reader, reader.uint32());
           break;
+        case 2:
+          message.amount = Coin.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1176,12 +1207,18 @@ export const MsgUndelegateResponse = {
     if (object.completionTime !== undefined && object.completionTime !== null) {
       message.completionTime = Timestamp.fromPartial(object.completionTime);
     }
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = Coin.fromPartial(object.amount);
+    }
     return message;
   },
   fromAmino(object: MsgUndelegateResponseAmino): MsgUndelegateResponse {
     const message = createBaseMsgUndelegateResponse();
     if (object.completion_time !== undefined && object.completion_time !== null) {
       message.completionTime = Timestamp.fromAmino(object.completion_time);
+    }
+    if (object.amount !== undefined && object.amount !== null) {
+      message.amount = Coin.fromAmino(object.amount);
     }
     return message;
   },
@@ -1190,6 +1227,7 @@ export const MsgUndelegateResponse = {
     obj.completion_time = message.completionTime
       ? Timestamp.toAmino(message.completionTime)
       : Timestamp.toAmino(Timestamp.fromPartial({}));
+    obj.amount = message.amount ? Coin.toAmino(message.amount) : Coin.toAmino(Coin.fromPartial({}));
     return obj;
   },
   fromAminoMsg(object: MsgUndelegateResponseAminoMsg): MsgUndelegateResponse {
