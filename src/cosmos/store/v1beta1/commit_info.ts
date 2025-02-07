@@ -1,9 +1,9 @@
 //@ts-nocheck
 /* eslint-disable */
-import { Timestamp } from "../../../../google/protobuf/timestamp";
-import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../../../helpers";
-export const protobufPackage = "cosmos.base.store.v1beta1";
+import { Timestamp } from "../../../google/protobuf/timestamp";
+import { BinaryReader, BinaryWriter } from "../../../binary";
+import { DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../../helpers";
+export const protobufPackage = "cosmos.store.v1beta1";
 /**
  * CommitInfo defines commit information used by the multi-store when committing
  * a version/height.
@@ -14,7 +14,7 @@ export interface CommitInfo {
   timestamp: Timestamp;
 }
 export interface CommitInfoProtoMsg {
-  typeUrl: "/cosmos.base.store.v1beta1.CommitInfo";
+  typeUrl: "/cosmos.store.v1beta1.CommitInfo";
   value: Uint8Array;
 }
 /**
@@ -39,7 +39,7 @@ export interface StoreInfo {
   commitId: CommitID;
 }
 export interface StoreInfoProtoMsg {
-  typeUrl: "/cosmos.base.store.v1beta1.StoreInfo";
+  typeUrl: "/cosmos.store.v1beta1.StoreInfo";
   value: Uint8Array;
 }
 /**
@@ -63,7 +63,7 @@ export interface CommitID {
   hash: Uint8Array;
 }
 export interface CommitIDProtoMsg {
-  typeUrl: "/cosmos.base.store.v1beta1.CommitID";
+  typeUrl: "/cosmos.store.v1beta1.CommitID";
   value: Uint8Array;
 }
 /**
@@ -86,7 +86,7 @@ function createBaseCommitInfo(): CommitInfo {
   };
 }
 export const CommitInfo = {
-  typeUrl: "/cosmos.base.store.v1beta1.CommitInfo",
+  typeUrl: "/cosmos.store.v1beta1.CommitInfo",
   encode(message: CommitInfo, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.version !== BigInt(0)) {
       writer.uint32(8).int64(message.version);
@@ -172,7 +172,7 @@ export const CommitInfo = {
   },
   toProtoMsg(message: CommitInfo): CommitInfoProtoMsg {
     return {
-      typeUrl: "/cosmos.base.store.v1beta1.CommitInfo",
+      typeUrl: "/cosmos.store.v1beta1.CommitInfo",
       value: CommitInfo.encode(message).finish(),
     };
   },
@@ -184,7 +184,7 @@ function createBaseStoreInfo(): StoreInfo {
   };
 }
 export const StoreInfo = {
-  typeUrl: "/cosmos.base.store.v1beta1.StoreInfo",
+  typeUrl: "/cosmos.store.v1beta1.StoreInfo",
   encode(message: StoreInfo, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
@@ -255,7 +255,7 @@ export const StoreInfo = {
   },
   toProtoMsg(message: StoreInfo): StoreInfoProtoMsg {
     return {
-      typeUrl: "/cosmos.base.store.v1beta1.StoreInfo",
+      typeUrl: "/cosmos.store.v1beta1.StoreInfo",
       value: StoreInfo.encode(message).finish(),
     };
   },
@@ -267,7 +267,7 @@ function createBaseCommitID(): CommitID {
   };
 }
 export const CommitID = {
-  typeUrl: "/cosmos.base.store.v1beta1.CommitID",
+  typeUrl: "/cosmos.store.v1beta1.CommitID",
   encode(message: CommitID, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.version !== BigInt(0)) {
       writer.uint32(8).int64(message.version);
@@ -338,7 +338,7 @@ export const CommitID = {
   },
   toProtoMsg(message: CommitID): CommitIDProtoMsg {
     return {
-      typeUrl: "/cosmos.base.store.v1beta1.CommitID",
+      typeUrl: "/cosmos.store.v1beta1.CommitID",
       value: CommitID.encode(message).finish(),
     };
   },

@@ -1,23 +1,24 @@
-[submodule "cosmos-sdk"]
+[submodule "protos/cosmos-sdk"]
 	path = protos/cosmos-sdk
 	url = https://github.com/cosmos/cosmos-sdk
 	branch = v0.50.11
-
-[submodule "protos/wasmd-src"]
-	path = protos/wasmd-src
-	url = https://github.com/CosmWasm/wasmd.git
-	branch = v0.54.0
 
 [submodule "protos/ibc-go-src"]
 	path = protos/ibc-go-src
 	url = https://github.com/cosmos/ibc-go.git
 	branch = v7.0.0
 
-[submodule "protos/streampay-src"]
-	path = protos/streampay-src
-	url = https://github.com/OmniFlix/streampay.git
-	branch = v2.5.0
 [submodule "protos/omniflixhub-src"]
 	path = protos/omniflixhub-src
 	url = https://github.com/OmniFlix/omniflixhub.git
 	branch = add-buf-work-yaml
+
+[submodule "protos/streampay-src"]
+	path = protos/streampay-src
+	url = https://github.com/OmniFlix/streampay.git
+	branch = v2.5.0
+
+[submodule "protos/wasmd-src"]
+	path = protos/wasmd-src
+	url = https://github.com/CosmWasm/wasmd.git
+	branch = v0.54.0

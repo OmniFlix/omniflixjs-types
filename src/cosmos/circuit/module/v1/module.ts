@@ -2,26 +2,20 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "../../../../binary";
 import { DeepPartial, Exact } from "../../../../helpers";
-export const protobufPackage = "cosmos.capability.module.v1";
-/** Module is the config object of the capability module. */
+export const protobufPackage = "cosmos.circuit.module.v1";
+/** Module is the config object of the circuit module. */
 export interface Module {
-  /**
-   * seal_keeper defines if keeper.Seal() will run on BeginBlock() to prevent further modules from creating a scoped
-   * keeper. For more details check x/capability/keeper.go.
-   */
-  sealKeeper: boolean;
+  /** authority defines the custom module authority. If not set, defaults to the governance module. */
+  authority: string;
 }
 export interface ModuleProtoMsg {
-  typeUrl: "/cosmos.capability.module.v1.Module";
+  typeUrl: "/cosmos.circuit.module.v1.Module";
   value: Uint8Array;
 }
-/** Module is the config object of the capability module. */
+/** Module is the config object of the circuit module. */
 export interface ModuleAmino {
-  /**
-   * seal_keeper defines if keeper.Seal() will run on BeginBlock() to prevent further modules from creating a scoped
-   * keeper. For more details check x/capability/keeper.go.
-   */
-  seal_keeper?: boolean;
+  /** authority defines the custom module authority. If not set, defaults to the governance module. */
+  authority?: string;
 }
 export interface ModuleAminoMsg {
   type: "cosmos-sdk/Module";
@@ -29,14 +23,14 @@ export interface ModuleAminoMsg {
 }
 function createBaseModule(): Module {
   return {
-    sealKeeper: false,
+    authority: "",
   };
 }
 export const Module = {
-  typeUrl: "/cosmos.capability.module.v1.Module",
+  typeUrl: "/cosmos.circuit.module.v1.Module",
   encode(message: Module, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
-    if (message.sealKeeper === true) {
-      writer.uint32(8).bool(message.sealKeeper);
+    if (message.authority !== "") {
+      writer.uint32(10).string(message.authority);
     }
     return writer;
   },
@@ -48,7 +42,7 @@ export const Module = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.sealKeeper = reader.bool();
+          message.authority = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -59,19 +53,19 @@ export const Module = {
   },
   fromPartial<I extends Exact<DeepPartial<Module>, I>>(object: I): Module {
     const message = createBaseModule();
-    message.sealKeeper = object.sealKeeper ?? false;
+    message.authority = object.authority ?? "";
     return message;
   },
   fromAmino(object: ModuleAmino): Module {
     const message = createBaseModule();
-    if (object.seal_keeper !== undefined && object.seal_keeper !== null) {
-      message.sealKeeper = object.seal_keeper;
+    if (object.authority !== undefined && object.authority !== null) {
+      message.authority = object.authority;
     }
     return message;
   },
   toAmino(message: Module): ModuleAmino {
     const obj: any = {};
-    obj.seal_keeper = message.sealKeeper === false ? undefined : message.sealKeeper;
+    obj.authority = message.authority === "" ? undefined : message.authority;
     return obj;
   },
   fromAminoMsg(object: ModuleAminoMsg): Module {
@@ -91,7 +85,7 @@ export const Module = {
   },
   toProtoMsg(message: Module): ModuleProtoMsg {
     return {
-      typeUrl: "/cosmos.capability.module.v1.Module",
+      typeUrl: "/cosmos.circuit.module.v1.Module",
       value: Module.encode(message).finish(),
     };
   },

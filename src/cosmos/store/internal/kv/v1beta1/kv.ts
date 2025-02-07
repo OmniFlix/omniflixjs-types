@@ -1,14 +1,14 @@
 //@ts-nocheck
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "../../../../binary";
-import { DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../../../helpers";
-export const protobufPackage = "cosmos.base.kv.v1beta1";
+import { BinaryReader, BinaryWriter } from "../../../../../binary";
+import { DeepPartial, Exact, bytesFromBase64, base64FromBytes } from "../../../../../helpers";
+export const protobufPackage = "cosmos.store.internal.kv.v1beta1";
 /** Pairs defines a repeated slice of Pair objects. */
 export interface Pairs {
   pairs: Pair[];
 }
 export interface PairsProtoMsg {
-  typeUrl: "/cosmos.base.kv.v1beta1.Pairs";
+  typeUrl: "/cosmos.store.internal.kv.v1beta1.Pairs";
   value: Uint8Array;
 }
 /** Pairs defines a repeated slice of Pair objects. */
@@ -25,7 +25,7 @@ export interface Pair {
   value: Uint8Array;
 }
 export interface PairProtoMsg {
-  typeUrl: "/cosmos.base.kv.v1beta1.Pair";
+  typeUrl: "/cosmos.store.internal.kv.v1beta1.Pair";
   value: Uint8Array;
 }
 /** Pair defines a key/value bytes tuple. */
@@ -43,7 +43,7 @@ function createBasePairs(): Pairs {
   };
 }
 export const Pairs = {
-  typeUrl: "/cosmos.base.kv.v1beta1.Pairs",
+  typeUrl: "/cosmos.store.internal.kv.v1beta1.Pairs",
   encode(message: Pairs, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     for (const v of message.pairs) {
       Pair.encode(v!, writer.uint32(10).fork()).ldelim();
@@ -103,7 +103,7 @@ export const Pairs = {
   },
   toProtoMsg(message: Pairs): PairsProtoMsg {
     return {
-      typeUrl: "/cosmos.base.kv.v1beta1.Pairs",
+      typeUrl: "/cosmos.store.internal.kv.v1beta1.Pairs",
       value: Pairs.encode(message).finish(),
     };
   },
@@ -115,7 +115,7 @@ function createBasePair(): Pair {
   };
 }
 export const Pair = {
-  typeUrl: "/cosmos.base.kv.v1beta1.Pair",
+  typeUrl: "/cosmos.store.internal.kv.v1beta1.Pair",
   encode(message: Pair, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
     if (message.key.length !== 0) {
       writer.uint32(10).bytes(message.key);
@@ -184,7 +184,7 @@ export const Pair = {
   },
   toProtoMsg(message: Pair): PairProtoMsg {
     return {
-      typeUrl: "/cosmos.base.kv.v1beta1.Pair",
+      typeUrl: "/cosmos.store.internal.kv.v1beta1.Pair",
       value: Pair.encode(message).finish(),
     };
   },
