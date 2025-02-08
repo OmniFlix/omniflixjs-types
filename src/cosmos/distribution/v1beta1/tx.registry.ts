@@ -8,6 +8,7 @@ import {
   MsgFundCommunityPool,
   MsgUpdateParams,
   MsgCommunityPoolSpend,
+  MsgDepositValidatorRewardsPool,
 } from "./tx";
 export const registry: ReadonlyArray<[string, GeneratedType]> = [
   ["/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", MsgSetWithdrawAddress],
@@ -16,6 +17,7 @@ export const registry: ReadonlyArray<[string, GeneratedType]> = [
   ["/cosmos.distribution.v1beta1.MsgFundCommunityPool", MsgFundCommunityPool],
   ["/cosmos.distribution.v1beta1.MsgUpdateParams", MsgUpdateParams],
   ["/cosmos.distribution.v1beta1.MsgCommunityPoolSpend", MsgCommunityPoolSpend],
+  ["/cosmos.distribution.v1beta1.MsgDepositValidatorRewardsPool", MsgDepositValidatorRewardsPool],
 ];
 export const load = (protoRegistry: Registry) => {
   registry.forEach(([typeUrl, mod]) => {
@@ -60,6 +62,12 @@ export const MessageComposer = {
         value: MsgCommunityPoolSpend.encode(value).finish(),
       };
     },
+    depositValidatorRewardsPool(value: MsgDepositValidatorRewardsPool) {
+      return {
+        typeUrl: "/cosmos.distribution.v1beta1.MsgDepositValidatorRewardsPool",
+        value: MsgDepositValidatorRewardsPool.encode(value).finish(),
+      };
+    },
   },
   withTypeUrl: {
     setWithdrawAddress(value: MsgSetWithdrawAddress) {
@@ -95,6 +103,12 @@ export const MessageComposer = {
     communityPoolSpend(value: MsgCommunityPoolSpend) {
       return {
         typeUrl: "/cosmos.distribution.v1beta1.MsgCommunityPoolSpend",
+        value,
+      };
+    },
+    depositValidatorRewardsPool(value: MsgDepositValidatorRewardsPool) {
+      return {
+        typeUrl: "/cosmos.distribution.v1beta1.MsgDepositValidatorRewardsPool",
         value,
       };
     },
@@ -134,6 +148,12 @@ export const MessageComposer = {
       return {
         typeUrl: "/cosmos.distribution.v1beta1.MsgCommunityPoolSpend",
         value: MsgCommunityPoolSpend.fromPartial(value),
+      };
+    },
+    depositValidatorRewardsPool(value: MsgDepositValidatorRewardsPool) {
+      return {
+        typeUrl: "/cosmos.distribution.v1beta1.MsgDepositValidatorRewardsPool",
+        value: MsgDepositValidatorRewardsPool.fromPartial(value),
       };
     },
   },
