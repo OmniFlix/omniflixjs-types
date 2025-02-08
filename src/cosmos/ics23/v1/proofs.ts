@@ -8,11 +8,14 @@ export enum HashOp {
   NO_HASH = 0,
   SHA256 = 1,
   SHA512 = 2,
-  KECCAK = 3,
+  KECCAK256 = 3,
   RIPEMD160 = 4,
   /** BITCOIN - ripemd160(sha256(x)) */
   BITCOIN = 5,
   SHA512_256 = 6,
+  BLAKE2B_512 = 7,
+  BLAKE2S_256 = 8,
+  BLAKE3 = 9,
   UNRECOGNIZED = -1,
 }
 export const HashOpAmino = HashOp;
@@ -28,8 +31,8 @@ export function hashOpFromJSON(object: any): HashOp {
     case "SHA512":
       return HashOp.SHA512;
     case 3:
-    case "KECCAK":
-      return HashOp.KECCAK;
+    case "KECCAK256":
+      return HashOp.KECCAK256;
     case 4:
     case "RIPEMD160":
       return HashOp.RIPEMD160;
@@ -39,6 +42,15 @@ export function hashOpFromJSON(object: any): HashOp {
     case 6:
     case "SHA512_256":
       return HashOp.SHA512_256;
+    case 7:
+    case "BLAKE2B_512":
+      return HashOp.BLAKE2B_512;
+    case 8:
+    case "BLAKE2S_256":
+      return HashOp.BLAKE2S_256;
+    case 9:
+    case "BLAKE3":
+      return HashOp.BLAKE3;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -53,14 +65,20 @@ export function hashOpToJSON(object: HashOp): string {
       return "SHA256";
     case HashOp.SHA512:
       return "SHA512";
-    case HashOp.KECCAK:
-      return "KECCAK";
+    case HashOp.KECCAK256:
+      return "KECCAK256";
     case HashOp.RIPEMD160:
       return "RIPEMD160";
     case HashOp.BITCOIN:
       return "BITCOIN";
     case HashOp.SHA512_256:
       return "SHA512_256";
+    case HashOp.BLAKE2B_512:
+      return "BLAKE2B_512";
+    case HashOp.BLAKE2S_256:
+      return "BLAKE2S_256";
+    case HashOp.BLAKE3:
+      return "BLAKE3";
     case HashOp.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -401,10 +419,19 @@ export interface ProofSpec {
    */
   leafSpec?: LeafOp;
   innerSpec?: InnerSpec;
-  /** max_depth (if > 0) is the maximum number of InnerOps allowed (mainly for fixed-depth tries) */
+  /**
+   * max_depth (if > 0) is the maximum number of InnerOps allowed (mainly for fixed-depth tries)
+   * the max_depth is interpreted as 128 if set to 0
+   */
   maxDepth: number;
   /** min_depth (if > 0) is the minimum number of InnerOps allowed (mainly for fixed-depth tries) */
   minDepth: number;
+  /**
+   * prehash_key_before_comparison is a flag that indicates whether to use the
+   * prehash_key specified by LeafOp to compare lexical ordering of keys for
+   * non-existence proofs.
+   */
+  prehashKeyBeforeComparison: boolean;
 }
 export interface ProofSpecProtoMsg {
   typeUrl: "/cosmos.ics23.v1.ProofSpec";
@@ -429,10 +456,19 @@ export interface ProofSpecAmino {
    */
   leaf_spec?: LeafOpAmino;
   inner_spec?: InnerSpecAmino;
-  /** max_depth (if > 0) is the maximum number of InnerOps allowed (mainly for fixed-depth tries) */
+  /**
+   * max_depth (if > 0) is the maximum number of InnerOps allowed (mainly for fixed-depth tries)
+   * the max_depth is interpreted as 128 if set to 0
+   */
   max_depth?: number;
   /** min_depth (if > 0) is the minimum number of InnerOps allowed (mainly for fixed-depth tries) */
   min_depth?: number;
+  /**
+   * prehash_key_before_comparison is a flag that indicates whether to use the
+   * prehash_key specified by LeafOp to compare lexical ordering of keys for
+   * non-existence proofs.
+   */
+  prehash_key_before_comparison?: boolean;
 }
 export interface ProofSpecAminoMsg {
   type: "cosmos-sdk/ProofSpec";
@@ -457,6 +493,7 @@ export interface InnerSpec {
   childOrder: number[];
   childSize: number;
   minPrefixLength: number;
+  /** the max prefix length must be less than the minimum prefix length + child size */
   maxPrefixLength: number;
   /** empty child is the prehash image that is used when one child is nil (eg. 20 bytes of 0) */
   emptyChild: Uint8Array;
@@ -486,6 +523,7 @@ export interface InnerSpecAmino {
   child_order?: number[];
   child_size?: number;
   min_prefix_length?: number;
+  /** the max prefix length must be less than the minimum prefix length + child size */
   max_prefix_length?: number;
   /** empty child is the prehash image that is used when one child is nil (eg. 20 bytes of 0) */
   empty_child?: string;
@@ -1141,6 +1179,7 @@ function createBaseProofSpec(): ProofSpec {
     innerSpec: undefined,
     maxDepth: 0,
     minDepth: 0,
+    prehashKeyBeforeComparison: false,
   };
 }
 export const ProofSpec = {
@@ -1157,6 +1196,9 @@ export const ProofSpec = {
     }
     if (message.minDepth !== 0) {
       writer.uint32(32).int32(message.minDepth);
+    }
+    if (message.prehashKeyBeforeComparison === true) {
+      writer.uint32(40).bool(message.prehashKeyBeforeComparison);
     }
     return writer;
   },
@@ -1179,6 +1221,9 @@ export const ProofSpec = {
         case 4:
           message.minDepth = reader.int32();
           break;
+        case 5:
+          message.prehashKeyBeforeComparison = reader.bool();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -1196,6 +1241,7 @@ export const ProofSpec = {
     }
     message.maxDepth = object.maxDepth ?? 0;
     message.minDepth = object.minDepth ?? 0;
+    message.prehashKeyBeforeComparison = object.prehashKeyBeforeComparison ?? false;
     return message;
   },
   fromAmino(object: ProofSpecAmino): ProofSpec {
@@ -1212,6 +1258,9 @@ export const ProofSpec = {
     if (object.min_depth !== undefined && object.min_depth !== null) {
       message.minDepth = object.min_depth;
     }
+    if (object.prehash_key_before_comparison !== undefined && object.prehash_key_before_comparison !== null) {
+      message.prehashKeyBeforeComparison = object.prehash_key_before_comparison;
+    }
     return message;
   },
   toAmino(message: ProofSpec): ProofSpecAmino {
@@ -1220,6 +1269,8 @@ export const ProofSpec = {
     obj.inner_spec = message.innerSpec ? InnerSpec.toAmino(message.innerSpec) : undefined;
     obj.max_depth = message.maxDepth === 0 ? undefined : message.maxDepth;
     obj.min_depth = message.minDepth === 0 ? undefined : message.minDepth;
+    obj.prehash_key_before_comparison =
+      message.prehashKeyBeforeComparison === false ? undefined : message.prehashKeyBeforeComparison;
     return obj;
   },
   fromAminoMsg(object: ProofSpecAminoMsg): ProofSpec {

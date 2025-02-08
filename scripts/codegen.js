@@ -5,15 +5,15 @@ const { writeFileSync } = require("fs");
 const telescope = require("@cosmology/telescope").default;
 
 const outPath = join(__dirname, "/../src");
-console.log(outPath);
 telescope({
   protoDirs: [
     "protos/cosmos-sdk/proto",
-    "protos/cosmos-sdk/third_party/proto",
-    "protos/wasmd",
-    "protos/ibc-go",
-    "protos/omniflixhub",
-    "protos/streampay",
+    "protos/wasmd/proto",
+    "protos/ibc-go/proto",
+    "protos/ics23/proto",
+    "protos/omniflixhub/proto",
+    "protos/streampay/proto",
+    "protos/proto",
   ],
   outPath: outPath,
   options: {

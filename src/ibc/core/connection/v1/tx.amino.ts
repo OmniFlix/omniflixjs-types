@@ -5,6 +5,7 @@ import {
   MsgConnectionOpenTry,
   MsgConnectionOpenAck,
   MsgConnectionOpenConfirm,
+  MsgUpdateParams,
 } from "./tx";
 export const AminoConverter = {
   "/ibc.core.connection.v1.MsgConnectionOpenInit": {
@@ -26,5 +27,10 @@ export const AminoConverter = {
     aminoType: "cosmos-sdk/MsgConnectionOpenConfirm",
     toAmino: MsgConnectionOpenConfirm.toAmino,
     fromAmino: MsgConnectionOpenConfirm.fromAmino,
+  },
+  "/ibc.core.connection.v1.MsgUpdateParams": {
+    aminoType: "cosmos-sdk/MsgUpdateParams",
+    toAmino: MsgUpdateParams.toAmino,
+    fromAmino: MsgUpdateParams.fromAmino,
   },
 };
