@@ -7,12 +7,12 @@ OmniFlix blockchain ecosystem.
 ## Installation
 
 ```sh
-npm install omniflixjs-types
+npm install @omniflixnetwork/omniflixjs
 ```
 
 ## Table of contents
 
-- [OmniFlixJS Types](#omniflixjs-types)
+- [OmniFlixJS Types](#@omniflixnetwork/omniflixjs)
   - [Installation](#installation)
   - [Usage](#usage)
     - [RPC Clients](#rpc-clients)
@@ -38,7 +38,7 @@ npm install omniflixjs-types
 ```typescript
 import { DirectSecp256k1HdWallet, Registry } from "@cosmjs/proto-signing";
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { MsgMintONFT } from "omniflixjs-types/OmniFlix/onft/v1beta1/tx.js";
+import { MsgMintONFT } from "@omniflixnetwork/omniflixjs/OmniFlix/onft/v1beta1/tx.js";
 ```
 
 #### Configuring Network and Wallet
@@ -120,7 +120,7 @@ import {
   MsgCreateDenom,
   MsgUpdateDenom,
   MsgTransferDenom,
-} from "omniflixjs-types/OmniFlix/onft/v1beta1/tx.js";
+} from "@omniflixnetwork/omniflixjs/OmniFlix/onft/v1beta1/tx.js";
 ```
 
 #### Marketplace
@@ -135,7 +135,7 @@ import {
   MsgCreateAuction,
   MsgCancelAuction,
   MsgPlaceBid,
-} from "omniflixjs-types/OmniFlix/marketplace/v1beta1/tx.js";
+} from "@omniflixnetwork/omniflixjs/OmniFlix/marketplace/v1beta1/tx.js";
 ```
 
 #### ITC
@@ -143,11 +143,11 @@ The ITC (Incentivized TestNet Campaign) module manages testnet incentive campaig
 
 ```typescript
 import {
-    MsgCreateCampaign,
+  MsgCreateCampaign,
   MsgCancelCampaign,
   MsgClaim,
   MsgDepositCampaign
-} from "omniflixjs-types/OmniFlix/itc/v1/tx.js";
+} from "@omniflixnetwork/omniflixjs/OmniFlix/itc/v1/tx.js";
 ```
 
 #### StreamPay
@@ -159,7 +159,7 @@ import {
   MsgStopStream,
   MsgClaimStreamedAmount,
   MsgUpdateParams
-} from "omniflixjs-types/OmniFlix/streampay/v1beta1/tx.js";
+} from "@omniflixnetwork/omniflixjs/OmniFlix/streampay/v1beta1/tx.js";
 
 // Create stream
  const stream = MsgStreamSend.fromPartial({
@@ -192,7 +192,7 @@ import {
   MsgSetDenomMetadata,
   MsgForceTransfer,
   MsgUpdateParams,
-} from "omniflixjs-types/osmosis/tokenfactory/v1beta1/tx.js";
+} from "@omniflixnetwork/omniflixjs/osmosis/tokenfactory/v1beta1/tx.js";
 ```
 
 ## Requirements
