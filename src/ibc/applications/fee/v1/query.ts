@@ -1,6 +1,11 @@
 //@ts-nocheck
 /* eslint-disable */
-import { PageRequest, PageRequestAmino } from "../../../../cosmos/base/query/v1beta1/pagination";
+import {
+  PageRequest,
+  PageRequestAmino,
+  PageResponse,
+  PageResponseAmino,
+} from "../../../../cosmos/base/query/v1beta1/pagination";
 import { PacketId, PacketIdAmino } from "../../../core/channel/v1/channel";
 import { IdentifiedPacketFees, IdentifiedPacketFeesAmino } from "./fee";
 import { Coin, CoinAmino } from "../../../../cosmos/base/v1beta1/coin";
@@ -34,6 +39,8 @@ export interface QueryIncentivizedPacketsRequestAminoMsg {
 export interface QueryIncentivizedPacketsResponse {
   /** list of identified fees for incentivized packets */
   incentivizedPackets: IdentifiedPacketFees[];
+  /** pagination defines the pagination in the response. */
+  pagination?: PageResponse;
 }
 export interface QueryIncentivizedPacketsResponseProtoMsg {
   typeUrl: "/ibc.applications.fee.v1.QueryIncentivizedPacketsResponse";
@@ -43,6 +50,8 @@ export interface QueryIncentivizedPacketsResponseProtoMsg {
 export interface QueryIncentivizedPacketsResponseAmino {
   /** list of identified fees for incentivized packets */
   incentivized_packets?: IdentifiedPacketFeesAmino[];
+  /** pagination defines the pagination in the response. */
+  pagination?: PageResponseAmino;
 }
 export interface QueryIncentivizedPacketsResponseAminoMsg {
   type: "cosmos-sdk/QueryIncentivizedPacketsResponse";
@@ -124,6 +133,8 @@ export interface QueryIncentivizedPacketsForChannelRequestAminoMsg {
 export interface QueryIncentivizedPacketsForChannelResponse {
   /** Map of all incentivized_packets */
   incentivizedPackets: IdentifiedPacketFees[];
+  /** pagination defines the pagination in the response. */
+  pagination?: PageResponse;
 }
 export interface QueryIncentivizedPacketsForChannelResponseProtoMsg {
   typeUrl: "/ibc.applications.fee.v1.QueryIncentivizedPacketsForChannelResponse";
@@ -133,6 +144,8 @@ export interface QueryIncentivizedPacketsForChannelResponseProtoMsg {
 export interface QueryIncentivizedPacketsForChannelResponseAmino {
   /** Map of all incentivized_packets */
   incentivized_packets?: IdentifiedPacketFeesAmino[];
+  /** pagination defines the pagination in the response. */
+  pagination?: PageResponseAmino;
 }
 export interface QueryIncentivizedPacketsForChannelResponseAminoMsg {
   type: "cosmos-sdk/QueryIncentivizedPacketsForChannelResponse";
@@ -352,6 +365,8 @@ export interface QueryFeeEnabledChannelsRequestAminoMsg {
 export interface QueryFeeEnabledChannelsResponse {
   /** list of fee enabled channels */
   feeEnabledChannels: FeeEnabledChannel[];
+  /** pagination defines the pagination in the response. */
+  pagination?: PageResponse;
 }
 export interface QueryFeeEnabledChannelsResponseProtoMsg {
   typeUrl: "/ibc.applications.fee.v1.QueryFeeEnabledChannelsResponse";
@@ -361,6 +376,8 @@ export interface QueryFeeEnabledChannelsResponseProtoMsg {
 export interface QueryFeeEnabledChannelsResponseAmino {
   /** list of fee enabled channels */
   fee_enabled_channels?: FeeEnabledChannelAmino[];
+  /** pagination defines the pagination in the response. */
+  pagination?: PageResponseAmino;
 }
 export interface QueryFeeEnabledChannelsResponseAminoMsg {
   type: "cosmos-sdk/QueryFeeEnabledChannelsResponse";
@@ -499,6 +516,7 @@ export const QueryIncentivizedPacketsRequest = {
 function createBaseQueryIncentivizedPacketsResponse(): QueryIncentivizedPacketsResponse {
   return {
     incentivizedPackets: [],
+    pagination: undefined,
   };
 }
 export const QueryIncentivizedPacketsResponse = {
@@ -509,6 +527,9 @@ export const QueryIncentivizedPacketsResponse = {
   ): BinaryWriter {
     for (const v of message.incentivizedPackets) {
       IdentifiedPacketFees.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.pagination !== undefined) {
+      PageResponse.encode(message.pagination, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -521,6 +542,9 @@ export const QueryIncentivizedPacketsResponse = {
       switch (tag >>> 3) {
         case 1:
           message.incentivizedPackets.push(IdentifiedPacketFees.decode(reader, reader.uint32()));
+          break;
+        case 2:
+          message.pagination = PageResponse.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -535,12 +559,18 @@ export const QueryIncentivizedPacketsResponse = {
     const message = createBaseQueryIncentivizedPacketsResponse();
     message.incentivizedPackets =
       object.incentivizedPackets?.map((e) => IdentifiedPacketFees.fromPartial(e)) || [];
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageResponse.fromPartial(object.pagination);
+    }
     return message;
   },
   fromAmino(object: QueryIncentivizedPacketsResponseAmino): QueryIncentivizedPacketsResponse {
     const message = createBaseQueryIncentivizedPacketsResponse();
     message.incentivizedPackets =
       object.incentivized_packets?.map((e) => IdentifiedPacketFees.fromAmino(e)) || [];
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageResponse.fromAmino(object.pagination);
+    }
     return message;
   },
   toAmino(message: QueryIncentivizedPacketsResponse): QueryIncentivizedPacketsResponseAmino {
@@ -552,6 +582,7 @@ export const QueryIncentivizedPacketsResponse = {
     } else {
       obj.incentivized_packets = message.incentivizedPackets;
     }
+    obj.pagination = message.pagination ? PageResponse.toAmino(message.pagination) : undefined;
     return obj;
   },
   fromAminoMsg(object: QueryIncentivizedPacketsResponseAminoMsg): QueryIncentivizedPacketsResponse {
@@ -873,6 +904,7 @@ export const QueryIncentivizedPacketsForChannelRequest = {
 function createBaseQueryIncentivizedPacketsForChannelResponse(): QueryIncentivizedPacketsForChannelResponse {
   return {
     incentivizedPackets: [],
+    pagination: undefined,
   };
 }
 export const QueryIncentivizedPacketsForChannelResponse = {
@@ -883,6 +915,9 @@ export const QueryIncentivizedPacketsForChannelResponse = {
   ): BinaryWriter {
     for (const v of message.incentivizedPackets) {
       IdentifiedPacketFees.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.pagination !== undefined) {
+      PageResponse.encode(message.pagination, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -895,6 +930,9 @@ export const QueryIncentivizedPacketsForChannelResponse = {
       switch (tag >>> 3) {
         case 1:
           message.incentivizedPackets.push(IdentifiedPacketFees.decode(reader, reader.uint32()));
+          break;
+        case 2:
+          message.pagination = PageResponse.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -909,6 +947,9 @@ export const QueryIncentivizedPacketsForChannelResponse = {
     const message = createBaseQueryIncentivizedPacketsForChannelResponse();
     message.incentivizedPackets =
       object.incentivizedPackets?.map((e) => IdentifiedPacketFees.fromPartial(e)) || [];
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageResponse.fromPartial(object.pagination);
+    }
     return message;
   },
   fromAmino(
@@ -917,6 +958,9 @@ export const QueryIncentivizedPacketsForChannelResponse = {
     const message = createBaseQueryIncentivizedPacketsForChannelResponse();
     message.incentivizedPackets =
       object.incentivized_packets?.map((e) => IdentifiedPacketFees.fromAmino(e)) || [];
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageResponse.fromAmino(object.pagination);
+    }
     return message;
   },
   toAmino(
@@ -930,6 +974,7 @@ export const QueryIncentivizedPacketsForChannelResponse = {
     } else {
       obj.incentivized_packets = message.incentivizedPackets;
     }
+    obj.pagination = message.pagination ? PageResponse.toAmino(message.pagination) : undefined;
     return obj;
   },
   fromAminoMsg(
@@ -1800,6 +1845,7 @@ export const QueryFeeEnabledChannelsRequest = {
 function createBaseQueryFeeEnabledChannelsResponse(): QueryFeeEnabledChannelsResponse {
   return {
     feeEnabledChannels: [],
+    pagination: undefined,
   };
 }
 export const QueryFeeEnabledChannelsResponse = {
@@ -1810,6 +1856,9 @@ export const QueryFeeEnabledChannelsResponse = {
   ): BinaryWriter {
     for (const v of message.feeEnabledChannels) {
       FeeEnabledChannel.encode(v!, writer.uint32(10).fork()).ldelim();
+    }
+    if (message.pagination !== undefined) {
+      PageResponse.encode(message.pagination, writer.uint32(18).fork()).ldelim();
     }
     return writer;
   },
@@ -1822,6 +1871,9 @@ export const QueryFeeEnabledChannelsResponse = {
       switch (tag >>> 3) {
         case 1:
           message.feeEnabledChannels.push(FeeEnabledChannel.decode(reader, reader.uint32()));
+          break;
+        case 2:
+          message.pagination = PageResponse.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -1836,12 +1888,18 @@ export const QueryFeeEnabledChannelsResponse = {
     const message = createBaseQueryFeeEnabledChannelsResponse();
     message.feeEnabledChannels =
       object.feeEnabledChannels?.map((e) => FeeEnabledChannel.fromPartial(e)) || [];
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageResponse.fromPartial(object.pagination);
+    }
     return message;
   },
   fromAmino(object: QueryFeeEnabledChannelsResponseAmino): QueryFeeEnabledChannelsResponse {
     const message = createBaseQueryFeeEnabledChannelsResponse();
     message.feeEnabledChannels =
       object.fee_enabled_channels?.map((e) => FeeEnabledChannel.fromAmino(e)) || [];
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageResponse.fromAmino(object.pagination);
+    }
     return message;
   },
   toAmino(message: QueryFeeEnabledChannelsResponse): QueryFeeEnabledChannelsResponseAmino {
@@ -1853,6 +1911,7 @@ export const QueryFeeEnabledChannelsResponse = {
     } else {
       obj.fee_enabled_channels = message.feeEnabledChannels;
     }
+    obj.pagination = message.pagination ? PageResponse.toAmino(message.pagination) : undefined;
     return obj;
   },
   fromAminoMsg(object: QueryFeeEnabledChannelsResponseAminoMsg): QueryFeeEnabledChannelsResponse {

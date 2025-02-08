@@ -131,7 +131,7 @@ export interface QueryContractHistoryResponseAminoMsg {
  * RPC method
  */
 export interface QueryContractsByCodeRequest {
-  /** grpc-gateway_out does not support Go style CodeID */
+  /** grpc-gateway_out does not support Go style CodID */
   codeId: bigint;
   /** pagination defines an optional pagination for the request. */
   pagination?: PageRequest;
@@ -145,7 +145,7 @@ export interface QueryContractsByCodeRequestProtoMsg {
  * RPC method
  */
 export interface QueryContractsByCodeRequestAmino {
-  /** grpc-gateway_out does not support Go style CodeID */
+  /** grpc-gateway_out does not support Go style CodID */
   code_id?: string;
   /** pagination defines an optional pagination for the request. */
   pagination?: PageRequestAmino;
@@ -340,7 +340,7 @@ export interface QuerySmartContractStateResponseAminoMsg {
 }
 /** QueryCodeRequest is the request type for the Query/Code RPC method */
 export interface QueryCodeRequest {
-  /** grpc-gateway_out does not support Go style CodeID */
+  /** grpc-gateway_out does not support Go style CodID */
   codeId: bigint;
 }
 export interface QueryCodeRequestProtoMsg {
@@ -349,52 +349,12 @@ export interface QueryCodeRequestProtoMsg {
 }
 /** QueryCodeRequest is the request type for the Query/Code RPC method */
 export interface QueryCodeRequestAmino {
-  /** grpc-gateway_out does not support Go style CodeID */
+  /** grpc-gateway_out does not support Go style CodID */
   code_id?: string;
 }
 export interface QueryCodeRequestAminoMsg {
   type: "wasm/QueryCodeRequest";
   value: QueryCodeRequestAmino;
-}
-/** QueryCodeInfoRequest is the request type for the Query/CodeInfo RPC method */
-export interface QueryCodeInfoRequest {
-  /** grpc-gateway_out does not support Go style CodeID */
-  codeId: bigint;
-}
-export interface QueryCodeInfoRequestProtoMsg {
-  typeUrl: "/cosmwasm.wasm.v1.QueryCodeInfoRequest";
-  value: Uint8Array;
-}
-/** QueryCodeInfoRequest is the request type for the Query/CodeInfo RPC method */
-export interface QueryCodeInfoRequestAmino {
-  /** grpc-gateway_out does not support Go style CodeID */
-  code_id?: string;
-}
-export interface QueryCodeInfoRequestAminoMsg {
-  type: "wasm/QueryCodeInfoRequest";
-  value: QueryCodeInfoRequestAmino;
-}
-/** QueryCodeInfoResponse is the response type for the Query/CodeInfo RPC method */
-export interface QueryCodeInfoResponse {
-  codeId: bigint;
-  creator: string;
-  checksum: Uint8Array;
-  instantiatePermission: AccessConfig;
-}
-export interface QueryCodeInfoResponseProtoMsg {
-  typeUrl: "/cosmwasm.wasm.v1.QueryCodeInfoResponse";
-  value: Uint8Array;
-}
-/** QueryCodeInfoResponse is the response type for the Query/CodeInfo RPC method */
-export interface QueryCodeInfoResponseAmino {
-  code_id?: string;
-  creator?: string;
-  checksum?: string;
-  instantiate_permission: AccessConfigAmino;
-}
-export interface QueryCodeInfoResponseAminoMsg {
-  type: "wasm/QueryCodeInfoResponse";
-  value: QueryCodeInfoResponseAmino;
 }
 /** CodeInfoResponse contains code meta data from CodeInfo */
 export interface CodeInfoResponse {
@@ -609,48 +569,6 @@ export interface QueryContractsByCreatorResponseAmino {
 export interface QueryContractsByCreatorResponseAminoMsg {
   type: "wasm/QueryContractsByCreatorResponse";
   value: QueryContractsByCreatorResponseAmino;
-}
-/**
- * QueryWasmLimitsConfigRequest is the request type for the
- * Query/WasmLimitsConfig RPC method.
- */
-export interface QueryWasmLimitsConfigRequest {}
-export interface QueryWasmLimitsConfigRequestProtoMsg {
-  typeUrl: "/cosmwasm.wasm.v1.QueryWasmLimitsConfigRequest";
-  value: Uint8Array;
-}
-/**
- * QueryWasmLimitsConfigRequest is the request type for the
- * Query/WasmLimitsConfig RPC method.
- */
-export interface QueryWasmLimitsConfigRequestAmino {}
-export interface QueryWasmLimitsConfigRequestAminoMsg {
-  type: "wasm/QueryWasmLimitsConfigRequest";
-  value: QueryWasmLimitsConfigRequestAmino;
-}
-/**
- * QueryWasmLimitsConfigResponse is the response type for the
- * Query/WasmLimitsConfig RPC method. It contains the JSON encoded limits for
- * static validation of Wasm files.
- */
-export interface QueryWasmLimitsConfigResponse {
-  config: string;
-}
-export interface QueryWasmLimitsConfigResponseProtoMsg {
-  typeUrl: "/cosmwasm.wasm.v1.QueryWasmLimitsConfigResponse";
-  value: Uint8Array;
-}
-/**
- * QueryWasmLimitsConfigResponse is the response type for the
- * Query/WasmLimitsConfig RPC method. It contains the JSON encoded limits for
- * static validation of Wasm files.
- */
-export interface QueryWasmLimitsConfigResponseAmino {
-  config?: string;
-}
-export interface QueryWasmLimitsConfigResponseAminoMsg {
-  type: "wasm/QueryWasmLimitsConfigResponse";
-  value: QueryWasmLimitsConfigResponseAmino;
 }
 /**
  * QueryBuildAddressRequest is the request type for the Query/BuildAddress RPC
@@ -1779,188 +1697,6 @@ export const QueryCodeRequest = {
     };
   },
 };
-function createBaseQueryCodeInfoRequest(): QueryCodeInfoRequest {
-  return {
-    codeId: BigInt(0),
-  };
-}
-export const QueryCodeInfoRequest = {
-  typeUrl: "/cosmwasm.wasm.v1.QueryCodeInfoRequest",
-  encode(message: QueryCodeInfoRequest, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
-    if (message.codeId !== BigInt(0)) {
-      writer.uint32(8).uint64(message.codeId);
-    }
-    return writer;
-  },
-  decode(input: BinaryReader | Uint8Array, length?: number): QueryCodeInfoRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQueryCodeInfoRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.codeId = reader.uint64();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromPartial<I extends Exact<DeepPartial<QueryCodeInfoRequest>, I>>(object: I): QueryCodeInfoRequest {
-    const message = createBaseQueryCodeInfoRequest();
-    if (object.codeId !== undefined && object.codeId !== null) {
-      message.codeId = BigInt(object.codeId.toString());
-    }
-    return message;
-  },
-  fromAmino(object: QueryCodeInfoRequestAmino): QueryCodeInfoRequest {
-    const message = createBaseQueryCodeInfoRequest();
-    if (object.code_id !== undefined && object.code_id !== null) {
-      message.codeId = BigInt(object.code_id);
-    }
-    return message;
-  },
-  toAmino(message: QueryCodeInfoRequest): QueryCodeInfoRequestAmino {
-    const obj: any = {};
-    obj.code_id = message.codeId !== BigInt(0) ? message.codeId?.toString() : undefined;
-    return obj;
-  },
-  fromAminoMsg(object: QueryCodeInfoRequestAminoMsg): QueryCodeInfoRequest {
-    return QueryCodeInfoRequest.fromAmino(object.value);
-  },
-  toAminoMsg(message: QueryCodeInfoRequest): QueryCodeInfoRequestAminoMsg {
-    return {
-      type: "wasm/QueryCodeInfoRequest",
-      value: QueryCodeInfoRequest.toAmino(message),
-    };
-  },
-  fromProtoMsg(message: QueryCodeInfoRequestProtoMsg): QueryCodeInfoRequest {
-    return QueryCodeInfoRequest.decode(message.value);
-  },
-  toProto(message: QueryCodeInfoRequest): Uint8Array {
-    return QueryCodeInfoRequest.encode(message).finish();
-  },
-  toProtoMsg(message: QueryCodeInfoRequest): QueryCodeInfoRequestProtoMsg {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.QueryCodeInfoRequest",
-      value: QueryCodeInfoRequest.encode(message).finish(),
-    };
-  },
-};
-function createBaseQueryCodeInfoResponse(): QueryCodeInfoResponse {
-  return {
-    codeId: BigInt(0),
-    creator: "",
-    checksum: new Uint8Array(),
-    instantiatePermission: AccessConfig.fromPartial({}),
-  };
-}
-export const QueryCodeInfoResponse = {
-  typeUrl: "/cosmwasm.wasm.v1.QueryCodeInfoResponse",
-  encode(message: QueryCodeInfoResponse, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
-    if (message.codeId !== BigInt(0)) {
-      writer.uint32(8).uint64(message.codeId);
-    }
-    if (message.creator !== "") {
-      writer.uint32(18).string(message.creator);
-    }
-    if (message.checksum.length !== 0) {
-      writer.uint32(26).bytes(message.checksum);
-    }
-    if (message.instantiatePermission !== undefined) {
-      AccessConfig.encode(message.instantiatePermission, writer.uint32(34).fork()).ldelim();
-    }
-    return writer;
-  },
-  decode(input: BinaryReader | Uint8Array, length?: number): QueryCodeInfoResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQueryCodeInfoResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.codeId = reader.uint64();
-          break;
-        case 2:
-          message.creator = reader.string();
-          break;
-        case 3:
-          message.checksum = reader.bytes();
-          break;
-        case 4:
-          message.instantiatePermission = AccessConfig.decode(reader, reader.uint32());
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromPartial<I extends Exact<DeepPartial<QueryCodeInfoResponse>, I>>(object: I): QueryCodeInfoResponse {
-    const message = createBaseQueryCodeInfoResponse();
-    if (object.codeId !== undefined && object.codeId !== null) {
-      message.codeId = BigInt(object.codeId.toString());
-    }
-    message.creator = object.creator ?? "";
-    message.checksum = object.checksum ?? new Uint8Array();
-    if (object.instantiatePermission !== undefined && object.instantiatePermission !== null) {
-      message.instantiatePermission = AccessConfig.fromPartial(object.instantiatePermission);
-    }
-    return message;
-  },
-  fromAmino(object: QueryCodeInfoResponseAmino): QueryCodeInfoResponse {
-    const message = createBaseQueryCodeInfoResponse();
-    if (object.code_id !== undefined && object.code_id !== null) {
-      message.codeId = BigInt(object.code_id);
-    }
-    if (object.creator !== undefined && object.creator !== null) {
-      message.creator = object.creator;
-    }
-    if (object.checksum !== undefined && object.checksum !== null) {
-      message.checksum = bytesFromBase64(object.checksum);
-    }
-    if (object.instantiate_permission !== undefined && object.instantiate_permission !== null) {
-      message.instantiatePermission = AccessConfig.fromAmino(object.instantiate_permission);
-    }
-    return message;
-  },
-  toAmino(message: QueryCodeInfoResponse): QueryCodeInfoResponseAmino {
-    const obj: any = {};
-    obj.code_id = message.codeId !== BigInt(0) ? message.codeId?.toString() : undefined;
-    obj.creator = message.creator === "" ? undefined : message.creator;
-    obj.checksum = message.checksum ? base64FromBytes(message.checksum) : undefined;
-    obj.instantiate_permission = message.instantiatePermission
-      ? AccessConfig.toAmino(message.instantiatePermission)
-      : AccessConfig.toAmino(AccessConfig.fromPartial({}));
-    return obj;
-  },
-  fromAminoMsg(object: QueryCodeInfoResponseAminoMsg): QueryCodeInfoResponse {
-    return QueryCodeInfoResponse.fromAmino(object.value);
-  },
-  toAminoMsg(message: QueryCodeInfoResponse): QueryCodeInfoResponseAminoMsg {
-    return {
-      type: "wasm/QueryCodeInfoResponse",
-      value: QueryCodeInfoResponse.toAmino(message),
-    };
-  },
-  fromProtoMsg(message: QueryCodeInfoResponseProtoMsg): QueryCodeInfoResponse {
-    return QueryCodeInfoResponse.decode(message.value);
-  },
-  toProto(message: QueryCodeInfoResponse): Uint8Array {
-    return QueryCodeInfoResponse.encode(message).finish();
-  },
-  toProtoMsg(message: QueryCodeInfoResponse): QueryCodeInfoResponseProtoMsg {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.QueryCodeInfoResponse",
-      value: QueryCodeInfoResponse.encode(message).finish(),
-    };
-  },
-};
 function createBaseCodeInfoResponse(): CodeInfoResponse {
   return {
     codeId: BigInt(0),
@@ -2783,135 +2519,6 @@ export const QueryContractsByCreatorResponse = {
     };
   },
 };
-function createBaseQueryWasmLimitsConfigRequest(): QueryWasmLimitsConfigRequest {
-  return {};
-}
-export const QueryWasmLimitsConfigRequest = {
-  typeUrl: "/cosmwasm.wasm.v1.QueryWasmLimitsConfigRequest",
-  encode(_: QueryWasmLimitsConfigRequest, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
-    return writer;
-  },
-  decode(input: BinaryReader | Uint8Array, length?: number): QueryWasmLimitsConfigRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQueryWasmLimitsConfigRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromPartial<I extends Exact<DeepPartial<QueryWasmLimitsConfigRequest>, I>>(
-    _: I,
-  ): QueryWasmLimitsConfigRequest {
-    const message = createBaseQueryWasmLimitsConfigRequest();
-    return message;
-  },
-  fromAmino(_: QueryWasmLimitsConfigRequestAmino): QueryWasmLimitsConfigRequest {
-    const message = createBaseQueryWasmLimitsConfigRequest();
-    return message;
-  },
-  toAmino(_: QueryWasmLimitsConfigRequest): QueryWasmLimitsConfigRequestAmino {
-    const obj: any = {};
-    return obj;
-  },
-  fromAminoMsg(object: QueryWasmLimitsConfigRequestAminoMsg): QueryWasmLimitsConfigRequest {
-    return QueryWasmLimitsConfigRequest.fromAmino(object.value);
-  },
-  toAminoMsg(message: QueryWasmLimitsConfigRequest): QueryWasmLimitsConfigRequestAminoMsg {
-    return {
-      type: "wasm/QueryWasmLimitsConfigRequest",
-      value: QueryWasmLimitsConfigRequest.toAmino(message),
-    };
-  },
-  fromProtoMsg(message: QueryWasmLimitsConfigRequestProtoMsg): QueryWasmLimitsConfigRequest {
-    return QueryWasmLimitsConfigRequest.decode(message.value);
-  },
-  toProto(message: QueryWasmLimitsConfigRequest): Uint8Array {
-    return QueryWasmLimitsConfigRequest.encode(message).finish();
-  },
-  toProtoMsg(message: QueryWasmLimitsConfigRequest): QueryWasmLimitsConfigRequestProtoMsg {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.QueryWasmLimitsConfigRequest",
-      value: QueryWasmLimitsConfigRequest.encode(message).finish(),
-    };
-  },
-};
-function createBaseQueryWasmLimitsConfigResponse(): QueryWasmLimitsConfigResponse {
-  return {
-    config: "",
-  };
-}
-export const QueryWasmLimitsConfigResponse = {
-  typeUrl: "/cosmwasm.wasm.v1.QueryWasmLimitsConfigResponse",
-  encode(message: QueryWasmLimitsConfigResponse, writer: BinaryWriter = BinaryWriter.create()): BinaryWriter {
-    if (message.config !== "") {
-      writer.uint32(10).string(message.config);
-    }
-    return writer;
-  },
-  decode(input: BinaryReader | Uint8Array, length?: number): QueryWasmLimitsConfigResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    let end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseQueryWasmLimitsConfigResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1:
-          message.config = reader.string();
-          break;
-        default:
-          reader.skipType(tag & 7);
-          break;
-      }
-    }
-    return message;
-  },
-  fromPartial<I extends Exact<DeepPartial<QueryWasmLimitsConfigResponse>, I>>(
-    object: I,
-  ): QueryWasmLimitsConfigResponse {
-    const message = createBaseQueryWasmLimitsConfigResponse();
-    message.config = object.config ?? "";
-    return message;
-  },
-  fromAmino(object: QueryWasmLimitsConfigResponseAmino): QueryWasmLimitsConfigResponse {
-    const message = createBaseQueryWasmLimitsConfigResponse();
-    if (object.config !== undefined && object.config !== null) {
-      message.config = object.config;
-    }
-    return message;
-  },
-  toAmino(message: QueryWasmLimitsConfigResponse): QueryWasmLimitsConfigResponseAmino {
-    const obj: any = {};
-    obj.config = message.config === "" ? undefined : message.config;
-    return obj;
-  },
-  fromAminoMsg(object: QueryWasmLimitsConfigResponseAminoMsg): QueryWasmLimitsConfigResponse {
-    return QueryWasmLimitsConfigResponse.fromAmino(object.value);
-  },
-  toAminoMsg(message: QueryWasmLimitsConfigResponse): QueryWasmLimitsConfigResponseAminoMsg {
-    return {
-      type: "wasm/QueryWasmLimitsConfigResponse",
-      value: QueryWasmLimitsConfigResponse.toAmino(message),
-    };
-  },
-  fromProtoMsg(message: QueryWasmLimitsConfigResponseProtoMsg): QueryWasmLimitsConfigResponse {
-    return QueryWasmLimitsConfigResponse.decode(message.value);
-  },
-  toProto(message: QueryWasmLimitsConfigResponse): Uint8Array {
-    return QueryWasmLimitsConfigResponse.encode(message).finish();
-  },
-  toProtoMsg(message: QueryWasmLimitsConfigResponse): QueryWasmLimitsConfigResponseProtoMsg {
-    return {
-      typeUrl: "/cosmwasm.wasm.v1.QueryWasmLimitsConfigResponse",
-      value: QueryWasmLimitsConfigResponse.encode(message).finish(),
-    };
-  },
-};
 function createBaseQueryBuildAddressRequest(): QueryBuildAddressRequest {
   return {
     codeHash: "",
@@ -3104,23 +2711,16 @@ export interface Query {
   RawContractState(request: QueryRawContractStateRequest): Promise<QueryRawContractStateResponse>;
   /** SmartContractState get smart query result from the contract */
   SmartContractState(request: QuerySmartContractStateRequest): Promise<QuerySmartContractStateResponse>;
-  /** Code gets the binary code and metadata for a single wasm code */
+  /** Code gets the binary code and metadata for a singe wasm code */
   Code(request: QueryCodeRequest): Promise<QueryCodeResponse>;
   /** Codes gets the metadata for all stored wasm codes */
   Codes(request?: QueryCodesRequest): Promise<QueryCodesResponse>;
-  /** CodeInfo gets the metadata for a single wasm code */
-  CodeInfo(request: QueryCodeInfoRequest): Promise<QueryCodeInfoResponse>;
   /** PinnedCodes gets the pinned code ids */
   PinnedCodes(request?: QueryPinnedCodesRequest): Promise<QueryPinnedCodesResponse>;
   /** Params gets the module params */
   Params(request?: QueryParamsRequest): Promise<QueryParamsResponse>;
   /** ContractsByCreator gets the contracts by creator */
   ContractsByCreator(request: QueryContractsByCreatorRequest): Promise<QueryContractsByCreatorResponse>;
-  /**
-   * WasmLimitsConfig gets the configured limits for static validation of Wasm
-   * files, encoded in JSON.
-   */
-  WasmLimitsConfig(request?: QueryWasmLimitsConfigRequest): Promise<QueryWasmLimitsConfigResponse>;
   /** BuildAddress builds a contract address */
   BuildAddress(request: QueryBuildAddressRequest): Promise<QueryBuildAddressResponse>;
 }
@@ -3136,11 +2736,9 @@ export class QueryClientImpl implements Query {
     this.SmartContractState = this.SmartContractState.bind(this);
     this.Code = this.Code.bind(this);
     this.Codes = this.Codes.bind(this);
-    this.CodeInfo = this.CodeInfo.bind(this);
     this.PinnedCodes = this.PinnedCodes.bind(this);
     this.Params = this.Params.bind(this);
     this.ContractsByCreator = this.ContractsByCreator.bind(this);
-    this.WasmLimitsConfig = this.WasmLimitsConfig.bind(this);
     this.BuildAddress = this.BuildAddress.bind(this);
   }
   ContractInfo(request: QueryContractInfoRequest): Promise<QueryContractInfoResponse> {
@@ -3187,11 +2785,6 @@ export class QueryClientImpl implements Query {
     const promise = this.rpc.request("cosmwasm.wasm.v1.Query", "Codes", data);
     return promise.then((data) => QueryCodesResponse.decode(new BinaryReader(data)));
   }
-  CodeInfo(request: QueryCodeInfoRequest): Promise<QueryCodeInfoResponse> {
-    const data = QueryCodeInfoRequest.encode(request).finish();
-    const promise = this.rpc.request("cosmwasm.wasm.v1.Query", "CodeInfo", data);
-    return promise.then((data) => QueryCodeInfoResponse.decode(new BinaryReader(data)));
-  }
   PinnedCodes(
     request: QueryPinnedCodesRequest = {
       pagination: PageRequest.fromPartial({}),
@@ -3210,11 +2803,6 @@ export class QueryClientImpl implements Query {
     const data = QueryContractsByCreatorRequest.encode(request).finish();
     const promise = this.rpc.request("cosmwasm.wasm.v1.Query", "ContractsByCreator", data);
     return promise.then((data) => QueryContractsByCreatorResponse.decode(new BinaryReader(data)));
-  }
-  WasmLimitsConfig(request: QueryWasmLimitsConfigRequest = {}): Promise<QueryWasmLimitsConfigResponse> {
-    const data = QueryWasmLimitsConfigRequest.encode(request).finish();
-    const promise = this.rpc.request("cosmwasm.wasm.v1.Query", "WasmLimitsConfig", data);
-    return promise.then((data) => QueryWasmLimitsConfigResponse.decode(new BinaryReader(data)));
   }
   BuildAddress(request: QueryBuildAddressRequest): Promise<QueryBuildAddressResponse> {
     const data = QueryBuildAddressRequest.encode(request).finish();

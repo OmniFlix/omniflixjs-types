@@ -3,11 +3,6 @@ yarn.lock
 
 node_modules/
 
-/protos/ibc-go
-/protos/wasmd
-/protos/omniflixhub
-/protos/streampay
-
 /build/
 /confio/
 /cosmos/
